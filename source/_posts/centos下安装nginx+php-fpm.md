@@ -11,7 +11,7 @@ categories: 运维
 好久没装过PHP环境了，好久没有手动配置LNMP环境了，今天就让我头疼了一把！
 
 不过随着时间的推移，yum的源里越来越多的库可以直接使用了，现在自己在配置nginx和php环境就不再需要源码编译，也不再需要往yum中添加啥源了，直接就可以通过下面的命令完成安装：
-
+<!--more-->
 ```
 yum install -y nginx php php-fpm
 ```
@@ -30,7 +30,7 @@ vi /etc/php-fpm.d/www.conf
 将`Unix user/group of processes`改成你os对应的设置，例如：
 
 ```
-user = www 
+user = www
 group = www  
 ```
 
@@ -54,7 +54,7 @@ location ~ \.php$ {
 一切就绪，就可以分别开启对应服务了：
 
 ```
-/etc/init.d/php-fpm restart 
+/etc/init.d/php-fpm restart
 /etc/init.d/nginx restart  
 ```
 
