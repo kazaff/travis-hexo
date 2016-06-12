@@ -112,4 +112,4 @@ feed:
 deploy:
   type: git
   repo:
-    github: https://github.com/kazaff/nodejs-hexo.git
+    github: git@github.com:kazaff/travis-hexo.git
