@@ -1,4 +1,4 @@
-title: [转]调整虚拟机中ubuntu server屏幕分辨率
+title: 【转】调整虚拟机中ubuntu server屏幕分辨率
 date: 2016-06-13 09:37:12
 tags:
 - ubuntu
