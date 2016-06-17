@@ -94,3 +94,20 @@ docker login
 
 当然，后面我也会为我们的私有镜像仓库搭建TLS环境，到时候自然会完美解决这个问题！暂时让大家失望了，抱歉~小哥我真的是尽力了，不信看图：
 ![](http://pic.yupoo.com/kazaff/FDdXoiT8/medish.jpg)
+
+依旧别高兴太早，还记得我的docker环境么？虽然我们解决了宿主机下使用私有仓库的TLS问题，但我的物理机是window啊，我使用docker toolbox安装的docker依然无法使用我们的私有仓库，唉，这就是坎坷。不过知道了问题的本质就好办了，只需要看一下[win环境下如何设置insecure-registry](http://stackoverflow.com/questions/30654306/allow-insecure-registry-in-host-provisioned-with-docker-machine)即可：
+
+```
+vi ~/.docker/machine/machines/dev/config.json
+```
+找到文件中下面这段配置按需修改即可：
+```
+"EngineOptions": {
+        "InsecureRegistry": [
+            "192.168.1.23:5000"
+        ],
+    }
+```
+注意，这里我填写的是私有镜像仓库的宿主机（ubuntu）的端口通过virtualbox网络配置映射到物理机对应端口后，使用的物理机地址，原因你应该已经猜到了，我就不啰嗦了。
+
+总算踉踉跄跄配好了个粗狂版~
