@@ -7,7 +7,7 @@ categories: 运维
 ---
 
 在[上一篇](http://blog.kazaff.me/2016/06/16/%E5%B0%9D%E8%AF%95%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90--%E7%AC%AC%E4%B8%80%E7%89%88/)中，我们已经把gitlabCI生成的镜像推送到[灵雀云](https://hub.alauda.cn/repos/kazaff/hello-kazaff)上面。不过这还不够，毕竟真实项目的镜像还是需要放在内网环境下才能避免不必要的麻烦和确保良好的下载速度（说白了就是没钱买私有镜像仓库~~）。
-
+<!--more-->
 首先，我们先把之前的那个demo项目的`.gitlab-ci.yml`修改一下：
 ```
 build:image:
