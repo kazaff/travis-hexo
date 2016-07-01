@@ -10,7 +10,7 @@ categories: 运维
 
 之前我们的registry是裸奔的，今天我们就给它穿点衣服~
 参考主流的做法，就是搭建一个nginx节点来做registry的反向代理，然后在nginx上配置ssl证书来达到安全校验的目的。
-
+<!--more-->
 基于docker的话，我们只需根据nginx的官方镜像创建一个容器即可：
 ```
 docker run --name nginx --restart=always -p 443:443 -v /www:/www \
