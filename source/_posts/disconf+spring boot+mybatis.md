@@ -59,7 +59,7 @@ categories: 运维
 
 第一步比较好搞：
 
-```
+```java
 		@Bean(name = "dataSource")
     public DataSource dataSource(DBConfig dbConfig){
         return  DataSourceBuilder.create()
@@ -98,7 +98,7 @@ categories: 运维
 
 就是自己创建datasource覆盖spring boot默认的即可，上面的例子中使用到的`DBConfig`类正是与disconf结合的点：
 
-```
+```java
 @DisconfFile(filename = "db.properties")
 public class DBConfig {
     private String url;
@@ -152,7 +152,7 @@ public class DBConfig {
 
 依葫芦画瓢，我们也这么做：
 
-```
+```java
 public class DisconfDataSource extends AbstractRoutingDataSource {
     @Override
     protected Object determineCurrentLookupKey(){
@@ -165,7 +165,7 @@ public class DisconfDataSource extends AbstractRoutingDataSource {
 
 然后我们将第一步中定义的`dataSource`修改一下：
 
-```
+```java
 	 @Bean(name = "dataSource")
 	 public DataSource dataSource(DBConfig dbConfig){
 			 DataSource ds =  DataSourceBuilder.create()
@@ -187,7 +187,7 @@ public class DisconfDataSource extends AbstractRoutingDataSource {
 
 注意这里我们要保持那个自定义的标识位一致。做到这里，我们其实已经让mybatis使用我们指定的数据源了，根据disconf官方的[Tutorial 14 ](https://github.com/knightliao/disconf/wiki/Tutorial14-bean-setter-mode)，我们还需要为对应的变更事件绑定回调：
 
-```
+```java
 @Service
 @DisconfUpdateService(classes = {DBConfig.class})
 public class sqlSessionFactoryUpdateCallback implements IDisconfUpdate {
@@ -219,7 +219,7 @@ public class sqlSessionFactoryUpdateCallback implements IDisconfUpdate {
 
 注意`reload`方法的**最后一行**，由于我们的目的是替换旧的数据源（而非在多个数据源之间切换），所以我们必须避免使用`AbstractRoutingDataSource`为我们缓存起来的数据源，我们可以看一下这个`afterPropertiesSet`方法的实现细节：
 
-```
+```java
 public void afterPropertiesSet() {
 		if (this.targetDataSources == null) {
 			throw new IllegalArgumentException("Property 'targetDataSources' is required");
