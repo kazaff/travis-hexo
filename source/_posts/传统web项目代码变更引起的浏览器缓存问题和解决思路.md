@@ -60,4 +60,4 @@ categories: 前端
 
 由于我们当前的项目是基于[这个框架](http://blog.kazaff.me/2016/03/30/%E5%89%8D%E7%AB%AF%E5%A4%9A%E5%85%A5%E5%8F%A3%E9%A1%B9%E7%9B%AE%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E6%A0%B9%E6%8D%AE%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90%E9%85%8D%E7%BD%AE%E6%98%BE%E7%A4%BA%E8%8F%9C%E5%8D%95/)来组织代码的，所以前面提到的那个会导致手工修改工作量的问题在当前项目中其实不存在。而且，我们的思路中提到的路由表甚至都不需要生成，因为本身这个框架中就提供了每个模块的配置文件，我们只需要修改配置文件中对应项即可完成目标，简直了！
 
-根据具体情况，我在原有编译流程中增加了[这些逻辑](https://github.com/kazaff/menuIfShow/blob/htmlMd5/webpack.config.js#L77-L95)，轻松完成需求。
+根据具体情况，我在原有编译流程中增加了[这些逻辑](https://github.com/kazaff/menuIfShow/blob/master/webpack.config.js#L77-L105)，轻松完成需求。
