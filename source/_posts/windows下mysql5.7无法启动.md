@@ -4,7 +4,7 @@ tags:
 - mysql
 - window
 - 密码
-categories: 运维,数据库
+categories: 运维
 ---
 
 放了个周末，第一天上班就发现mysql无法启动了，阿西吧~
@@ -27,9 +27,9 @@ mysql安装的时候我也没有把它加到服务中，这下好了，我tm无�
 这一步做完，mysql会初始化创建它要使用的data数据！（这不是废话么！）
 
 然后将mysql加入到win的系统服务中：
- 
-	mysqld --install MySQL 
-  
+
+	mysqld --install MySQL
+
 或者先卸载服务:
 
 	mysqld --remove
