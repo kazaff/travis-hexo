@@ -9,7 +9,7 @@ categories: 运维
 之前写过一篇[《EC2下RedHat的nginx+php-fpm环境搭建小结》](http://blog.kazaff.me/2016/07/05/EC2%E4%B8%8BRedHat%E7%9A%84nginx+php-fpm%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%B0%8F%E7%BB%93/)。
 
 由于种种原因，这次要把nginx替换成apache，所以再总结一篇~~
-
+<!--more-->
 要在RedHat上安装我们的目标环境，先得找到合适的源：
 
 ```
