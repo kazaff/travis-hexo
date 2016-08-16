@@ -34,7 +34,7 @@ categories: 系统设计
 
 ```
 resource  ------>  permission  ------> account [ ------>  resource]
-          1     n              1     1           n     n
+          1     n              1     n           n     n
 ```        
 解释：
 
@@ -43,6 +43,8 @@ resource  ------>  permission  ------> account [ ------>  resource]
 * 一个权限设置绑定到多个帐号（根据type来确定和帐号的绑定类型，根据domain和emailAddress来确定具体哪个或哪些帐号）
 * 一个权限设置会预先设定好几个拥有不同操作范围的角色（role），具体关系可以看[官方文档](https://developers.google.com/drive/v3/web/manage-sharing#roles)
 * 最终，帐号就会和资源关联上，就是这么绕！
+
+其实只需要注意到，角色和权限的对应关系是固定的，而帐号和角色的关系是靠人为设定的，这两个环节只要一旦确定以后，自然就完成了帐号到资源的操作权限绑定。
 
 现在应该已经解释的很清楚了吧？上面的关系图中最后的account与resource的关系其实是根据前面的关系推出来的，而不是直接可以获取到的（除了在resource的metadata中的那几个特定帐号字段，个人猜测之所有会有这几个metadata，是为了性能）。
 
