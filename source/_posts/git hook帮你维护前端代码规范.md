@@ -49,6 +49,56 @@ npm i fecs-git-hooks
 - [js](https://github.com/ecomfe/spec/blob/master/javascript-style-guide.md)
 - [css](https://github.com/ecomfe/spec/blob/master/css-style-guide.md)
 
+## 规则自定义
+
+每个公司甚至每个团队都可能有自己的代码风格规范，这个不能强求，毕竟没有最好的规范，只有最合适的。
+
+那如果fecs默认的规范和我们的不匹配呢？也很简单，fecs提供了可配置文件来让我们设置是否开启某一项检查。
+
+那我的场景来说，我修复了所有的ERROR级别的错误，但是WARN级别的我个人觉得就无所谓了，但机器不这么认为，所以只要还存在一条不满足规范的代码就无法提交！
+
+根据[官方文档](https://github.com/ecomfe/fecs/wiki/Configuration)所述，我们可以在项目根目录添加一个`.fecsrc`配置文件。但官方并没有解释清楚配置项要怎么写，故意的吗？
+
+其实并不难，只需要根据git提交时报错的日志，每一行的最后一个`()`内就是这个配置项的名字，只需要分别出它到底是html，css还是js的配置项即可。
+
+然后在`.fecsrc`中这么写：
+```
+{
+  "htmlcs": {
+		"max-len": false,
+		"asset-type": false,
+		"style-disabled": false,
+		"lowercase-id-with-hyphen": false,
+		"lowercase-class-with-hyphen": false,
+		"indent-char": false,
+		"self-close": false,
+		"img-width-height": false,
+		"attr-lowercase": false,
+		"img-src": false,
+		"label-for-input": false,
+		"bool-attribute-value": false,
+		"attr-no-duplication": false
+	},
+	"csshint": {
+		"disallow-important": false
+	},
+	"eslint": {
+    "env": {
+        "es6": true
+    },
+    "rules": {
+        "no-console": 0
+    }
+  }
+}
+```
+
+你也可以查看都有哪些可配置的项目：
+
+- [csshint](https://github.com/ecomfe/fecs/blob/master/lib/css/csshint.yml)
+- [htmlcs](https://github.com/ecomfe/fecs/blob/master/lib/html/htmlcs.yml)
+- [eslint](https://github.com/ecomfe/fecs/blob/master/lib/js/eslint.yml)
+
 
 ## 不足
 
