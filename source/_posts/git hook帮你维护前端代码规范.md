@@ -62,7 +62,7 @@ npm i fecs-git-hooks
 其实并不难，只需要根据git提交时报错的日志，每一行的最后一个`()`内就是这个配置项的名字，只需要分别出它到底是html，css还是js的配置项即可。
 
 然后在`.fecsrc`中这么写：
-```
+```json
 {
   "htmlcs": {
 		"max-len": false,
@@ -83,13 +83,13 @@ npm i fecs-git-hooks
 		"disallow-important": false
 	},
 	"eslint": {
-    "env": {
-        "es6": true
-    },
-    "rules": {
-        "no-console": 0
-    }
-  }
+		"env": {
+		    "es6": true
+		},
+		"rules": {
+		    "no-console": 0
+		}
+	}
 }
 ```
 
