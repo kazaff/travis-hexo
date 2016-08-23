@@ -4,7 +4,7 @@ tags:
 - google
 - 权限
 - api
-categories: 系统设计
+categories: 架构
 ---
 
 
