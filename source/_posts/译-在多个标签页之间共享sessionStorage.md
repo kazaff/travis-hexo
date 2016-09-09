@@ -1,4 +1,4 @@
-title: [译]在多个标签页之间共享sessionStorage
+title: 译-在多个标签页之间共享sessionStorage
 date: 2016-09-09 09:37:12
 tags:
 - localStorage
