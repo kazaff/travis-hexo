@@ -11,7 +11,7 @@ categories: 前端
 紧接着上一篇[《小团队玩不转的测试》](http://blog.kazaff.me/2016/08/18/%E5%B0%8F%E5%9B%A2%E9%98%9F%E7%8E%A9%E4%B8%8D%E8%BD%AC%E7%9A%84%E6%B5%8B%E8%AF%95/)文章，我们继续来看看如何搭建一个端到端测试环境。
 
 废话不多说，直接开始动手，省的你说没干货:-)
-
+<!--more-->
 ## mocha-casperjs
 
 前一篇文章分别介绍过每个用到的插件，而此刻提到的这个组合，也是有前辈整合好了能开箱即用的：[mocha-casperjs](https://github.com/nathanboktae/mocha-casperjs)。
