@@ -11,7 +11,7 @@ categories: nodejs
 最近写完一个基于nodejs的组件后的我打算为其写一下单元测试，本以为之前了解过相当多的关于测试的知识，应该可以很顺利的搞定，可真的去写测试项的时候才发现依然存在一些需要克服的困难。不过，接下来翻译的这篇文章就是专门针对测试神器的，应该可以帮到和我一样的新手。
 
 原文地址：[https://www.sitepoint.com/sinon-tutorial-javascript-testing-mocks-spies-stubs/](https://www.sitepoint.com/sinon-tutorial-javascript-testing-mocks-spies-stubs/)
-
+<!--more-->
 译文
 ---
 
