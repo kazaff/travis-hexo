@@ -4,9 +4,7 @@ tags:
 - test
 - unit
 - Sinon
-categories:
-- nodejs
-- 前端
+categories: nodejs
 ---
 
 这几天在写一个采集程序，用nodejs。老实讲这是第二次（相对正式）写和采集有关的模块，第一次是因为要定时访问自身项目来触发缓存的，细节可以看[这里](http://blog.kazaff.me/2014/06/05/%E7%94%A8nodejs%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%B0%8F%E5%B0%8F%E7%88%AC%E8%99%AB/)。后来从上一家公司离职，也没有继续维护这个程序了。
