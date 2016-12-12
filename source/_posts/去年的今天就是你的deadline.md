@@ -145,4 +145,36 @@ That's All! 这里要安利一个很强大很主流的时间库：[Moment](http:
 </html>
 ```
 
-至于上面提到的“最后一个”问题，在你的业务中到底如何计算，我相信你可以通过上面4个方法的组合应用来得到你要的答案！我能帮的就这么多了，好自为之哟 o(∩_∩)o
+至于上面提到的“最后一个”问题，在你的业务中到底如何计算，我相信你可以通过上面4个方法的组合应用来得到你要的答案！我能帮的就这么多了，好自为之哟~~
+
+我的项目，获取去年同日的最终逻辑：
+
+```javascript
+// 假设dd为当日，targetDate为去年同日
+// ...
+var targetDate = null;
+// 计算当日是本月内的第N个星期X
+var day = dd.day();	//星期几
+var num = moment.numOfDayOfWeek(dd);	//第几个
+
+// 计算去年当月的第N-1, 第N和第N+1个星期X的日期
+var tmpDd = moment(dd).subtract(1, 'years');
+var dates = [];
+dates.push(num > 1 ? moment.dateOfNumOfDayOfWeek (tmpDd, day, num - 1): undefined);
+dates.push(moment.dateOfNumOfDayOfWeek (tmpDd, day, num));
+dates.push(dates[1] ? moment.dateOfNumOfDayOfWeek (tmpDd, day, num + 1): undefined);
+
+// 计算去年当月三个目标日期与今年当日的距离（日期距离）
+
+for(var i = 0, max = dates.length, duration = 31; i < max; i++){
+	if(dates[i] !== undefined){
+		var tmpDuration = Math.abs(moment(dates[i]).date() - dd.date());
+		if(tmpDuration <= duration){
+			targetDate = dates[i];
+			duration = tmpDuration;
+		}
+	}
+}
+
+// targetDate已经计算出来了
+```
