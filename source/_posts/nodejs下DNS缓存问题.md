@@ -8,7 +8,7 @@ categories: nodejs
 ---
 
 无意间看到一个[文章](http://www.madhur.co.in/blog/2016/05/28/nodejs-dns-cache.html)，是关于nodejs下发送http请求不会缓存dns结果的。这意味着，如果你基于nodejs写了一个http采集程序，不提供dns缓存则会让每次请求都傻傻的重复解析域名为ip地址。听起来会非常影响性能不是么？
-
+<!--more-->
 我的项目中，发送http请求并不是使用的node原生的http库，而是依赖一个常用的`Request`库。我查阅了一下该库的相关文档和github issue，也发现了一些和dns相关的帖子。不过多数说的是，关于dns问题，本身并不是`Request`库的范畴，而归结于nodejs的内核问题。omg，感觉好深奥啊！
 
 幸好，上面提到的那篇文章中也提出了两个解决方案：
