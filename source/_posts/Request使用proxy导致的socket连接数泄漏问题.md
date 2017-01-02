@@ -39,7 +39,7 @@ Request
 接下来主题，先看一下一个[issue](https://github.com/request/request/issues/2440)，题主已经详细描述了问题也给了解决方案。
 实测了一天，感觉确实解决了，至少从图标中观测正常许多了：
 
-![](http://pic.yupoo.com/kazaff/G7abDTNi/medish.jpg)
+![](http://pic.yupoo.com/kazaff/G7tod4Cy/medish.jpg)
 
 如果去看源码，会发现很绕，毕竟到处可见的回调和事件流。不过从解决方案上来看，[很直观](https://github.com/koichik/node-tunnel/pull/21/commits/6218c612d005d0cbab3cf133ccd20b9a21a2aa4d)。思路就是在: **确保在链接出现异常后也触发回调，在回调中来处理善后工作，最终会回收相关资源，而不是直接清除掉必要的事件监听器**。
 
