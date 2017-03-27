@@ -31,8 +31,8 @@ google_plus:
 fb_admins:
 fb_app_id:
 
-# Duoshuo
-duoshuo_shortname: kazaff
+# disqus
+disqus_shortname: http-blog-kazaff-me
 
 # Baidu share
 baidushare: true
