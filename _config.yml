@@ -75,12 +75,12 @@ per_page: 20
 pagination_dir: page
 
 # Disqus
-disqus_shortname:
+disqus_shortname: http-blog-kazaff-me
 
 # Extensions
 ## Plugins: https://github.com/tommy351/hexo/wiki/Plugins
 ## Themes: https://github.com/tommy351/hexo/wiki/Themes
-theme: landscape-plus
+theme: indigo
 exclude_generator:
 
 # Markdown
@@ -94,18 +94,35 @@ markdown:
   smartLists: true
   smartypants: true
 
-# Stylus
-stylus:
-  compress: false
-
 plugins:
   hexo-generator-feed
   hexo-generator-sitemap
+  hexo-renderer-less
+  hexo-generator-json-content
 
 feed:
   type: atom
   path: atom.xml
   limit: 20
+
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: true
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: false
+    tags: true
 
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
