@@ -80,7 +80,7 @@ disqus_shortname: http-blog-kazaff-me
 # Extensions
 ## Plugins: https://github.com/tommy351/hexo/wiki/Plugins
 ## Themes: https://github.com/tommy351/hexo/wiki/Themes
-theme: indigo
+theme: landscape-plus
 exclude_generator:
 
 # Markdown
