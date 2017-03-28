@@ -11,7 +11,7 @@ before_install:
 - ssh-add ~/.ssh/id_rsa_travis
 - cp .travis/ssh_config ~/.ssh/config
 - git config --global user.name 'kazaff'
-- git config --global user.email 'kazaff@gmail.com'
+- git config --global user.email 'edisondik@gmail.com'
 - git clone git@github.com:kazaff/travis-hexo.git .deploy
 install:
 - npm install hexo-cli -g
@@ -19,5 +19,4 @@ install:
 script:
 - hexo clean
 - hexo generate
-after_success:
 - hexo d
