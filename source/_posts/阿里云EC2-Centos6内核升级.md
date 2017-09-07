@@ -1,4 +1,4 @@
-title: 论项目成败
+title: 阿里云EC2-Centos6内核升级
 date: 2017-09-07 09:37:12
 tags:
 - 项目管理
