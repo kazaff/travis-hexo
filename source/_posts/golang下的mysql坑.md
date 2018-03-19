@@ -6,7 +6,6 @@ tags:
 - query-placeholder
 
 categories:
-- 数据库
 - golang
 ---
 
