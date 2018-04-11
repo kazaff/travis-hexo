@@ -41,3 +41,7 @@ url := googleOauthConfig.AuthCodeURL(oauthStateString, oauth2.AccessTypeOffline)
 网上找到了另外一个解决方案，不过需要用户配合：用户访问[https://myaccount.google.com/u/0/permissions](https://myaccount.google.com/u/0/permissions)页面，该页面时google提供给用户用来管理自己授权信息的，用户可以在页面列表中找到我们的project，然后删除掉现有的这个授权即可。
 
 这样，再次运行实例，用户就需要重新授权，我们也就能提供新的配置参数，从而获取到我们想要的值了。意不意外？惊不惊喜？真不真实？
+
+### 补充
+
+经过测试，发现，即便咱们设置了`oauth2.AccessTypeOffline`，在多次尝试获取token的时候，也是只有第一次能拿到`refresh token`，我想这也是合理的，毕竟官方多次提醒你应该持久化`refresh token`，一旦你错过了第一次，那就只能靠`prompt`了（未测试）。
