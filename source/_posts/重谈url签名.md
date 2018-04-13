@@ -44,3 +44,6 @@ HTTPS借助非对称加密算法来实现，前提是通信两端确实创建了
 
 
 不说了，再考虑一下吧~
+
+补充：
+针对https安全提升方案里，可以看看 https://imququ.com/post/http-public-key-pinning.html
