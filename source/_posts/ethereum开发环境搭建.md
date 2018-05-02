@@ -117,6 +117,8 @@ exec /usr/local/bin/geth --nodiscover --rpc --rpcaddr "0.0.0.0" --rpcport "8545"
 
 等待片刻（其实很久），我们接下来就可以执行`./startgeth.sh`命令来启动以太坊节点了。不过，稍微解释一下dockerfile里的细节，“GEN_CHAIN_ID”一定要写一个自己的值，如果默认用1的话，启动的以太坊节点会去同步主链上的数据，很恐怖的哟~
 
+另外，一定要注意我们运行节点时命令的参数，尤其是`--rpcaddr "0.0.0.0"`和`--rpccorsdomain *`，还有`--rpcapi db,eth,net,web3,personal`，如果你不想在后面web3js通信的时候碰到问题的话。
+
 启动完毕后，我们可以再开启一个新的终端，在其中执行`geth attach`命令，它会自动开启一个console并链接到我们自己的节点上。在这个console界面，我们就可以执行一些常见的命令来和以太坊节点交互了。
 
 下面我列一下简单的命令来完成一次转账流程：
