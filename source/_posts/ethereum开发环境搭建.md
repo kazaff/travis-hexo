@@ -45,10 +45,6 @@ WORKDIR /opt
 EXPOSE 30303
 EXPOSE 8545
 
-# bootnode port
-EXPOSE 30301
-EXPOSE 30301/udp
-
 ADD src/* /opt/
 RUN chmod +x /opt/*.sh
 
@@ -113,8 +109,6 @@ GEN_ARGS="--datadir $DATA_DIR"
 #  [[ ! -z $MY_IP ]] && GEN_ARGS="$GEN_ARGS --nat=extip:$MY_IP"
 GEN_ARGS="$GEN_ARGS --nat=any"
 
-
-echo "Running geth with arguments $GEN_ARGS"
 exec /usr/local/bin/geth --nodiscover --rpc --rpcapi db,eth,net,web3,personal $GEN_ARGS
 
 ```
