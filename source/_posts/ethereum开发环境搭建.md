@@ -109,7 +109,7 @@ GEN_ARGS="--datadir $DATA_DIR"
 #  [[ ! -z $MY_IP ]] && GEN_ARGS="$GEN_ARGS --nat=extip:$MY_IP"
 GEN_ARGS="$GEN_ARGS --nat=any"
 
-exec /usr/local/bin/geth --nodiscover --rpc --rpcapi db,eth,net,web3,personal $GEN_ARGS
+exec /usr/local/bin/geth --nodiscover --rpc --rpcaddr "0.0.0.0" --rpcport "8545" --rpccorsdomain * --rpcapi db,eth,net,web3,personal $GEN_ARGS
 
 ```
 
