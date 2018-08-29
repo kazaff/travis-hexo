@@ -1,4 +1,4 @@
-title: golang下http的一个怪问题
+title: golang依赖包下载被禁解决方案
 date: 2018-8-27 10:37:12
 tags:
 - golang
