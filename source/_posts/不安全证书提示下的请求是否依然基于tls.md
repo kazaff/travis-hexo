@@ -103,6 +103,12 @@ try {
 
 更有意思的是，`wireshark`把我本机的内网ip（192.168.1.142）也当做回环地址来处理了，我本以为只要我不是用localhost或127.0.0.1，就应该可以监听到数据包的，结果花了好多时间才。。不说了，都是泪。
 
+## 查看系统支持的根证书
+
+windows系统下，可以开始运行中输入`certmgr.msc`，打开的面板里查找`Trusted Root Certification Authorities`项就可以看到系统中已经包含的信任根证书列表了。
+
+linux系统下，则可以查看`/etc/pki/tls/certs/ca-bundle.crt`文件，其中包含了已经信任的根证书。
+
 ## 参考链接
 
 - [SSL/TLS协议运行机制的概述](http://www.ruanyifeng.com/blog/2014/02/ssl_tls.html)
