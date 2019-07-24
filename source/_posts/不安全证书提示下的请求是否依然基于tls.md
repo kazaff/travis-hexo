@@ -109,3 +109,4 @@ try {
 - [TLS整理（下）：TLS如何保证安全](https://www.jianshu.com/p/24af67c40e8d)
 - [TLS 详解](https://juejin.im/post/5b88a93df265da43231f1451)
 - [如何用 wireshark 抓包 TLS 封包](https://cloud.tencent.com/developer/article/1416948)
+- [细说 CA 和证书](https://www.barretlee.com/blog/2016/04/24/detail-about-ca-and-certs/)
