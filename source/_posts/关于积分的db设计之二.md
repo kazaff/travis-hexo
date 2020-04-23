@@ -53,11 +53,13 @@ CREATE INDEX idx1 ON points_logs (user_id, type, expire, order_id);
 我们还是举个具体的例子吧~~依然假设目前就只有一个客户，他通过下单，已经挣到了200积分，那么在db中会保存对应的记录：
 
 **points_status表**
+
 | id | user_id | points | points_status |
 | :--| :--     | :--    | :--           |
 | 1  | 1       | 200    | [{"expire":"2020-05-01", "val":100},{"expire":"2020-06-01", "val":100}] | 
 
 **points_logs**
+
 | id | user_id | points      | expire    | type       | order_id |
 | :--| :--     | :--         | :--       | :--        | :--      |
 | 1  | 1       | +100        | 2020-05-01| earn       | 1        |
@@ -67,6 +69,7 @@ CREATE INDEX idx1 ON points_logs (user_id, type, expire, order_id);
 每当业务需要更新客户的积分状态时，都可以“顺便”做一件事儿：将`points_status.points_status`字段中的过期值清理一下，清理出得过期积分也要插入到`points_logs`表中，如下面这样的记录：
 
 **points_logs**
+
 | id | user_id | points      | expire    | type       | order_id |
 | :--| :--     | :--         | :--       | :--        | :--      |
 | 3  | 1       | -100        | 1984-07-23| expire     |          |
