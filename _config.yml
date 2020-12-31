@@ -5,7 +5,7 @@
 # Site
 title: kazaff's blog
 subtitle: 要相信，一切都是最好的安排~
-description: develop,code,full-stack,architecture,deploy,database,test
+description: coder,leader,tinker
 author: kazaff
 email: edisondik@gmail.com
 language: zh-CN
@@ -80,7 +80,7 @@ disqus_shortname: http-blog-kazaff-me
 # Extensions
 ## Plugins: https://github.com/tommy351/hexo/wiki/Plugins
 ## Themes: https://github.com/tommy351/hexo/wiki/Themes
-theme: indigo
+theme: melody
 exclude_generator:
 
 # Markdown

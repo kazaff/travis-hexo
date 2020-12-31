@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "hexo": {
-    "version": "3.2.2"
+    "version": "3.9.0"
   },
   "scripts": {
     "sync": "yuque-hexo sync",
-    "clean:yuque": "yuque-hexo clean",    
+    "clean:yuque": "yuque-hexo clean",
     "deploy": "npm run sync && hexo clean && hexo g -d"
   },
   "yuqueConfig": {
@@ -24,12 +24,13 @@
     "hexo-generator-category": "^0.1.2",
     "hexo-generator-feed": "^1.0.1",
     "hexo-generator-index": "^0.1.2",
+    "hexo-generator-json-content": "^3.0.1",
     "hexo-generator-sitemap": "^1.1.2",
     "hexo-generator-tag": "^0.1.1",
     "hexo-renderer-ejs": "^0.1.0",
     "hexo-renderer-less": "^0.2.0",
-    "hexo-generator-json-content": "^3.0.1",
     "hexo-renderer-marked": "^0.2.4",
+    "hexo-renderer-pug": "^1.0.0",
     "hexo-renderer-stylus": "^0.2.0",
     "hexo-server": "^0.1.2"
   },
