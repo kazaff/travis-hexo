@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="老生常谈Mac下的ntfs写问题"><meta name="keywords" content="mac,ntfs"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>老生常谈Mac下的ntfs写问题 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">老生常谈Mac下的ntfs写问题</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2月 26 2016</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/mac/">mac</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2016/02/26/老生常谈Mac下的ntfs写问题/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2016/02/26/老生常谈Mac下的ntfs写问题/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>已经有很久没有更新自己的blog了，以至于域名过期了都不知道，昨天偶然发现后赶紧去续费，哇哈哈～</p>
+<p>假期就要结束了，马上就要开始人生新的旅程，抛弃那些不好的，没有意义的旧事和旧人，迎接美好未来！走起～<br><a id="more"></a><br>回到主题，其实我用Mac系统也有年头了，但一直没有怎么折腾过，之前装过一个盗版的ntfs工具，名字不记得了，只记得导致我的移动硬盘差点报废！具体原因我也不清楚，用着用着突然就报错了，再插一遍设备竟然不识别了，换到window下提示硬盘已损坏！</p>
+<p>我攒了二十几年的片儿要是真丢了，我感觉人生都没有意义了！不过还好一番折腾后在win下是可以识别了！经历这次后我乖乖的删除了mac下的各种关于ntfs读写的工具！！</p>
+<p>那为啥今天又要提这事儿呢？当然是因为我的mac硬盘满了～～哇哈哈哈～抱着试一试的态度，我再次GG了一下这方面的技术贴，这次换了一种很简单的<a href="http://www.oschina.net/translate/enabling-ntfs-write-on-os-x" target="_blank" rel="noopener">方法</a>，这并不是一个新方案，只是之前的我并没有找到。</p>
+<p>简单的说，步骤有3：</p>
+<ol>
+<li>确保你的移动硬盘名称不包含空格（其实我觉得空格也没问题，转义一下应该就可以）</li>
+<li>把硬盘插到mac上，打开终端，输入“sudo nano /etc/fstab”</li>
+<li>在打开的编辑器中输入“LABEL=你硬盘的名字 none ntfs rw,auto,nobrowse”，保存退出编辑器</li>
+<li>拔掉硬盘，再插上，终端中输入“open /Volumes”，你就会看到你的硬盘已经识别了，并且已经可以读写内容了</li>
+<li>将文件夹中的硬盘图标拖拽到Finder的侧边栏，以后你就可以直接访问了。</li>
+</ol>
+<p>就这么简单，其它帖子说的什么获取UUID啥的，都不需要！一切就是这么顺利！</p>
+<p>然后做啥？当然是拷片儿了啊！</p>
+<p>好不容易拷了50G的片儿，突然我发现一个问题，放到硬盘里的片儿都是灰色的，并且双击会提示：</p>
+<blockquote>
+<p>项目“XXX”已被 OS X 使用，不能打开。</p>
+</blockquote>
+<p>这可吓死宝宝了，本尊可是已经删除了Mac中的片儿了啊！赶紧GG，找到了<a href="http://www.jianshu.com/p/3782d73cb3e8" target="_blank" rel="noopener">解决方案</a>，同样不知道原理是啥，同样很简单就搞定，只需要：</p>
+<p>在终端中进入到硬盘的对应位置，执行“xattr -c 有问题的文件名称”即可搞定！</p>
+<p>哇哈哈，你可以说这篇文章很水，不过确实很实用，就当是顿快餐吧～～88</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2016/02/26/老生常谈Mac下的ntfs写问题/">https://blog.kazaff.me/2016/02/26/老生常谈Mac下的ntfs写问题/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/mac/">mac</a><a class="post-meta__tags" href="/tags/ntfs/">ntfs</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2016/03/04/关于mariaDB和mysql5.7的json类型特性/"><i class="fa fa-chevron-left">  </i><span>关于MariaDB和mysql5.7的json类型特性</span></a></div><div class="next-post pull-right"><a href="/2016/01/02/译-Relay101制作HackerNew客户端/"><span>［译］Relay101制作HackerNew客户端</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2016/02/26/老生常谈Mac下的ntfs写问题/';
+  this.page.identifier = '2016/02/26/老生常谈Mac下的ntfs写问题/';
+  this.page.title = '老生常谈Mac下的ntfs写问题';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

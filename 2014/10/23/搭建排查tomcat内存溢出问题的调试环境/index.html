@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="搭建排查Tomcat内存溢出问题的调试环境"><meta name="keywords" content="jvm,jconsole,jprofiler,内存溢出"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>搭建排查Tomcat内存溢出问题的调试环境 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jconsole"><span class="toc-number">1.</span> <span class="toc-text">jconsole</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JProfiler"><span class="toc-number">2.</span> <span class="toc-text">JProfiler</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试代码"><span class="toc-number">3.</span> <span class="toc-text">测试代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关于内存溢出"><span class="toc-number">4.</span> <span class="toc-text">关于内存溢出</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">搭建排查Tomcat内存溢出问题的调试环境</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 10月 23 2014</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2014/10/23/搭建排查tomcat内存溢出问题的调试环境/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2014/10/23/搭建排查tomcat内存溢出问题的调试环境/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>上个月赶工上线的门户网站，由于种种原因导致部署到线上服务器后每隔一段时间后就会导致tomcat内存溢出，今天我就要来直面这个棘手的问题。</p>
+<a id="more"></a>
+<p>要解决的问题对我来说还是有点难度的，原因有二：</p>
+<ol>
+<li>代码不是我写的；</li>
+<li>我对java并不熟悉。</li>
+</ol>
+<p>废话不多说，就由我这个小白依靠GG带领大家来启程吧！</p>
+<p>凭借我多年的编程经验，我认为首先要找到趁手的工具，那么，问题就来了，挖掘机技术到底哪家强？……</p>
+<p>好吧，GG一下，可以很容易查到很多用来监控jvm实时状态的工具，我们以jconsole为第一款尝试的工具吧。</p>
+<h2 id="jconsole"><a href="#jconsole" class="headerlink" title="jconsole"></a>jconsole</h2><p>这里要说明的是，我们需要搭建的监控环境是在win桌面机上远程监控一台centos服务器。按照网上说的，搭建起这么一个环境没有多大难度，大家可以参考这里：<a href="http://zhumeng8337797.blog.163.com/blog/static/100768914201282833448384/" target="_blank" rel="noopener">传送门</a>。</p>
+<p>如果你像我一样碰到了timeout提示，那多半就是centos防火墙拦截导致的，可以暂时关闭防火墙再尝试一下：</p>
+<pre><code>/etc/init.d/iptables stop
+</code></pre><p>好的，终于有了一个监控界面了，是不是感觉心里敞亮了不少呢？不过我感觉还是太笼统了，只能大概知道jvm的状况，而对于我们要排查代码导致的内存泄露问题似乎并没有帮到太大的忙~~</p>
+<p>不过可以通过提供的一些信息来判断是否配置了比较合理的参数，比方说可以通过<code>GC时间</code>看出是否给tomcat分配了适当的内存大小，尽可能的设置一个合理的内存来减少gc的次数和耗时。</p>
+<p>那我们接下来换哪个工具呢？</p>
+<h2 id="JProfiler"><a href="#JProfiler" class="headerlink" title="JProfiler"></a>JProfiler</h2><p>好吧，上大杀器！无需我多讲，我相信没有人会对我的选择有质疑吧？哇哈哈哈哈哈~~不过JProfiler是个商用产品，钱花到位才能享受生活，这一点儿错都没有。</p>
+<p>大家可以参考下面这些链接，相信你们很快就能搭建成功：</p>
+<p><a href="http://www.flybi.net/article/101" target="_blank" rel="noopener">传送门1</a>,<a href="http://sgq0085.iteye.com/blog/1947526" target="_blank" rel="noopener">传送门2</a>,<a href="http://blog.csdn.net/attilax/article/details/17077857" target="_blank" rel="noopener">传送门3</a></p>
+<p>按照上面提供的信息，我相信你很顺利就能安装部署完毕jprofiler（毕竟是商用产品嘛，肯定做的足够简单），但如果你和我一样是第一次用这个玩意儿，肯定会被它的默认界面震出翔！</p>
+<p>不要pia，先阅读一下这篇文章： <a href="http://www.cnblogs.com/jayzee/p/3184087.html" target="_blank" rel="noopener">传送门</a>。</p>
+<p>这里要提到的一点是，可能是软件版本的原因，按照上面前辈说的方法我却死活查不到方法调用Tree，查了一下GG才发现是需要调整配置选项，如下图：</p>
+<p><img src="http://pic.yupoo.com/kazaff_v/E8qo6nio/W5piy.png" alt="查看调用轨迹"></p>
+<p>我这属于暴力解决吧，毕竟我把能开启的选项都选中了，不过想得到的问题也就是速度慢点，对于远程连接方式来说带宽占用多一些而已吧~~</p>
+<h2 id="测试代码"><a href="#测试代码" class="headerlink" title="测试代码"></a>测试代码</h2><p>找到了趁手的兵器，下一步就是要挖的坑了！哦，no，是一段会造成内存溢出的测试代码，我简单地修改了一下tomcat提供的例子中的<code>HelloWorldExample.java</code>：</p>
+<pre><code>import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ResourceBundle;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.util.ArrayList;
+
+public class HelloWorldExample extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
+
+    private static ArrayList list = new ArrayList();
+
+    @Override
+    public void doGet(HttpServletRequest request,
+                      HttpServletResponse response)
+        throws IOException, ServletException
+    {
+        ResourceBundle rb =
+            ResourceBundle.getBundle(&quot;LocalStrings&quot;,request.getLocale());
+        response.setContentType(&quot;text/html&quot;);
+        PrintWriter out = response.getWriter();
+
+        out.println(&quot;&lt;html&gt;&quot;);
+        out.println(&quot;&lt;head&gt;&quot;);
+        out.println(&quot;&lt;/head&gt;&quot;);
+        out.println(&quot;&lt;body bgcolor=\&quot;white\&quot;&gt;&quot;);
+
+
+    for(int i=0; i &lt; 1000; i++){
+        //Object o = new String(&quot;by kazaff, index is :&quot; + i);
+        HelloWorldExample.list.add(new kazaffBean());
+        //o = null;    
+    }    
+
+    out.println(&quot;&lt;div&gt;kazaff in here!!!!!!!&lt;/div&gt;&quot;);    
+
+    out.println(&quot;&lt;/body&gt;&quot;);
+        out.println(&quot;&lt;/html&gt;&quot;);
+
+    }
+}
+
+class kazaffBean {
+    String name= &quot;&quot;;
+}
+</code></pre><p>然后我们还要手动编译修改后的java代码，进入到<code>/usr/local/apache-tomcat-7.0.53/webapps/examples/WEB-INF/classes/HelloWorldExample.java</code>所在的文件夹中，执行下面的命令：</p>
+<pre><code>javac HelloWorldExample.java -cp /usr/local/apache-tomcat-7.0.53/lib/servlet-api.jar 
+</code></pre><p>当然，你的tomcat路径和我的很可能不同，酌情修改即可~~</p>
+<p>然后我们重启tomcat，对了，重启之前最好改一下分配给tomcat的内存上限，改小一些，有助于问题快速的暴露：</p>
+<pre><code>-Xms20m -Xmx20m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/www/java-OOM/
+</code></pre><p>后面的两个<code>-XX</code>参数是用来让jvm在出现OOM后自动保存内存堆栈快照信息用的，方便我们排查问题。</p>
+<p>重启吧，然后为了加速内存溢出，我们可以使用apache自带的<code>ab</code>做压力测试：</p>
+<pre><code>ab -c 100 -n 10000 http://192.168.153.128:81/examples/jsp/
+</code></pre><p>执行上面的这条命令后，基本上tomcat肯定就已经挂掉了，注意，我说的是tomcat挂掉了！也就是说你在终端中执行<code>jps</code>命令，不再会看到<code>Bootstrap</code>这个进程了！我之所以强调这一点，是因为我在测试中发现直接导致<code>jconsole</code>断开连接，并且再也无法建立连接。</p>
+<p>而奇怪的是，<code>jprofiler</code>照常可以连接并获取到远程服务器上的jvm的监控数据，这种情况一度使我陷入深深的迷惘。因为我在tomcat的logs里死活找不到任何关于内存溢出或其他异常的记录，直到我的目光落在终端上：</p>
+<pre><code>Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread &quot;http-bio-81-exec-13&quot;
+……
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+……
+java.lang.OutOfMemoryError: Java heap space
+……
+Exception in thread &quot;RMI TCP Connection(idle)&quot; java.lang.OutOfMemoryError: Java heap space
+</code></pre><p>这才是乖孩子嘛，就应该是这样的才对嘛~~不过还有几个点想不明白：</p>
+<ul>
+<li>虽然<code>jps</code>已经查不到tomcat的进程，但是从jprofiler的线程监控中还是可以看到相关的线程，如下图：</li>
+</ul>
+<p><img src="http://pic.yupoo.com/kazaff_v/E8rChOsQ/FN83O.png" alt></p>
+<ul>
+<li>既然tomcat都已经挂了，为什么<code>jprofiler</code>没有像<code>jconsole</code>那样连接断开呢？</li>
+</ul>
+<p>我这种小白目前是搞不定这两个问题了，还是抛到社区给大牛们分析吧。我们继续往下走~</p>
+<h2 id="关于内存溢出"><a href="#关于内存溢出" class="headerlink" title="关于内存溢出"></a>关于内存溢出</h2><p>通过我上面列出的异常信息，已经是非常常见的了，对于一些java老鸟而言肯定是再熟悉不过的了！不过我还是找到了一篇排版不咋滴但是比较全面的文章： <a href="http://yanguz123.iteye.com/blog/2017335" target="_blank" rel="noopener">传送门</a>。</p>
+<p>到此为止，就算做好了一切准备，可以去真正的项目上搞了！</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2014/10/23/搭建排查tomcat内存溢出问题的调试环境/">https://blog.kazaff.me/2014/10/23/搭建排查tomcat内存溢出问题的调试环境/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/jvm/">jvm</a><a class="post-meta__tags" href="/tags/jconsole/">jconsole</a><a class="post-meta__tags" href="/tags/jprofiler/">jprofiler</a><a class="post-meta__tags" href="/tags/内存溢出/">内存溢出</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2014/10/24/java web中的session新手向/"><i class="fa fa-chevron-left">  </i><span>Java Web中的session新手向</span></a></div><div class="next-post pull-right"><a href="/2014/10/23/javaEE部署项目新手向/"><span>javaEE部署项目新手向</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2014/10/23/搭建排查tomcat内存溢出问题的调试环境/';
+  this.page.identifier = '2014/10/23/搭建排查tomcat内存溢出问题的调试环境/';
+  this.page.title = '搭建排查Tomcat内存溢出问题的调试环境';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

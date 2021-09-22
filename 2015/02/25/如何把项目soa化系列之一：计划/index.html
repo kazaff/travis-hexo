@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="如何把项目SOA化系列之一：计划"><meta name="keywords" content="dubbo,soa"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>如何把项目SOA化系列之一：计划 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#计划"><span class="toc-number">2.</span> <span class="toc-text">计划</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#技术选型"><span class="toc-number">3.</span> <span class="toc-text">技术选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指标"><span class="toc-number">4.</span> <span class="toc-text">指标</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">如何把项目SOA化系列之一：计划</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2月 25 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/架构/">架构</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/02/25/如何把项目soa化系列之一：计划/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/02/25/如何把项目soa化系列之一：计划/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>过年回来了，也休息够了，去年年会上该吹的牛逼也都吹的很到位了，年假回来，是该着手兑现的时候了。废话不多说，走起！<br><a id="more"></a></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>公司的项目，在设计之初其实就一定程度的引入了服务的概念，当时的出发点更多的是因为：团队协同和项目进度分期，不过还有一个重要的原因，是因为要完成的目标有点太大太虚，很多细节不可能一次性全部想到位，所以就采用了把大系统拆成一个一个的小系统来完成，这样来做，系统之间自然就产生了通信的必要性。</p>
+<p>期初为了快速搭建原型和团队成员的技能分布，选择使用php作为开发语言。确实也在初期达到了快速开发的目的，拿到了一血后也踏上了小系统逐渐变大的不归路。系统和系统之间的通信使用的就是简单的http+cache，简单粗暴能运行，是当时的重要哲学。</p>
+<p>工期的紧张，人员流动，再加上员工心态和情绪的波动等原因，映射在项目上就会成为功能缺失，代码质量下降，依赖混乱，抽象不足等。除此之外，开发人员毫无节制的重复发明服务，使前面说到的问题进一步放大，一度成为毫无解决希望的技术债务。</p>
+<p>由于公司业务变更，团队大部分成员投入到了一个新项目的开发上，这给这个项目和我都留出了一个非常完美的空档期，在获得了领导的授权后，我调整状态，踏上了系统重构的大道，也就产生了该系列文章。</p>
+<p>其实早在13年后半年，项目组开会时就已经提到了关于服务化的设想，无奈当时并没有如今这样好的条件，也就不了了之。经历了14年的php转java，项目soa的条件逐渐成熟，是时候大展身手了。</p>
+<h2 id="计划"><a href="#计划" class="headerlink" title="计划"></a>计划</h2><p>依照前辈大神们的心得体会，需要在项目中首先确定一些有价值的业务进行SOA重构，什么叫有价值的？就是那些项目的核心模块么？</p>
+<p>其实不全对，为了保证开门红，建议从项目中选择一些复杂度相对较低，重要度适中的一些模块来下刀，避免造成骑虎难下的尴尬局面，而且也可以更快的积累经验和信心，当然，也不要选择太简单太无所谓的模块来搞，这样既无法积累经验，也不利于团队推广。</p>
+<p>那么我们该怎么选呢？我考虑了一下，决定以下面三个维度来作为选择的基准：</p>
+<ul>
+<li>重要度：■ ■ □ □ □</li>
+<li>复杂度：■ ■ □ □ □</li>
+<li>频度：■ ■ ■ □ □</li>
+</ul>
+<p>确定了这个标准后，我又进一步给自己安排了一个重构流程：</p>
+<ol>
+<li>从需求书中寻找服务，并依照基准分类</li>
+<li>梳理服务之间的关系，确定哪些是原子服务，哪些是复合服务</li>
+<li>设计服务接口，以及协议类型（RPC？REST？）</li>
+<li>代码实现</li>
+</ol>
+<h2 id="技术选型"><a href="#技术选型" class="headerlink" title="技术选型"></a>技术选型</h2><p>了解soa的童鞋，自然会问：你基于哪些技术来实现SOA？其实SOA的技术骨架也无非就是：服务发现，服务治理，数据通信等几大块，商业的解决方案中还会提供强大的服务总线，工作流等功能（这些仅代表我个人理解，不喜勿拍）。</p>
+<p>相信关注我博客的朋友肯定知道我要使用的框架是什么，没错，就是<a href="https://github.com/dangdangdotcom/dubbox" target="_blank" rel="noopener">dubbox</a>，其细节请参看我博客中的<a href="http://blog.kazaff.me/tags/dubbo/">相关文章</a>。</p>
+<h2 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h2><p>我们引入dubbox的目标，不仅是改善系统间依赖的混乱局面，还要标准化一些开发流程，提升开发效率，提升系统的可用性，性能，可伸缩，扩展性，重用性等。</p>
+<p>下面我们具体来定一些指标，由于缺乏经验和相关数据，所以列出的指标会过于笼统，不过有生于无嘛。</p>
+<ol>
+<li>标准化服务开发流程，从流程视角杜绝服务的重复，以及确保服务质量；</li>
+<li>提高服务的可用性，确保每个服务都有冗余，并提供针对应用的监控工具；</li>
+<li>提高服务响应时间，根据实际的复杂度来度量，尽可能保证服务响应时间在100ms–500ms之间（不启用缓存的情况下）；</li>
+<li>提升代码的重用性，并尽可能降低代码的耦合度；</li>
+<li>提升代码的质量，提供更完善的代码检测工具和流程。</li>
+</ol>
+<p>好了，日后根据工作的进行，再逐步细化指标，总之大的方向就这些。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/02/25/如何把项目soa化系列之一：计划/">https://blog.kazaff.me/2015/02/25/如何把项目soa化系列之一：计划/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/dubbo/">dubbo</a><a class="post-meta__tags" href="/tags/soa/">soa</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/03/02/如何把项目soa化系列之二：业务梳理和服务发现/"><i class="fa fa-chevron-left">  </i><span>如何把项目SOA化系列之二：业务梳理</span></a></div><div class="next-post pull-right"><a href="/2015/02/14/重构团队的开发工作流/"><span>重构团队的开发工作流</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/02/25/如何把项目soa化系列之一：计划/';
+  this.page.identifier = '2015/02/25/如何把项目soa化系列之一：计划/';
+  this.page.title = '如何把项目SOA化系列之一：计划';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

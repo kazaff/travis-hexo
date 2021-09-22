@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Logstash整合kafka"><meta name="keywords" content="Logstash,kafka,logstash-output-kafka,logstash插件"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Logstash整合kafka | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#kafka的安装"><span class="toc-number">1.</span> <span class="toc-text">kafka的安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#logstash–-gt-kafka"><span class="toc-number">2.</span> <span class="toc-text">logstash–&gt;kafka</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">3.</span> <span class="toc-text">参考</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Logstash整合kafka</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 6月 5 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/运维/">运维</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/06/05/logstash整合kafka/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/06/05/logstash整合kafka/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>今天要搞一搞的，是把logstash和kafka整合起来，由于我们使用的是logstash1.5.0+版本，此版本下官方已经提拱了plugin用来整合kafka，这篇文章的目的就是简单的搭建这么一个环境。</p>
+<h2 id="kafka的安装"><a href="#kafka的安装" class="headerlink" title="kafka的安装"></a>kafka的安装</h2><p>kafka是基于scala实现的，scala是一种jvm语言，也就是说你得先装jdk，我就不从jdk开始介绍如何安装了，我们直接开始安装kafka，其实这玩意儿官方提供了编译好的版本，你只需要下载，解压，运行即可~<br><a id="more"></a><br>当然，如果想搭建集群，还是需要了解一下kafka的配置的，这不是我们关注的重点，so，我们就简单地先跑起来它吧：</p>
+<ol>
+<li><a href="http://kafka.apache.org/downloads.html" target="_blank" rel="noopener">下载</a></li>
+<li>解压，我们解压在<code>/usr/local</code>下</li>
+<li>运行，为了测试方便，我们需要一共开启四个终端窗口：</li>
+</ol>
+<p>首先，我们要运行zookeeper，kafka自带了zookeeper，所以我们无需下载，只需要在/usr/local/kafka目录下执行：</p>
+<pre><code>bin/zookeeper-server-start.sh config/zookeeper.properties
+</code></pre><p>然后，再开启一个终端，执行：</p>
+<pre><code>bin/kafka-server-start.sh config/server.properties
+</code></pre><p>这样，我们的kafka就已经运行起来了，不过还不是集群环境，只有一个borker哟~但是，我们测试足够了。</p>
+<p>再然后，开启一个新的终端，执行：</p>
+<pre><code>bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test
+</code></pre><p>这样我们就创建了一个用于测试的topic，接下来继续执行：</p>
+<pre><code>bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+</code></pre><p>该命令执行完毕后会阻塞终端，你可以随便输入一些数据，每一行都相当于一个消息，会发送给kafka。</p>
+<p>最后，再再开启一个新终端，执行：</p>
+<pre><code>bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic test --from-beginning
+</code></pre><p>你会看到你之前输入的那些消息都会显示在终端中，这就完成了kafka的测试环境搭建。</p>
+<p><strong>值得注意的是</strong>，上面消息生产者的命令，需要参数<code>broker-list</code>，也就是说我们的kafka生产者必须自己知道所有的kafka broker的位置，而其它命令则只需要填写zookeeper的位置即可，我不清楚这样做的用意是什么，我只是隐约感到有些问题（<strong>如果broker出现扩容，如何更新应用代码中的borker信息？？</strong>），但这不是我们本次的关注的重点。</p>
+<h2 id="logstash–-gt-kafka"><a href="#logstash–-gt-kafka" class="headerlink" title="logstash–&gt;kafka"></a>logstash–&gt;kafka</h2><p>我们现在想要干的，是从logstash的Shipper中收集到的数据发送给kafka，所以我们需要安装<a href="https://github.com/logstash-plugins/logstash-output-kafka" target="_blank" rel="noopener">logstash-output-kafka</a>插件。</p>
+<p>但是由于未知原因，我试图安装插件时却碰到了报错：</p>
+<pre><code>[root@kazaff logstash-1.5.0]# bin/plugin install logstash-output-kafka
+Validating logstash-output-kafka
+Plugin logstash-output-kafka does not exist
+ERROR: Installation aborted, verification failed for logstash-output-kafka 
+</code></pre><p>不像是被墙了的味道，因为提醒的是不存在，而不是网络连接超时。本来还想搭建一个翻墙环境，后来执行了一下这个命令：</p>
+<pre><code>bin/plugin list  
+</code></pre><p>竟然发现kafka插件已经预装好了，我也是醉了。OK，我们可以继续了，接下来就是配置一下logstash：</p>
+<pre><code>input {
+    stdin{}
+}
+
+
+output {
+    kafka {
+        broker_list =&gt; &quot;localhost:9092&quot;
+        topic_id =&gt; &quot;test&quot;
+        compression_codec =&gt; &quot;snappy&quot;
+    }
+}
+</code></pre><p>不多做解释了，在终端运行logstash后，就可以直接输入“helloworld”测试一下了，如果没有问题的话，你将会在之前的kafka消费者终端中看到输出：</p>
+<pre><code>{&quot;message&quot;:&quot;hello world!&quot;,&quot;@version&quot;:&quot;1&quot;,&quot;@timestamp&quot;:&quot;2015-06-11T10:01:21.183Z&quot;,&quot;host&quot;:&quot;kazaff&quot;}
+</code></pre><p>就是这么简单啦~</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://colobu.com/2014/08/06/kafka-quickstart/#show-last-Point" target="_blank" rel="noopener">Kafka快速入门</a></p>
+<p><a href="http://corejava2008.iteye.com/blog/2215545" target="_blank" rel="noopener">Logstash入门教程 - 启动命令行参数及插件安装</a></p>
+<p><a href="http://bigbo.github.io/pages/2015/03/26/logstash_performance/" target="_blank" rel="noopener">logstash-input-file以及logstash-output-kafka插件性能测试</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/06/05/logstash整合kafka/">https://blog.kazaff.me/2015/06/05/logstash整合kafka/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Logstash/">Logstash</a><a class="post-meta__tags" href="/tags/kafka/">kafka</a><a class="post-meta__tags" href="/tags/logstash-output-kafka/">logstash-output-kafka</a><a class="post-meta__tags" href="/tags/logstash插件/">logstash插件</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/07/19/日志/"><i class="fa fa-chevron-left">  </i><span>这几天的感想</span></a></div><div class="next-post pull-right"><a href="/2015/06/05/日志收集架构--ELK/"><span>日志收集架构－ELK</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/06/05/logstash整合kafka/';
+  this.page.identifier = '2015/06/05/logstash整合kafka/';
+  this.page.title = 'Logstash整合kafka';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

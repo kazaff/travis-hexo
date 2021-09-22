@@ -1,0 +1,217 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Avro的三种序列化方法"><meta name="keywords" content="Avro,序列化,RPC,json,schema"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Avro的三种序列化方法 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#方法1"><span class="toc-number">1.</span> <span class="toc-text">方法1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#方法2"><span class="toc-number">2.</span> <span class="toc-text">方法2</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#方法3"><span class="toc-number">3.</span> <span class="toc-text">方法3</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Avro的三种序列化方法</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 4月 30 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/04/30/Avro的三种序列化与反序列化方法/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/04/30/Avro的三种序列化与反序列化方法/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>知道Avro有一段时间了，但是并没有过多的动手测试其用法，今天花时间好好找了几个例子来练习Avro，特此记录，供以后查阅。<br><a id="more"></a><br>Avro提供了自身的RPC实现，可以更完美的利用Avro的设计思想来完成高性能的跨进程通信，不过我们这里只注重使用Avro的序列化/反序列化的细节。</p>
+<p>Avro使用Json来声明Schema，这个预先定义的模式作为通信两端数据协议，在网络传输前后对目标数据进行二进制处理。太多的理论可以从Avro官网上了解到，我们下面就进入代码模式。</p>
+<p>测试代码是基于Maven的，你可能会使用下面的pom.xml：</p>
+<pre><code>&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.avro&lt;/groupId&gt;
+        &lt;artifactId&gt;avro&lt;/artifactId&gt;
+        &lt;version&gt;1.7.6-cdh5.2.5&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+
+&lt;repositories&gt;
+    &lt;repository&gt;
+        &lt;id&gt;cloudera-repo-releases&lt;/id&gt;
+        &lt;url&gt;https://repository.cloudera.com/artifactory/repo/&lt;/url&gt;
+    &lt;/repository&gt;
+&lt;/repositories&gt;
+</code></pre><h4 id="方法1"><a href="#方法1" class="headerlink" title="方法1"></a>方法1</h4><hr>
+<p>该方法描述的场景是：用指定的json schema对数据进行编码，并用相同/近似的schema对数据进行解码。</p>
+<pre><code>import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericDatumReader;
+import org.apache.avro.generic.GenericDatumWriter;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.Decoder;
+import org.apache.avro.io.DecoderFactory;
+import org.apache.avro.io.Encoder;
+import org.apache.avro.io.EncoderFactory;
+
+public class AvroTest {
+    public static void main(String[] args) throws IOException {
+        // Schema
+        String schemaDescription = &quot; {    \n&quot;
+                + &quot; \&quot;name\&quot;: \&quot;FacebookUser\&quot;, \n&quot;
+                + &quot; \&quot;type\&quot;: \&quot;record\&quot;,\n&quot; + &quot; \&quot;fields\&quot;: [\n&quot;
+                + &quot;   {\&quot;name\&quot;: \&quot;name\&quot;, \&quot;type\&quot;: \&quot;string\&quot;},\n&quot;
+                + &quot;   {\&quot;name\&quot;: \&quot;num_likes\&quot;, \&quot;type\&quot;: \&quot;int\&quot;},\n&quot;
+                + &quot;   {\&quot;name\&quot;: \&quot;num_photos\&quot;, \&quot;type\&quot;: \&quot;int\&quot;},\n&quot;
+                + &quot;   {\&quot;name\&quot;: \&quot;num_groups\&quot;, \&quot;type\&quot;: \&quot;int\&quot;} ]\n&quot; + &quot;}&quot;;
+
+        Schema s = Schema.parse(schemaDescription);    //parse方法在当前的Avro版本下已不推荐使用
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Encoder e = EncoderFactory.get().binaryEncoder(outputStream, null);
+        GenericDatumWriter w = new GenericDatumWriter(s);
+
+        // Populate data
+        GenericRecord r = new GenericData.Record(s);
+        r.put(&quot;name&quot;, new org.apache.avro.util.Utf8(&quot;kazaff&quot;));
+        r.put(&quot;num_likes&quot;, 1);
+        r.put(&quot;num_groups&quot;, 423);
+        r.put(&quot;num_photos&quot;, 0);
+
+        // Encode
+        w.write(r, e);
+        e.flush();
+
+        byte[] encodedByteArray = outputStream.toByteArray();
+        String encodedString = outputStream.toString();
+
+        System.out.println(&quot;encodedString: &quot;+encodedString);
+
+        // Decode using same schema
+        DatumReader&lt;GenericRecord&gt; reader = new GenericDatumReader&lt;GenericRecord&gt;(s);
+        Decoder decoder = DecoderFactory.get().binaryDecoder(encodedByteArray, null);
+        GenericRecord result = reader.read(null, decoder);
+        System.out.println(result.get(&quot;name&quot;).toString());
+        System.out.println(result.get(&quot;num_likes&quot;).toString());
+        System.out.println(result.get(&quot;num_groups&quot;).toString());
+        System.out.println(result.get(&quot;num_photos&quot;).toString());
+
+    }
+}
+</code></pre><p>可以看出，编码解码都需要指定schema，这相当于要求通信两端必须提前通过某种交互来完成schema的同步工作（貌似Avro自带的RPC就实现了这个细节），通过代码中的打印语句，我们可以留意到，这种方式下，编码后的数据是不包含schema的（<strong>我不确定对，但相比第二种方式确实有这种差异性</strong>）。</p>
+<h4 id="方法2"><a href="#方法2" class="headerlink" title="方法2"></a>方法2</h4><hr>
+<p>该方法采用的方式是通过指定的json schema把数据进行编码，并同时把schema作为metadata放在编码后的数据头部。解码则使用内嵌在数据中的schema来完成。</p>
+<pre><code>import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import org.apache.avro.Schema;
+import org.apache.avro.file.DataFileStream;
+import org.apache.avro.file.DataFileWriter;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericDatumReader;
+import org.apache.avro.generic.GenericDatumWriter;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.DatumWriter;
+
+public class AvroDataFile {
+
+    /**
+     * @param args
+     * @throws IOException
+     */
+    public static void main(String[] args) throws IOException {
+        // Schema
+        String schemaDescription = &quot; {    \n&quot;
+                + &quot; \&quot;name\&quot;: \&quot;FacebookUser\&quot;, \n&quot;
+                + &quot; \&quot;type\&quot;: \&quot;record\&quot;,\n&quot; + &quot; \&quot;fields\&quot;: [\n&quot;
+                + &quot;   {\&quot;name\&quot;: \&quot;name\&quot;, \&quot;type\&quot;: \&quot;string\&quot;},\n&quot;
+                + &quot;   {\&quot;name\&quot;: \&quot;num_likes\&quot;, \&quot;type\&quot;: \&quot;int\&quot;},\n&quot;
+                + &quot;   {\&quot;name\&quot;: \&quot;num_photos\&quot;, \&quot;type\&quot;: \&quot;int\&quot;},\n&quot;
+                + &quot;   {\&quot;name\&quot;: \&quot;num_groups\&quot;, \&quot;type\&quot;: \&quot;int\&quot;} ]\n&quot; + &quot;}&quot;;
+
+        Schema schema = Schema.parse(schemaDescription);    //parse方法在当前的Avro版本下已不推荐使用
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        DatumWriter&lt;GenericRecord&gt; writer = new GenericDatumWriter&lt;GenericRecord&gt;(schema);
+        DataFileWriter&lt;GenericRecord&gt; dataFileWriter = new DataFileWriter&lt;GenericRecord&gt;(writer);
+        dataFileWriter.create(schema, os);
+
+        // Populate data
+        GenericRecord datum = new GenericData.Record(schema);
+        datum.put(&quot;name&quot;, new org.apache.avro.util.Utf8(&quot;kazaff&quot;));
+        datum.put(&quot;num_likes&quot;, 1);
+        datum.put(&quot;num_groups&quot;, 423);
+        datum.put(&quot;num_photos&quot;, 0);
+
+        dataFileWriter.append(datum);
+        dataFileWriter.close();
+
+        System.out.println(&quot;encoded string: &quot; + os.toString());    //可以看到，数据是头部携带了schema metadata
+
+        // Decode
+        DatumReader&lt;GenericRecord&gt; reader = new GenericDatumReader&lt;GenericRecord&gt;();
+        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        DataFileStream&lt;GenericRecord&gt; dataFileReader = new DataFileStream&lt;GenericRecord&gt;(is, reader);
+
+        GenericRecord record = null;
+        while (dataFileReader.hasNext()) {
+            record = dataFileReader.next(record);
+            System.out.println(record.getSchema());    //可以直接获取该数据的json schema定义
+            System.out.println(record.get(&quot;name&quot;).toString());
+            System.out.println(record.get(&quot;num_likes&quot;).toString());
+            System.out.println(record.get(&quot;num_groups&quot;).toString());
+            System.out.println(record.get(&quot;num_photos&quot;).toString());
+        }
+    }
+}
+</code></pre><p>该方法最符合我的预期，这样若我们使用第三方RPC框架（like dubbo），就不需要为schema的数据同步问题花太多精力，但是能想到的问题就是通信成本，毕竟每次数据通信都要携带json schema metadata感觉总是不太好接受，尤其是针对单一长连接场景，似乎更应该去实现类似Avro提供的RPC那样的机制，可以获得更好的性能。</p>
+<h4 id="方法3"><a href="#方法3" class="headerlink" title="方法3"></a>方法3</h4><hr>
+<p>利用Avro提供的反射机制来完成数据的编码解码，<strong>该方法我没有进行实测</strong>。</p>
+<pre><code>import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import org.apache.avro.Schema;
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.Decoder;
+import org.apache.avro.io.DecoderFactory;
+import org.apache.avro.io.Encoder;
+import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.reflect.ReflectData;
+import org.apache.avro.reflect.ReflectDatumReader;
+import org.apache.avro.reflect.ReflectDatumWriter;
+
+import dto.AnotherEmployee;
+import dto.Employee;
+
+public class AvroReflect {
+    final static ReflectData reflectData = ReflectData.get();
+    final static Schema schema = reflectData.getSchema(Employee.class);
+
+    public static void main(String[] args) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        Encoder e = EncoderFactory.get().binaryEncoder(os, null);
+
+        DatumWriter&lt;Employee&gt; writer = new ReflectDatumWriter&lt;Employee&gt;(schema);
+        Employee employee = new Employee();
+        employee.setName(&quot;Kamal&quot;);
+        employee.setSsn(&quot;000-00-0000&quot;);
+        employee.setAge(29);
+
+        writer.write(employee, e);
+        e.flush();
+
+        System.out.println(os.toString());
+
+        ReflectData reflectData = ReflectData.get();
+        Schema schm = reflectData.getSchema(AnotherEmployee.class);
+        ReflectDatumReader&lt;AnotherEmployee&gt; reader = new ReflectDatumReader&lt;AnotherEmployee&gt;(schm);
+        Decoder decoder = DecoderFactory.get().binaryDecoder(os.toByteArray(), null);
+        AnotherEmployee decodedEmployee = reader.read(null, decoder);
+
+        System.out.println(&quot;Name: &quot;+decodedEmployee.getName());
+        System.out.println(&quot;Age: &quot;+decodedEmployee.getAge());
+        System.out.println(&quot;SSN: &quot;+decodedEmployee.getSsn());
+    }
+}
+</code></pre><p>以上代码，均参考自：<a href="http://bigdatazone.blogspot.com/2012/04/apache-avro-helloworld-examples.html" target="_blank" rel="noopener">Apache Avro “HelloWorld” Examples</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/04/30/Avro的三种序列化与反序列化方法/">https://blog.kazaff.me/2015/04/30/Avro的三种序列化与反序列化方法/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Avro/">Avro</a><a class="post-meta__tags" href="/tags/序列化/">序列化</a><a class="post-meta__tags" href="/tags/RPC/">RPC</a><a class="post-meta__tags" href="/tags/json/">json</a><a class="post-meta__tags" href="/tags/schema/">schema</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/05/23/RequireJS导入CMD模块/"><i class="fa fa-chevron-left">  </i><span>RequireJS导入cmd模块</span></a></div><div class="next-post pull-right"><a href="/2015/04/28/JDBC的超时问题/"><span>JDBC的超时问题</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/04/30/Avro的三种序列化与反序列化方法/';
+  this.page.identifier = '2015/04/30/Avro的三种序列化与反序列化方法/';
+  this.page.title = 'Avro的三种序列化方法';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

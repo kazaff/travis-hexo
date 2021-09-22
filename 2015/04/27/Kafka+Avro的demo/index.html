@@ -1,0 +1,250 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Kafka+Avro的demo"><meta name="keywords" content="Avro,序列化,Kafka,RabbitMQ"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Kafka+Avro的demo | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题"><span class="toc-number">1.</span> <span class="toc-text">问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1"><span class="toc-number">1.1.</span> <span class="toc-text">1.</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2"><span class="toc-number">1.2.</span> <span class="toc-text">2.</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Kafka+Avro的demo</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 4月 27 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/04/27/Kafka+Avro的demo/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/04/27/Kafka+Avro的demo/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>最近在对消息中间件进行调研，原先项目里使用的是RabbitMQ，理由很简单：<strong>对开发语言支持度是最好的</strong>，没有之一。但是业界的反馈是，其高并发和分布式支持存在不足~<br><a id="more"></a><br>我就打算再了解一下<strong>kafka</strong>，看看它是怎么个用法~~</p>
+<p>如RabbitMQ一样，kafka也提供了终端脚本来完成基本功能的测试，可以看一下<a href="http://colobu.com/2014/08/06/kafka-quickstart/#show-last-Point" target="_blank" rel="noopener">这里</a>。但光玩玩脚本或官方提供的例子，是不能满足我的~</p>
+<p>作为把消息队列，让其使用在项目中，除了解决和业务代码进行互动以外，还要考虑数据传输的格式问题，也就是说如何解决producer和consumer之间通信的协议问题。</p>
+<p>官方推荐的就是Avro，只可惜我找了半天，都没有一个现成的kafka+Avro的demo供我测试，那就只能自己试着写个了~~</p>
+<pre><code>package me.kazaff.mq;
+
+import kafka.consumer.ConsumerConfig;
+import kafka.consumer.ConsumerIterator;
+import kafka.consumer.KafkaStream;
+import kafka.javaapi.consumer.ConsumerConnector;
+import kafka.javaapi.producer.Producer;
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
+import me.kazaff.mq.avro.Message;
+import org.apache.avro.io.*;
+import org.apache.avro.specific.SpecificDatumReader;
+import org.apache.avro.specific.SpecificDatumWriter;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
+
+public class Main {
+
+    public static void main(String[] args){
+        try {
+            //消息生产
+            produce();
+
+            //消息消费
+            consume();
+
+        }catch (Exception ex){
+            System.out.println(ex);
+        }
+
+    }
+
+    private static void produce() throws IOException{
+        Properties props = new Properties();
+        props.put(&quot;metadata.broker.list&quot;, &quot;localhost:9092&quot;);
+        props.put(&quot;serializer.class&quot;, &quot;kafka.serializer.DefaultEncoder&quot;);
+        props.put(&quot;key.serializer.class&quot;, &quot;kafka.serializer.StringEncoder&quot;);    //key的类型需要和serializer保持一致，如果key是String，则需要配置为kafka.serializer.StringEncoder，如果不配置，默认为kafka.serializer.DefaultEncoder，即二进制格式
+        props.put(&quot;partition.class&quot;, &quot;me.kazaff.mq.MyPartitioner&quot;);
+        props.put(&quot;request.required.acks&quot;, &quot;1&quot;);
+
+        ProducerConfig config = new ProducerConfig(props);
+        Producer&lt;String, byte[]&gt; producer = new Producer&lt;String, byte[]&gt;(config);
+
+        Random rnd = new Random();
+        for(int index = 0; index &lt;= 10; index++){
+            Message msg = new Message();
+            msg.setUrl(&quot;blog.kazaff.me&quot;);
+            msg.setIp(&quot;192.168.137.&quot; + rnd.nextInt(255));
+            msg.setDate(Long.toString(new Date().getTime()));
+
+            DatumWriter&lt;Message&gt; msgDatumWriter = new SpecificDatumWriter&lt;Message&gt;(Message.class);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            try {
+                Encoder e = EncoderFactory.get().binaryEncoder(os, null);
+                msgDatumWriter.write(msg, e);
+                e.flush();
+                byte[] byteData = os.toByteArray();
+
+                KeyedMessage&lt;String, byte[]&gt; data = new KeyedMessage&lt;String, byte[]&gt;(&quot;demo&quot;, &quot;0&quot;, byteData);
+                producer.send(data);
+
+            }catch (IOException ex){
+                System.out.println(ex.getMessage());
+            }finally {
+                os.close();
+            }
+        }
+        producer.close();
+    }
+
+    private static void consume(){
+        Properties props = new Properties();
+        props.put(&quot;zookeeper.connect&quot;, &quot;localhost:2181&quot;);
+        props.put(&quot;group.id&quot;, &quot;1&quot;);
+        props.put(&quot;zookeeper.session.timeout.ms&quot;, &quot;400&quot;);
+        props.put(&quot;zookeeper.sync.time.ms&quot;, &quot;200&quot;);
+        props.put(&quot;auto.commit.interval.ms&quot;, &quot;1000&quot;);
+
+        ConsumerConnector consumer = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
+        Map&lt;String, Integer&gt; topicCountMap = new HashMap&lt;String, Integer&gt;();
+        topicCountMap.put(&quot;demo&quot;, 1);
+        Map&lt;String, List&lt;KafkaStream&lt;byte[], byte[]&gt;&gt;&gt; consumerMap = consumer.createMessageStreams(topicCountMap);
+        List&lt;KafkaStream&lt;byte[], byte[]&gt;&gt; streams = consumerMap.get(&quot;demo&quot;);
+        KafkaStream steam = streams.get(0);
+
+        ConsumerIterator&lt;byte[], byte[]&gt; it = steam.iterator();
+        while (it.hasNext()){
+            try {
+                DatumReader&lt;Message&gt; reader = new SpecificDatumReader&lt;Message&gt;(Message.class);
+                Decoder decoder = DecoderFactory.get().binaryDecoder(it.next().message(), null);
+                Message msg = reader.read(null, decoder);
+
+                System.out.println(msg.getDate() + &quot;,&quot; + msg.getUrl() + &quot;,&quot; + msg.getIp());
+
+            }catch (Exception ex){
+                System.out.println(ex);
+            }
+        }
+
+        if(consumer != null)
+            consumer.shutdown();
+    }
+}
+</code></pre><p><strong>PS：这只是个测试的例子，存在各种问题，不建议直接使用在项目中。</strong></p>
+<p>为了方便大家直接测试，我把pom.xml也贴出来：</p>
+<pre><code>&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+     xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;me.kazaff.mq&lt;/groupId&gt;
+    &lt;artifactId&gt;kafkaProducer&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    &lt;name&gt;kafkaProducer&lt;/name&gt;
+    &lt;description&gt;The Producer of message, use Avro to encode data, and send to the kafka.&lt;/description&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.apache.kafka&lt;/groupId&gt;
+            &lt;artifactId&gt;kafka_2.11&lt;/artifactId&gt;
+            &lt;version&gt;0.8.2.1&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.apache.avro&lt;/groupId&gt;
+            &lt;artifactId&gt;avro&lt;/artifactId&gt;
+            &lt;version&gt;1.7.6-cdh5.2.5&lt;/version&gt;
+        &lt;/dependency&gt;
+
+    &lt;/dependencies&gt;
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.avro&lt;/groupId&gt;
+                &lt;artifactId&gt;avro-maven-plugin&lt;/artifactId&gt;
+                &lt;version&gt;1.7.6&lt;/version&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;phase&gt;generate-sources&lt;/phase&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;schema&lt;/goal&gt;
+                        &lt;/goals&gt;
+                        &lt;configuration&gt;
+                            &lt;sourceDirectory&gt;${project.basedir}/src/avro/&lt;/sourceDirectory&gt;
+                            &lt;outputDirectory&gt;${project.basedir}/src/&lt;/outputDirectory&gt;
+                        &lt;/configuration&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;configuration&gt;
+                    &lt;source&gt;1.7&lt;/source&gt;
+                    &lt;target&gt;1.7&lt;/target&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;cloudera-repo-releases&lt;/id&gt;
+            &lt;url&gt;https://repository.cloudera.com/artifactory/repo/&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+&lt;/project&gt;
+</code></pre><p>下面是Avro使用的Schema：</p>
+<pre><code>{
+    &quot;namespace&quot;: &quot;me.kazaff.mq.avro&quot;,
+    &quot;type&quot;: &quot;record&quot;,
+    &quot;name&quot;: &quot;Message&quot;,
+    &quot;fields&quot;: [
+        {
+            &quot;name&quot;: &quot;date&quot;,
+            &quot;type&quot;: &quot;string&quot;
+        },
+        {
+            &quot;name&quot;: &quot;url&quot;,
+            &quot;type&quot;: &quot;string&quot;
+        },
+        {
+            &quot;name&quot;: &quot;ip&quot;,
+            &quot;type&quot;: &quot;string&quot;
+        }
+    ]
+}
+</code></pre><p>代码中使用的<code>MyPartitioner</code>其实很sb：</p>
+<pre><code>package me.kazaff.mq;
+
+import kafka.producer.Partitioner;
+import kafka.utils.VerifiableProperties;
+
+/**
+ * Created by kazaff on 2015/4/21.
+ */
+public class MyPartitioner implements Partitioner {
+    public MyPartitioner(VerifiableProperties props){}
+
+    public int partition(Object key, int numPartitions){
+        return 0;
+    }
+}
+</code></pre><p>需要注意的是，我是先使用Maven根据配置的plugin，把声明的Schema先处理生成对应的Class文件，然后再进行运行测试的~</p>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><hr>
+<h4 id="1"><a href="#1" class="headerlink" title="1."></a>1.</h4><blockquote>
+<p>java.lang.ClassCastException: [B cannot be cast to java.lang.String</p>
+</blockquote>
+<p>解决方法很简单：</p>
+<pre><code>props.put(&quot;serializer.class&quot;, &quot;kafka.serializer.DefaultEncoder&quot;);
+</code></pre><p>这样，kafka就默认使用二进制的序列化方案处理Avro的编码结果了。</p>
+<h4 id="2"><a href="#2" class="headerlink" title="2."></a>2.</h4><blockquote>
+<p>java.lang.ClassCastException: java.lang.String cannot be cast to [B</p>
+</blockquote>
+<p>这个问题是最恶心的，搜了半天都没有找到原因，原因是<strong>问题1</strong>中那么设置后，Kafka所有的数据序列化方式都成了二进制方式，包括我们后面要使用的“key”（用于kafka选择分区的线索）。</p>
+<p>所以你还需要再加一条配置：</p>
+<pre><code>props.put(&quot;key.serializer.class&quot;, &quot;kafka.serializer.StringEncoder&quot;);
+</code></pre><p>单独设置一下“key”的序列化方式，这样就可以编译运行了~~</p>
+<hr>
+<p>初尝Kafka和Avro，就这么点儿要记录的，不要嫌少哟~~</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/04/27/Kafka+Avro的demo/">https://blog.kazaff.me/2015/04/27/Kafka+Avro的demo/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Avro/">Avro</a><a class="post-meta__tags" href="/tags/序列化/">序列化</a><a class="post-meta__tags" href="/tags/Kafka/">Kafka</a><a class="post-meta__tags" href="/tags/RabbitMQ/">RabbitMQ</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/04/28/JDBC的超时问题/"><i class="fa fa-chevron-left">  </i><span>JDBC的超时问题</span></a></div><div class="next-post pull-right"><a href="/2015/04/25/基于REST的接口文档/"><span>前后端分离的契约：接口文档</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/04/27/Kafka+Avro的demo/';
+  this.page.identifier = '2015/04/27/Kafka+Avro的demo/';
+  this.page.title = 'Kafka+Avro的demo';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

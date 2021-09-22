@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Twemproxy安装问题与不支持的操作明细"><meta name="keywords" content="redis,twemproxy,可伸缩"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Twemproxy安装问题与不支持的操作明细 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Twemproxy安装问题与不支持的操作明细</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 1月 26 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/nosql/">nosql</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/01/26/twemproxy安装问题与不支持的操作明细/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/01/26/twemproxy安装问题与不支持的操作明细/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>redis已经成为我们项目中不可或缺的一部分，充当了各种业务数据的持久化：用户会话，部分数据关系，缓存等。那么，保证redis的高可用高扩展性自然成了一个不可忽视的目标。<br><a id="more"></a><br>值得庆幸的是业界已经有大量的<a href="http://jolestar.com/redis-ha/" target="_blank" rel="noopener">成功案例</a>用来驾驭redis，我们只需要拿来主义即可。今天要聊的就是一款普世的redis中间代理：<a href="http://zhangxiong0301.iteye.com/blog/2157757" target="_blank" rel="noopener">twemproxy</a>。相关内容可以在网上找到很多，这里肯定没必要重复了，我就先来说一下本人安装twemproxy时遇到的问题吧。</p>
+<p>先安装git：</p>
+<pre><code>yum install git
+</code></pre><p>这个没啥好说的，接下来我们来下载twemproxy源文件：</p>
+<pre><code>cd /usr/local
+git clone https://github.com/twitter/twemproxy.git
+cd twemproxy
+</code></pre><p>第一次编译：</p>
+<pre><code>autoreconf -fvi
+</code></pre><p>结果提示autoconf版本太低，我们只能<a href="http://zhaohe162.blog.163.com/blog/static/3821679720147276238862/" target="_blank" rel="noopener">更新autoconf</a>。</p>
+<p>第二次编译，依然不顺利，报错如下：</p>
+<pre><code>autoreconf: Entering directory `.&apos;
+autoreconf: configure.ac: not using Gettext
+autoreconf: running: aclocal --force -I m4
+Can&apos;t exec xxxxxxx //忘记了，不过不重要
+</code></pre><p>查了一下，原因是由于我们手动安装的autoconf，导致其他两个必要的依赖包缺失，<strong>依照顺序</strong>安装下面两个包：</p>
+<ol>
+<li>automake-1.12.tar.gz： <a href="ftp://ftp.gnu.org/gnu/automake/automake-1.12.tar.xz" target="_blank" rel="noopener">ftp://ftp.gnu.org/gnu/automake/automake-1.12.tar.xz</a></li>
+<li><a href="http://ftp.gnu.org/gnu/libtool/libtool-2.2.4.tar.gz" target="_blank" rel="noopener">libtool-2.2.4.tar.gz</a></li>
+</ol>
+<p>一切就绪了，可以顺利安装了。</p>
+<p>最后需要<strong>提醒</strong>你看一下twemproxy<a href="https://github.com/twitter/twemproxy/blob/master/notes/redis.md" target="_blank" rel="noopener">不支持的命令集合</a>，把自己项目中与redis相关的逻辑都过滤一遍，避免执行失败。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/01/26/twemproxy安装问题与不支持的操作明细/">https://blog.kazaff.me/2015/01/26/twemproxy安装问题与不支持的操作明细/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/redis/">redis</a><a class="post-meta__tags" href="/tags/twemproxy/">twemproxy</a><a class="post-meta__tags" href="/tags/可伸缩/">可伸缩</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/01/26/rsync和inotify配置/"><i class="fa fa-chevron-left">  </i><span>Rsync和inotify配置</span></a></div><div class="next-post pull-right"><a href="/2015/01/15/dubbo中SPI的基础--Cooma微容器/"><span>dubbo中SPI的基础--Cooma微容器</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/01/26/twemproxy安装问题与不支持的操作明细/';
+  this.page.identifier = '2015/01/26/twemproxy安装问题与不支持的操作明细/';
+  this.page.title = 'Twemproxy安装问题与不支持的操作明细';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

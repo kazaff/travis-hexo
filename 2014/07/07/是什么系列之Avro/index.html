@@ -1,0 +1,262 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="是什么系列之Avro"><meta name="keywords" content="序列化,json,schema,编码,rpc,是什么系列"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>是什么系列之Avro | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#类型"><span class="toc-number">1.</span> <span class="toc-text">类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#序列化-反序列化"><span class="toc-number">2.</span> <span class="toc-text">序列化/反序列化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#排序"><span class="toc-number">3.</span> <span class="toc-text">排序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对象容器文件"><span class="toc-number">4.</span> <span class="toc-text">对象容器文件</span></a></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#RPC"><span class="toc-number"></span> <span class="toc-text">RPC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#协议定义"><span class="toc-number">1.</span> <span class="toc-text">协议定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例"><span class="toc-number">2.</span> <span class="toc-text">实例</span></a></li></ol></li></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">是什么系列之Avro</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 7月 7 2014</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2014/07/07/是什么系列之Avro/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2014/07/07/是什么系列之Avro/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>今天来关注一下Avro，目的是想接触一下跨端RPC中间件中关于数据编解码及传输的相关技术，这和我目前负责的项目很有关系！那么先从网上找一些相关的文献来给自己科普一下~<br><a id="more"></a><br>Avro是Hadoop的一个子项目，也是Apache中的一个独立项目，它是一个基于二进制数据传输高性能的中间件。在Hadoop的其他项目中（Hbase，Hive）的客户端与服务端的数据传输中被大量采用。听上去很给力啊？！</p>
+<p>Avro是一个数据序列化的系统，它可以将数据结构或对象转化成便于存储或传输的格式，Avro设计之初就定位为用来支持数据密集型应用，适用于远程或本地大规模数据的存储于交换，Avro支持的编程语言包括：C/C++，JAVA，Python，Ruby，PHP，C#，它的特点有：</p>
+<ol>
+<li>丰富的数据结构类型</li>
+<li>快速可压缩的二进制数据形式（对数据二进制序列化后可节约数据存储空间和网络传输带宽）</li>
+<li>存储持久数据的文件容器</li>
+<li>可实现远程过程调用(RPC)</li>
+<li>简单的动态语言结合功能</li>
+</ol>
+<p>Avro和动态语言结合后，读写数据文件和使用RPC协议都不需要生成代码，而代码生成作为一种可选的优化只需要在静态类型语言中实现。</p>
+<p>Avro依赖于模式（Schema），通过模式定义各种数据结构，只有确定了模式才能对数据进行解释，所以在数据的序列化和反序列化之前，必须先确定模式的结构。同时可动态加载相关数据的模式，数据的读写都使用模式，这使得数据之间不存在任何其他标识（类比Thrift），这样就减少了开销，使得序列化快速又轻巧，同时这种数据及模式的自我描述也方便了动态脚本语言的使用。</p>
+<p>当数据存储到文件中时，它的模式也随之存储，这样任何程序都可以对文件进行处理。如果读取数据时使用的模式与写入时使用的模式不同，也容易解决，因为读取和写入的模式都是已知的。看下面这个规则：</p>
+<table><br><thead><br><tr class="header"><br><th align="left">新模式</th><br><th align="left">Writer</th><br><th align="left">Reader</th><br><th align="left">规则</th><br></tr><br></thead><br><tbody><br><tr class="odd"><br><td align="left">增加了字段</td><br><td align="left">采用旧的模式（新增前）</td><br><td align="left">采用新的模式</td><br><td align="left">Reader对新字段会使用其默认值（Writer不会为新增的字段赋值）</td><br></tr><br><tr class="odd"><br><td align="left"></td><br><td align="left">采用新的模式（新增后）</td><br><td align="left">采用旧的模式</td><br><td align="left">Reader会忽略掉新曾的字段，Writer会为新增字段赋值</td><br></tr><br><tr class="odd"><br><td align="left">减少了字段</td><br><td align="left">采用旧的模式（减少前）</td><br><td align="left">采用新的模式</td><br><td align="left">Reader会忽略已经被删除的字段</td><br></tr><br><tr class="odd"><br><td align="left"></td><br><td align="left">采用新的模式（减少后）</td><br><td align="left">采用旧的模式</td><br><td align="left">如果旧模式里被删除的那个字段有默认值，那么Reader会采用，否则，Reader会报错</td><br></tr><br></tbody><br></table>
+
+<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h2><p>数据类型标准化的意义在于：</p>
+<ol>
+<li>使不同系统对相同的数据能够正确解析</li>
+<li>有利于数据序列化/反序列化</li>
+</ol>
+<p>Avro定义了几种简单数据类型，包括：null，boolean，int，long，float，double，bytes，string。简单数据类型有类型名称定义，不包含属性信息，如：<br>    {“type”: “string”}</p>
+<p>Avro定义了六种复杂数据类型，每一种复杂数据类型都具有独特的属性，如下：</p>
+<p><strong>Records</strong>：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;record&quot;,
+    &quot;name&quot;: &quot;名称json字符串[必填]&quot;,
+    &quot;namespace&quot;: &quot;命名空间json字符串[选填]&quot;,
+    &quot;doc&quot;: &quot;文档json字符串[选填]&quot;
+    &quot;aliases&quot;: &quot;别名json字符串数组[选填]&quot;,
+    &quot;fields&quot;: [    //json数组[必填]
+        {
+            &quot;name&quot;: &quot;字段名&quot;,
+            &quot;type&quot;: &quot;类型&quot;,
+            &quot;default&quot;: &quot;默认值&quot;,
+            &quot;order&quot;: &quot;字段顺序&quot;
+        },
+        ....
+    ]
+}
+</code></pre><p>例如：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;record&quot;,
+    &quot;name&quot;: &quot;test&quot;,
+    &quot;fields&quot;: [
+        {&quot;name&quot;: &quot;a&quot;, &quot;type&quot;: &quot;long&quot;},
+        {&quot;name&quot;: &quot;b&quot;, &quot;type&quot;: &quot;string&quot;}
+    ]
+}
+</code></pre><p><strong>Enums</strong>：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;enum&quot;,
+    &quot;name&quot;: &quot;名称json字符串[必填]&quot;,
+    &quot;namespace&quot;: &quot;命名空间json字符串[选填]&quot;,
+    &quot;doc&quot;: &quot;文档json字符串[选填]&quot;
+    &quot;aliases&quot;: &quot;别名json字符串数组[选填]&quot;,
+    &quot;symbols&quot;: [ //json数组[必填]
+        &quot;值json字符串[必填]，所有值必须是唯一的&quot;
+    ]
+}
+</code></pre><p>例如：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;enum&quot;,
+    &quot;name&quot;: &quot;test&quot;,
+    &quot;symbols&quot;: [&quot;k&quot;, &quot;a&quot;, &quot;z&quot;, &quot;a&quot;, &quot;ff&quot;]
+}
+</code></pre><p><strong>Arrays</strong>：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;array&quot;,
+    &quot;items&quot;: &quot;子元素模式&quot;
+}
+</code></pre><p>例如：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;array&quot;,
+    &quot;items&quot;: &quot;long&quot;
+}
+</code></pre><p><strong>Maps</strong>：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;map&quot;,
+    &quot;values&quot;: &quot;值元素模式&quot;
+}
+</code></pre><p><strong>Fixed</strong>：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;fixed&quot;,
+    &quot;name&quot;: &quot;名称json字符串[必填]&quot;,
+    &quot;namespace&quot;: &quot;命名空间json字符串[选填]&quot;,
+    &quot;aliases&quot;: &quot;别名json字符串数组[选填]&quot;,
+    &quot;size&quot; : &quot;整型，指定每个值的字节数[必填]&quot;
+}
+</code></pre><p><strong>Unions</strong>： json数组</p>
+<h2 id="序列化-反序列化"><a href="#序列化-反序列化" class="headerlink" title="序列化/反序列化"></a>序列化/反序列化</h2><p>Avro指定两种数据序列化编码方式：binary和json。使用二进制编码会高效序列化，并且序列化后得到的结果会比较小，而json一般用于调试系统或基于web应用。</p>
+<p>简单数据类型：</p>
+<table><br><thead><br><tr class="header"><br><th align="left">类型</th><br><th align="left">编码</th><br><th align="left">例子</th><br></tr><br></thead><br><tbody><br><tr><br><td align="left">null</td><br><td align="left">0字节</td><br><td align="left">Null</td><br></tr><br><tr><br><td align="left">boolean</td><br><td align="left">1字节</td><br><td align="left">{true: 1, false: 0}</td><br></tr><br><tr><br><td align="left">int/long</td><br><td align="left">variable-length zig-zag coding</td><br><td align="left"></td><br></tr><br><tr><br><td align="left">float</td><br><td align="left">4字节</td><br><td align="left">Java’s floatToIntBits</td><br></tr><br><tr><br><td align="left">double</td><br><td align="left">8字节</td><br><td align="left">Java’s floatToIntBits</td><br></tr><br><tr><br><td align="left">bytes</td><br><td align="left">一个表示长度的long值，后跟指定长度的字节序列</td><br><td align="left"></td><br></tr><br><tr><br><td align="left">string</td><br><td align="left">一个表示长度的long值，后跟UTF-8字符集的指定长度的字节序列</td><br><td align="left">“foo”:{3,f,o,o}</td><br></tr><br></tbody><br></table>
+
+<p>复杂数据类型：</p>
+<p><strong>records</strong>类型会按字段声明的顺序串连编码值，例如下面这个record schema：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;record&quot;,
+    &quot;name&quot;: &quot;test&quot;,
+    &quot;fields&quot;: [
+        {&quot;name&quot;: &quot;a&quot;, &quot;type&quot;: &quot;long&quot;},
+        {&quot;name&quot;: &quot;b&quot;, &quot;type&quot;: &quot;string&quot;}
+    ]
+}
+</code></pre><p>实例化这个record，假设给a字段赋值27(编码为0x36)，给b字段赋值“foo”(06 66 6f 6f，注意第一个06表示字符串长度3的编码值)，那么这个record编码结果为： 36 06 66 6f 6f</p>
+<p><strong>enum</strong>被编码为一个int，比如：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;enum&quot;,
+    &quot;name&quot;: &quot;test&quot;,
+    &quot;symbols&quot;: [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;]
+}
+</code></pre><p>这将被编码为一个取值范围为[0，3]的int，0表示A，3表示D。</p>
+<p><strong>arrays</strong>编码为block序列，每个block包含一个long的count值，紧跟着的是array items，一个block的count为0表示该block是array的结尾。</p>
+<p><strong>maps</strong>编码为block序列，每个block包含一个long的count值，紧跟着的是key/value对，一个block的count为0表示该block是map的结尾。</p>
+<p><strong>union</strong>编码以一个long值开始，表示后面的数据时union中的哪种数据类型。</p>
+<p><strong>fixed</strong>编码为指定数目的字节。</p>
+<p><img src="http://pic.yupoo.com/kazaff_v/DSBloaTw/wq4vh.jpg" alt></p>
+<p>上图表示的是Avro本地序列化和反序列化流程，Avro将用户定义的模式和具体的数据编码成二进制序列存储在对象容器文件中，例如用户定义了包含学号，姓名，院系和电话的学生模式，而Avro对其进行编码后存储在student.db文件中，其中存储数据的模式放在文件头的元数据中，这样读取的模式即使与写入的模式不同，也可以迅速的读取数据。假如另一个程序需要获取学生的姓名和电话，只需要定义包含姓名和电话的学生模式，然后用此模式去读取容器文件中的数据即可。</p>
+<h2 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h2><p>Avro为数据定义了一个标准的排列顺序，“比较”在很多时候都是经常被使用的对象之间的炒作，标准定义可以进行方便有效的比较和排序，同时标准的定义可以方便对Avro的二进制编码数据直接进行排序而不需要反序列化。</p>
+<p>只有当数据项包含相同的Schema时，数据之间的比较才有意义，比较按照Schema深度优先，从左至右的顺序递归进行，找到第一个不匹配即可终止比较。</p>
+<p>两个拥有相同模式的项的比较按照以下规则进行：</p>
+<ol>
+<li>null：总是相等</li>
+<li>int,long,float：按照数值大小</li>
+<li>boolean：flase在true之前</li>
+<li>string：按照字典顺序</li>
+<li>bytes，fixed：按照byte的字典顺序</li>
+<li>array：按照元素的字典顺序</li>
+<li>enum：按照符号在枚举中的位置</li>
+<li>record：按照域的字典顺序，如果指定了以下属性：<ol>
+<li>ascending：域值的顺序不变</li>
+<li>descending：域值的顺序颠倒</li>
+<li>ignore：排序时忽略域值</li>
+</ol>
+</li>
+<li>map：不可进行排序比较</li>
+</ol>
+<h2 id="对象容器文件"><a href="#对象容器文件" class="headerlink" title="对象容器文件"></a>对象容器文件</h2><p>Avro定义了一个简单的对象容器文件格式，一个文件对应一个模式，所有存储在文件中的对象都是根据模式写入的，对象按照块进行存数，块可以采用压缩的方式存储。为了在进行MapReduce处理的时候有效的切分文件，在块之间采用了同步记号。</p>
+<p><img src="http://pic.yupoo.com/kazaff_v/DSBxUm94/VtHbS.jpg" alt></p>
+<p>一个文件有两部分组成：文件头(Header)和一个或多个文件的数据块(Data Block)。而头信息由由三部分构成：四个字节的前缀，文件Meta-data信息和随机生成的16字节同步标记符。目前Avro支持的Meta-data有两种：schema和codec。</p>
+<p>codec表示对后面的文件数据块采用何种压缩方式。Avro的实现都需要支持下面两种压缩方式：null（不压缩）和deflate（使用Deflate算法压缩数据块）。除了文档中认定的两种Meta-data，用户也可以自定义适用于自己的Meta-data，这里用long型来表示有多少个Meta-data数据对，也是让用户在实际应用中可以定义足够的Meta-data信息。</p>
+<p>对于每对Meta-data信息，都有一个string型的key（要以“avro.”为前缀）和二进制编码后的value。由于对象可以组织成不同的块，使用时就可以不经过反序列化而对某个数据块进行操作。还可以由数据块数，对象数和同步标记符来定位损坏的块以确保数据完整性。</p>
+<h1 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h1><p>当在RPC中使用Avro时，服务器和客户端可以在握手连接时交换模式，服务器和客户端有彼此全部的模式，因此相同命名字段，缺失字段和多余字段等信息之间通信中需要处理的一致性问题就可以解决。</p>
+<p>客户端希望同服务器端交互时，就需要交换双方通信的协议，它类似于模式，需要双方来协商定义，在Avro中被称为消息。</p>
+<p><img src="http://pic.yupoo.com/kazaff_v/DSCXbgqa/Jzy9D.jpg" alt></p>
+<p>上图所示，协议中定义了用于传输的消息，消息使用框架后放入缓冲区中进行传输，由于传输的开始就交换了各自的协议定义，因此数据就能够正确解析。所谓传输的开始，也就是很重要的握手阶段。</p>
+<p>握手的过程是确保Server和Client获得对方的Schema定义，从而使Server能够正确反序列化请求信息，Client能够正确反序列化响应信息。通常，Server/Client会缓存最后使用到的一些协议格式，所以大多数情况下，握手过程不需要交换整个Schema文本。</p>
+<p>所有的RPC请求和响应处理都建立在已经完成握手的基础上，对于无状态的连接，所有的请求响应之前都附有一次握手过程，而对于有状态的连接，一次握手完成，整个连接的生命期内都有效。</p>
+<p>下面看一下具体握手过程：</p>
+<ol>
+<li>Client发起HandshakeRequest，其中包含Client本身SchemaHash值和对应Server端的SchemaHash值，例如：（clientHash!=null,clientProtocol=null,serverHash!=null），如果本地缓存有ServerHash值则直接填充，如果没有则通过猜测填充；</li>
+<li>Server用如下之一的HandshakeResponse响应Client请求：<ol>
+<li>（match=BOTH,serverProtocol=null,serverHash=null）：表示当Client发送正确的ServerHash值且Server缓存中存在相应的ClientHash，则握手过程完成；</li>
+<li>（match=CLIENT,serverProtocol!=null,serverHash!=null）：表示当Server缓存有Client的Schema，但Client请求中的ServHash值不正确。Server发送Server端的Schema数据和相应的Hash值，此次握手完成。</li>
+<li>（match=NONE）：表示当Client发送的ServerHash不正确且Server端没有Client的Schema缓存。这种情况下Client需要重新提交请求信息（clientHash!=null,clientProtocol!=null,serverHash!=null），Server根据实际情况给予正确的响应，握手完成。</li>
+</ol>
+</li>
+</ol>
+<p>握手过程使用的Schema结构如下：</p>
+<pre><code>{
+    &quot;type&quot;: &quot;record&quot;,
+    &quot;name&quot;: &quot;HandshakeRequest&quot;,
+    &quot;namespace&quot;: &quot;org.apache.avro.ipc&quot;,
+    &quot;fields&quot;: [
+        {
+            &quot;name&quot;: &quot;clientHash&quot;,
+            &quot;type&quot;: {
+                &quot;type&quot;: &quot;fixed&quot;,
+                &quot;name&quot;: &quot;MD5&quot;,
+                &quot;size&quot;: 16
+            }
+        },
+        {&quot;name&quot;: &quot;clientProtocol&quot;, &quot;type&quot;: [&quot;null&quot;, &quot;string&quot;]},
+        {&quot;name&quot;: &quot;serverHash&quot;, &quot;type&quot;: &quot;MD5&quot;},
+        {
+            &quot;name&quot;: &quot;meta&quot;, 
+            &quot;type&quot;: [
+                &quot;null&quot;,
+                {
+                    &quot;type&quot;: &quot;map&quot;,
+                    &quot;values&quot;: &quot;bytes&quot;
+                }
+            ]
+        }
+    ]
+}
+
+{
+    &quot;type&quot;: &quot;record&quot;,
+    &quot;name&quot;: &quot;HandshakeResponse&quot;,
+    &quot;namespace&quot;: &quot;org.apache.avro.ipc&quot;,
+    &quot;fields&quot;: [
+        {
+            &quot;name&quot;: &quot;match&quot;, 
+            &quot;type&quot;: {
+                &quot;type&quot;: &quot;enum&quot;,
+                &quot;name&quot;: &quot;HandshakeMatch&quot;,
+                &quot;symbols&quot;: [&quot;BOTH&quot;, &quot;CLIENT&quot;, &quot;NONE&quot;]
+            }
+        },
+        {&quot;name&quot;: &quot;serverProtocol&quot;, &quot;type&quot;: [&quot;null&quot;, &quot;string&quot;]},
+        {
+            &quot;name&quot;: &quot;serverHash&quot;,
+            &quot;type&quot;: {
+                &quot;type&quot;: &quot;fixed&quot;,
+                &quot;name&quot;: &quot;MD5&quot;,
+                &quot;size&quot;: 16
+            }
+        },
+        {
+            &quot;name&quot;: &quot;meta&quot;, 
+            &quot;type&quot;: [
+                &quot;null&quot;,
+                {
+                    &quot;type&quot;: &quot;map&quot;,
+                    &quot;values&quot;: &quot;bytes&quot;
+                }
+            ]
+        }
+    ]
+}
+</code></pre><p>消息从客户端发送到服务器端需要经过传输层（Transport Layer），它发送消息并接受服务器端响应。到达传输层的数据就已经是二进制数据了，通常以HTTP作为传输模型，数据以POST方式发送给对方，在Avro中，消息被封装成一组Buffer，如下图所示：</p>
+<p><img src="http://pic.yupoo.com/kazaff_v/DSCZH27c/9Qe0j.jpg" alt></p>
+<p>每个Buffer以四个字节开头，中间是多个字节的数据，最后以一个空缓冲区结尾。</p>
+<h2 id="协议定义"><a href="#协议定义" class="headerlink" title="协议定义"></a>协议定义</h2><p>Avro协议描述了RPC接口，和Schema一样，用JSON定义，有以下属性：</p>
+<ul>
+<li>protocol，必需，协议名称</li>
+<li>namespace，可选，协议的命名空间</li>
+<li>doc，可选，描述这个协议的字符串</li>
+<li>types，可选，定义协议类型名称列表</li>
+<li>messages，可选，一个json对象，key是message名称，value是json对象<ul>
+<li>doc，可选，对消息的说明</li>
+<li>request，参数列表，其中参数拥有名字和类型</li>
+<li>response，响应数据的schema</li>
+<li>error，可选，用一个declared union来描述，error类型的定义和record一样，除了它使用error，而不是record</li>
+<li>one-way，可选，布尔类型，当response 类型是null，并且没有列出error时，one-way parameter只能是true</li>
+</ul>
+</li>
+</ul>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><p>可以参考这篇文章，写得非常详细：<a href="http://www.cnblogs.com/agoodegg/p/3309041.html" target="_blank" rel="noopener">这里</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2014/07/07/是什么系列之Avro/">https://blog.kazaff.me/2014/07/07/是什么系列之Avro/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/序列化/">序列化</a><a class="post-meta__tags" href="/tags/json/">json</a><a class="post-meta__tags" href="/tags/schema/">schema</a><a class="post-meta__tags" href="/tags/编码/">编码</a><a class="post-meta__tags" href="/tags/rpc/">rpc</a><a class="post-meta__tags" href="/tags/是什么系列/">是什么系列</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2014/07/07/是什么系列之Thrift/"><i class="fa fa-chevron-left">  </i><span>是什么系列之Thrift</span></a></div><div class="next-post pull-right"><a href="/2014/07/03/是什么系列之Servlet/"><span>是什么系列之Servlet</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2014/07/07/是什么系列之Avro/';
+  this.page.identifier = '2014/07/07/是什么系列之Avro/';
+  this.page.title = '是什么系列之Avro';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

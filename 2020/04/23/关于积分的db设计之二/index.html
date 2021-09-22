@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="关于积分的Db设计之二"><meta name="keywords" content="积分设计,有效期"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>关于积分的Db设计之二 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">关于积分的Db设计之二</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 4月 23 2020</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/数据库/">数据库</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2020/04/23/关于积分的db设计之二/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2020/04/23/关于积分的db设计之二/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>继续积分这个话题，我们接着之前的<a href="https://blog.kazaff.me/2020/04/23/%E5%85%B3%E4%BA%8E%E7%A7%AF%E5%88%86%E7%9A%84db%E8%AE%BE%E8%AE%A1%E4%B9%8B%E4%B8%80/">那篇文章</a>往下说。上一篇给了一个db的设计方案，也简单讨论了一下它的精妙与不足。<br>那么，是否还可以有更好一些的db设计呢？</p>
+<p>别着急，我们还是先来说业务。<br>其实除了上一篇文章提到的那些规则外，我们的电商系统里，还有另外一个额外的小规则，由于比较另类，所以我放在这里才说，因为它也会对上面的那个db设计造成一定的问题。</p>
+<p>我们的电商系统，在客户结算时并不提供一个输入框来给客户输入打算用使用的积分数量，而是只提供了一个开关选项，如果客户选择使用积分（默认），则意味着会<strong>尽可能使用积分来完成结算</strong>。这一点应该算是比较另类了，这意味着，合理的情况下会尽可能避免用户的积分到期，除非他很久才回归。也意味着客户只要选择使用积分，就可能会关联一大批的积分记录（请结合之前的points表来理解这句话）。这也是我对之前的db设计直觉上总感到不完美的切入点。</p>
+<p>我假设的是，客户每次下单都积累积分（假设10次），之后他想要使用积分了，就可能会影响10条记录，并且在这10条记录上做写锁以及扣减逻辑，未来退款还要再逆向做一次。而且，其实每次计算客户当前可用积分，<code>where</code>条件也很难很好的利用索引（<code>expire &gt; NOW</code>很难有效的过滤掉足够多的记录）。</p>
+<p>那么结合这些因素，我们试着改良一下前面的db设计：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> points_status(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT  <span class="keyword">COMMENT</span> <span class="string">'主键'</span> ,</span><br><span class="line">    user_id <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>   <span class="keyword">COMMENT</span> <span class="string">'用户id'</span> ,</span><br><span class="line">    points <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'可用积分总值'</span> ,</span><br><span class="line">    points_status <span class="built_in">TEXT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> [] <span class="keyword">COMMENT</span> <span class="string">'积分状态明细'</span> ,</span><br><span class="line">    PRIMARY <span class="keyword">KEY</span> (<span class="keyword">id</span>)</span><br><span class="line">)<span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COMMENT</span> = <span class="string">'积分状态表 '</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> points_logs(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT  <span class="keyword">COMMENT</span> <span class="string">'主键'</span> ,</span><br><span class="line">    user_id <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>   <span class="keyword">COMMENT</span> <span class="string">'用户id'</span> ,</span><br><span class="line">    order_id <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'订单id'</span> ,</span><br><span class="line">    <span class="keyword">type</span> <span class="built_in">CHAR</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'操作类型'</span> ,</span><br><span class="line">    points <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>   <span class="keyword">COMMENT</span> <span class="string">'积分变更值'</span> ,</span><br><span class="line">    <span class="keyword">expire</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'到期时间批次'</span> ,</span><br><span class="line">    PRIMARY <span class="keyword">KEY</span> (<span class="keyword">id</span>)</span><br><span class="line">)<span class="keyword">ENGINE</span>=MyISAM <span class="keyword">CHARSET</span>=utf8  <span class="keyword">COMMENT</span> = <span class="string">'积分流水表 '</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx1 <span class="keyword">ON</span> points_logs (user_id, <span class="keyword">type</span>, <span class="keyword">expire</span>, order_id);</span><br></pre></td></tr></table></figure>
+<p>这次拆分成了两张表，也比较符合习惯，一张数据聚合表（points_status），另一张数据流水表（points_logs）。</p>
+<p>其中<strong>积分状态表</strong>中直接将当前用户可用的积分总值存入<code>points</code>字段，方便获取，而为了记录每一批次积分的到期时间，该表的<code>points_status</code>字段中存放的也是json结构的数据字符串：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&#123;<span class="string">"expire"</span>: <span class="string">"精确到日期的时间戳"</span>, <span class="string">"val"</span>: <span class="string">"该批次的积分数值"</span>&#125;, ...]</span><br></pre></td></tr></table></figure>
+<p>这里注意一个细节，<code>expire</code>键中存放的是精确到日期的时间戳，这样同一天到期的多个积分会自动汇总到一起。我们姑且称为<strong>积分批次</strong>。而在表<code>points_logs</code>中，每一条积分的流水记录也都有相同颗粒度的到期批次字段<code>expire</code>，这样当出现退款时，可以从对应流水记录中的批次得到每个批次应该退还多少数值。</p>
+<p>我们还是举个具体的例子吧~~依然假设目前就只有一个客户，他通过下单，已经挣到了200积分，那么在db中会保存对应的记录：</p>
+<p><strong>points_status表</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">id</th>
+<th style="text-align:left">user_id</th>
+<th style="text-align:left">points</th>
+<th style="text-align:left">points_status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">200</td>
+<td style="text-align:left">[{“expire”:”2020-05-01”, “val”:100},{“expire”:”2020-06-01”, “val”:100}]</td>
+</tr>
+</tbody>
+</table>
+<p><strong>points_logs</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">id</th>
+<th style="text-align:left">user_id</th>
+<th style="text-align:left">points</th>
+<th style="text-align:left">expire</th>
+<th style="text-align:left">type</th>
+<th style="text-align:left">order_id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">+100</td>
+<td style="text-align:left">2020-05-01</td>
+<td style="text-align:left">earn</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">2</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">+100</td>
+<td style="text-align:left">2020-06-01</td>
+<td style="text-align:left">earn</td>
+<td style="text-align:left">2</td>
+</tr>
+</tbody>
+</table>
+<p>每次客户挣得积分，业务代码操作时只需要锁定<code>points_status</code>表中对应<code>user_id</code>的那一条数据。至于积分流水表，以插入为主。<br>每当业务需要更新客户的积分状态时，都可以“顺便”做一件事儿：将<code>points_status.points_status</code>字段中的过期值清理一下，清理出得过期积分也要插入到<code>points_logs</code>表中，如下面这样的记录：</p>
+<p><strong>points_logs</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">id</th>
+<th style="text-align:left">user_id</th>
+<th style="text-align:left">points</th>
+<th style="text-align:left">expire</th>
+<th style="text-align:left">type</th>
+<th style="text-align:left">order_id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">3</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">-100</td>
+<td style="text-align:left">1984-07-23</td>
+<td style="text-align:left">expire</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注意：该记录的<code>type</code>为expire，我们可以暂定<code>type</code>字段供有三种类型值：earn(得取)，cost(消费)，expire(过期)</p>
+</blockquote>
+<p>我们也可以在每天的凌晨执行一个定时任务，用来把系统中所有客户的过期积分都处理一遍。当然如果系统的客户数据量巨大，也可以根据客户的活跃度分批次进行处理。即便是不处理，在客户决定使用积分的时候，也优先从<code>points_status.points_status</code>字段中动态计算积分的有效性，听起来好像也没有彻底解决实时计算的复杂度，但至少不会造成并发锁的冲突。</p>
+<p>而且如果考虑到定时任务，那我们则可以认为<code>points_status.points</code>值就是精确的。即便是前面提到的数据量大而选择分批执行，我们也可以通过增加一个字段来存储是否精确，以此来最大程度减少频繁实时计算带来的性能问题。</p>
+<p>我们再来看看之前提到的业务指标是否得到了满足：</p>
+<ol>
+<li>积分存在有效期，过期作废</li>
+<li>用户可以查看当前可用积分总数</li>
+<li>允许用户看到累积过期的积分总数</li>
+<li>结算时，若用户选择使用积分，需要优先使用快要到期的积分部分</li>
+<li>退款时，若用户之前有使用积分，需要按照积分的有效期，优先退还到期时间晚的积分部分</li>
+</ol>
+<p>第1、2，4点，直接在<code>points_status</code>表单条记录中就可以得到答案；<br>第3点，可以从<code>points_logs</code>表中按照<code>type==expire</code>的条件拿到总数；<br>第5点，需要借助<code>points_logs</code>中<code>type==cost &amp;&amp; order_id==退款订单id</code>的条件得到需要退款的积分数值和对应的批次，再去<code>points_status</code>表中进行具体查找修改即可（若在对应的记录中已经找不到对应的积分批次了，则说明该批次积分已经过期了，此时不需要其它操作，直接将需要退还的积分直接以<code>type=expire</code>类型插入积分流水表即可）。</p>
+<p>这样的设计，解决了一部分问题。<br>可是，还有更好一些的设计方案吗？</p>
+<p>我相信答案一定是肯定的，请留下你的看法，谢谢~~</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2020/04/23/关于积分的db设计之二/">https://blog.kazaff.me/2020/04/23/关于积分的db设计之二/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/积分设计/">积分设计</a><a class="post-meta__tags" href="/tags/有效期/">有效期</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2020/05/26/关于电商系统的搜索框/"><i class="fa fa-chevron-left">  </i><span>关于电商系统的搜索框</span></a></div><div class="next-post pull-right"><a href="/2020/04/23/关于积分的db设计之一/"><span>关于积分的Db设计之一</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2020/04/23/关于积分的db设计之二/';
+  this.page.identifier = '2020/04/23/关于积分的db设计之二/';
+  this.page.title = '关于积分的Db设计之二';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

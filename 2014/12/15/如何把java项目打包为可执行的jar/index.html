@@ -1,0 +1,93 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="如何把Java项目打包为可执行的jar"><meta name="keywords" content="打包,jar,idea,maven,MANIFEST.MF,资源"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>如何把Java项目打包为可执行的jar | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#用Idea打包"><span class="toc-number">1.</span> <span class="toc-text">用Idea打包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用Maven打包"><span class="toc-number">2.</span> <span class="toc-text">用Maven打包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#java读取jar包中的资源文件"><span class="toc-number">3.</span> <span class="toc-text">java读取jar包中的资源文件</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">如何把Java项目打包为可执行的jar</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 12月 15 2014</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2014/12/15/如何把java项目打包为可执行的jar/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2014/12/15/如何把java项目打包为可执行的jar/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>这几天用java写了一个后台服务，就是把office文件转换成pdf。实现挺简单的，直接调用openoffice服务即可，大致做法网上有很多教程，这里就不多扯了，今天主要是说一下项目打包的事儿。<br><a id="more"></a></p>
+<h2 id="用Idea打包"><a href="#用Idea打包" class="headerlink" title="用Idea打包"></a>用Idea打包</h2><p>前段时间是直接用IDE提供的支持把java Web项目打包成war。一切都是那么的顺利，可现在想要的是直接把项目打包成jar，而且需要的是直接在终端中输入<code>java -jar xxxx.jar</code>即可运行！</p>
+<p>一开始也打算尝试使用IDE提供的打包方式，可总是失败，jar是生成了，不过运行时总提示类缺失，明明已经把所有依赖的第三方jar包都copy了一份，可死活就是找不到，十分怀疑是<code>MANIFEST.MF</code>文件的配置问题。</p>
+<p>总之使用了几种网上找的方式都出现各种问题，所以暂时放弃了Idea打包jar的想法，有经验的童鞋可以来<a href="http://segmentfault.com/q/1010000002429996" target="_blank" rel="noopener">这里</a>捧场，一经测试，立马送分哟~。</p>
+<h2 id="用Maven打包"><a href="#用Maven打包" class="headerlink" title="用Maven打包"></a>用Maven打包</h2><p>要说吧，这算是大家最认可的方式，不过maven打包也有好多种插件，这让我这种新手很是头疼。</p>
+<p><strong>方案一：</strong></p>
+<pre><code>&lt;plugin&gt;
+    &lt;artifactId&gt;maven-assembly-plugin&lt;/artifactId&gt;
+    &lt;version&gt;2.2&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;archive&gt;
+            &lt;manifest&gt;
+                &lt;mainClass&gt;me.kazaff.Main&lt;/mainClass&gt;
+            &lt;/manifest&gt;
+        &lt;/archive&gt;
+        &lt;descriptorRefs&gt;
+            &lt;descriptorRef&gt;jar-with-dependencies&lt;/descriptorRef&gt;
+        &lt;/descriptorRefs&gt;
+    &lt;/configuration&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;id&gt;make-assembly&lt;/id&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;single&lt;/goal&gt;
+            &lt;/goals&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;
+</code></pre><p>这会将所有依赖的包解压后重新和自己的项目包合并打入jar包中，至于这么做的优劣可以留给你自己去体会，这么做的理由我猜应该和jar包查找classpatch有关系吧，否则为什么要这么奇葩呢？</p>
+<p><strong>方案二：</strong></p>
+<pre><code>&lt;plugin&gt;
+    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-jar-plugin&lt;/artifactId&gt;
+    &lt;configuration&gt;
+        &lt;archive&gt;
+            &lt;manifest&gt;
+                &lt;addClasspath&gt;true&lt;/addClasspath&gt;
+                &lt;classpathPrefix&gt;lib/&lt;/classpathPrefix&gt;
+                &lt;mainClass&gt;me.kazaff.Main&lt;/mainClass&gt;
+            &lt;/manifest&gt;
+        &lt;/archive&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;
+&lt;plugin&gt;
+    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;id&gt;copy&lt;/id&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;copy-dependencies&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+                &lt;outputDirectory&gt;./target/lib&lt;/outputDirectory&gt;
+            &lt;/configuration&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;
+</code></pre><p>这种方式相对方案一，似乎好了那么一些，它会把你的项目打成一个独立的jar包，并在jar包所在的目录中建立一个lib文件夹，并把所有三方依赖jar包拷贝进去，这还不算完，生成的那个jar包中的<code>MANIFEST.MF</code>会配置好<code>Class-Path</code>属性。</p>
+<p>需要注意的是，如果你想直接在终端中运行该jar包，必须保证终端进入到项目jar包所在的目录下，否则相对路径会导致依赖的三方jar包找不到哟~~</p>
+<p>好吧，如果你像我一样记性不好，又需要将打包的jar文件拷贝到其他机器上部署的话，很容易忘记lib文件夹！这里有一个进阶的打包方法：<a href="http://www.xeclipse.com/?p=1470" target="_blank" rel="noopener">传送门</a>。</p>
+<p><strong>方案三：</strong></p>
+<p>那有没有一种方法，可以让我们把项目真正的打包成单一可执行的jar包呢？而且这个jar包中的结构不会像方案一那样混乱，而是把所有第三方依赖包以jar包的方式存储。这难道成了奢望么？</p>
+<p>油腻的湿姐并非我一个人在寻找：<a href="http://www.gznote.com/2014/07/maven%E4%B8%ADmaven-assembly-plugin%E7%9A%84%E4%BD%BF%E7%94%A8.html" target="_blank" rel="noopener">队友</a>。不过，按照他的最后一个办法打包出来的jar是无法直接执行的，因为其中<code>MANIFEST.MF</code>缺少<code>Main-Class</code>和<code>Class-Path</code>属性，他的这种方式如果是打包成一个非执行jar包的话应该还是不错的。</p>
+<p>所以，如你所见，方案三并不存在，至少我不知道应该怎么做！有办法的朋友可以在文章下面留言，不胜感激！</p>
+<h2 id="java读取jar包中的资源文件"><a href="#java读取jar包中的资源文件" class="headerlink" title="java读取jar包中的资源文件"></a>java读取jar包中的资源文件</h2><p>打包后发现原先在代码中直接通过路径读取的配置文件再也找不到了，可是打开jar包明明看得到啊！</p>
+<p>查了一下资料，才知道到底发生了什么，看这里：<a href="http://ppjava.com/?p=1205" target="_blank" rel="noopener">传送门</a>，<a href="http://www.iteye.com/topic/483115" target="_blank" rel="noopener">传送门2</a>。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2014/12/15/如何把java项目打包为可执行的jar/">https://blog.kazaff.me/2014/12/15/如何把java项目打包为可执行的jar/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/打包/">打包</a><a class="post-meta__tags" href="/tags/jar/">jar</a><a class="post-meta__tags" href="/tags/idea/">idea</a><a class="post-meta__tags" href="/tags/maven/">maven</a><a class="post-meta__tags" href="/tags/MANIFEST-MF/">MANIFEST.MF</a><a class="post-meta__tags" href="/tags/资源/">资源</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2014/12/24/在无图形界面的Centos6.5下使用OpenOfiice4.1/"><i class="fa fa-chevron-left">  </i><span>在无图形界面的Centos6.5下使用OpenOffice4.1</span></a></div><div class="next-post pull-right"><a href="/2014/12/09/No WebApplicationContext found no ContextLoaderListener registered/"><span>No WebApplicationContext Found</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2014/12/15/如何把java项目打包为可执行的jar/';
+  this.page.identifier = '2014/12/15/如何把java项目打包为可执行的jar/';
+  this.page.title = '如何把Java项目打包为可执行的jar';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

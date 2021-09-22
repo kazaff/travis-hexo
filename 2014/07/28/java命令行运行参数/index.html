@@ -1,0 +1,125 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Java命令行参数"><meta name="keywords" content="jvm"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Java命令行参数 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#如何查看参数列表"><span class="toc-number">1.</span> <span class="toc-text">如何查看参数列表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基本参数说明"><span class="toc-number">2.</span> <span class="toc-text">基本参数说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#扩展参数说明"><span class="toc-number">3.</span> <span class="toc-text">扩展参数说明</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Java命令行参数</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 7月 28 2014</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/java/">java</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2014/07/28/java命令行运行参数/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2014/07/28/java命令行运行参数/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>妈蛋，实在是顶不住部分文章的排版，看着太让人心焦了~~所以，对一篇文章重新排版一下，希望能帮助到其他人~</p>
+<p>先发出<a href="http://xinklabi.iteye.com/blog/837435" target="_blank" rel="noopener">原文链接</a>，供眼神好的童鞋~~</p>
+<a id="more"></a>
+<p>下面是小弟排版后的内容：</p>
+<p>Java在运行已编译完成的类时，是通过java虚拟机来装载和执行的，java虚拟机通过操作系统命令<code>JAVA_HOME&quot;bin/&quot;java -option</code>来启动，<code>option</code>为虚拟机参数， <code>JAVA_HOME</code>为JDK安装路径，通过虚拟机参数可对虚拟机的运行状态进行调整，掌握参数的含义可对虚拟机的运行模式有更深入的理解。</p>
+<h2 id="如何查看参数列表"><a href="#如何查看参数列表" class="headerlink" title="如何查看参数列表"></a>如何查看参数列表</h2><p>虚拟机参数分为基本和扩展两类，在命令行中输入<code>JAVA_HOME&quot;bin/&quot;java</code>就可得到基本的参数列表，在命令行中输入<code>JAVA_HOME&quot;bin/&quot;java -X</code>就可以得到扩展参数列表。</p>
+<h2 id="基本参数说明"><a href="#基本参数说明" class="headerlink" title="基本参数说明"></a>基本参数说明</h2><p><strong>-client/-server</strong></p>
+<p>这两个参数用于设置虚拟机使用何种运行模式，<code>client</code>模式启动比较快，但运行时性能和内存管理效率不如<code>server</code>模式，通常用于客户端应用程序。相反，<code>server</code>模式启动稍慢，但可获得更高的运行性能。</p>
+<p>在win上，缺省的虚拟机类型为<code>client</code>模式，如果要使用<code>server</code>模式就需要在启动虚拟机时加上<code>-server</code>参数，以获得更高性能。对服务器应用，推荐采用<code>server</code>模式，尤其是多个cpu的系统。</p>
+<p>在Linux，Solaris上缺省采用的是<code>server</code>模式。</p>
+<p><strong>-hotspot</strong></p>
+<p>含义与<code>client</code>相同，jdk1.4以前使用的参数，现在已经不再使用，取而代之的是<code>client</code>。</p>
+<p><strong>-classpath/-cp</strong></p>
+<p>虚拟机在运行一个类时需要将其装入内存，搜索类的方式和顺序如下：</p>
+<ol>
+<li>Bootstrap classes</li>
+<li>Extension Classes</li>
+<li>User Classes</li>
+</ol>
+<p><code>Bootstrap</code>中的路径是虚拟机自带的jar或zip文件，虚拟机首选搜索这些包文件，用下面这种方式可得到虚拟机搜索的路径：</p>
+<pre><code>System.getProperty(&quot;sun.boot.class.path&quot;)
+</code></pre><p><code>Extension</code>位于jre的<code>lib/ext</code>目录下的jar文件，虚拟机在搜索完Bootstrap后就搜索该目录下的jar文件，用下面这种方式可得到虚拟机使用的Extension搜索路径：</p>
+<pre><code>System.getProperty(&quot;java.ext.dirs&quot;)
+</code></pre><p><code>User</code>类搜索顺序为：</p>
+<ol>
+<li><code>-classpath</code>指定的路径</li>
+<li>环境变量<code>CLASSPATH</code></li>
+<li>当前目录</li>
+</ol>
+<p>在使用<code>-classpath/-cp</code>时，多个目录之间用分号分隔。推荐使用该命令来指定虚拟机要搜索的类路径，而不是依赖环境变量，以减少多个项目同时使用环境变量时存在的潜在冲突（多版本库）。</p>
+<p>可在运行时通过下面的代码获取虚拟机查找类的路径：</p>
+<pre><code>System.getProperty(&quot;java.class.path&quot;)
+</code></pre><p><strong>-D<propertyname>=value</propertyname></strong></p>
+<p>在虚拟机的系统属性中设置属性名/值对，运行在此虚拟机上的应用程序可用：</p>
+<pre><code>System.getProperty(&quot;属性名&quot;)
+</code></pre><p>得到value的值。</p>
+<p>如果value中有空格，则需要用双引号将该值括起来，如：<code>-Dname=&quot;kazaf f&quot;</code>。</p>
+<p>该参数通常用于设置系统级全局变量值，如配置文件路径，保证该属性在程序中任何地方都可访问。</p>
+<p><strong>-verbose[:class|gc|jni]</strong></p>
+<p>在输出设备上显示虚拟机运行信息。 <code>-verbose</code>和<code>-verbose:class</code>含义相同，表示输出虚拟机装入的类的信息，格式如下：</p>
+<pre><code>[Loaded java.io.FilePermission$1 from shared objects file]
+</code></pre><p>当虚拟机报告类找不到或类冲突时，用此参数来查看虚拟机装入类的情况。</p>
+<p><code>-verbose:gc</code>用于在虚拟机发生内存回收时在输出设备上显示信息，格式如下：</p>
+<pre><code>[Full GC 268K-&gt;168K(1984K), 0.0187390 secs]
+</code></pre><p><code>-verbose:jni</code>用于在虚拟机调用native方法时在设备上输出显示信息，格式如下：</p>
+<pre><code>[Dynamic-linking native method HelloNative.sum ... JNI]
+</code></pre><p>该参数用于监视虚拟机调用本地方法的情况，在发生jni错误时可以为诊断提供便利。</p>
+<p><strong>-ea[:<packagename>…|:<classname>]/-enableassertions[:<packagename>…|:<classname>]</classname></packagename></classname></packagename></strong></p>
+<p>从jdk1.4开始，java可支持断言机制，用于诊断运行时问题。通常在测试阶段使断言有效，在线上运行时不需要运行断言。断言后的表达式的值是一个逻辑值，为<code>true</code>时断言不运行，为<code>false</code>时断言抛出<code>java.lang.AssertionError</code>错误。</p>
+<p>这个参数就是用来设置虚拟机是否启动断言机制，缺省时虚拟机关闭断言机制，用<code>-ea</code>可打开断言机制，不加<code>packagename</code>和<code>classname</code>表示运行所有包和类中的断言，如果希望只是运行某些包或类中的断言，可将包名或类名加到<code>-ea</code>之后，例如：<code>-ea:com.foo.util</code>。</p>
+<p><strong>-da[:<packagename>…|:<classname>]/-disableassertions[:<packagename>…|:<classname>]</classname></packagename></classname></packagename></strong><br>用来设置虚拟机关闭断言处理，用法与<code>-ea</code>类似。</p>
+<p><strong>-esa/-enablessystemassertions</strong></p>
+<p>设置虚拟机开启系统类的断言。</p>
+<p><strong>-dsa/-disablesystemassertions</strong></p>
+<p>设置虚拟机关闭系统类的断言。</p>
+<p><strong>-agentlib:<libname>[=<options>]</options></libname></strong></p>
+<p>该参数是jdk5新引入的，用于虚拟机装载本地代理库。其中<code>libname</code>为本地代理库文件名，虚拟机的搜索路径为环境变量<code>path</code>中的路径，<code>options</code>为传给本地库启动时的参数，多个参数之间用逗号分隔。</p>
+<p>在win平台中，虚拟机搜索本地库后缀名名为<code>.dll</code>，在Unix上则为<code>.so</code>文件。例如可以用<code>-agentlib:hprof</code>来获取虚拟机的运行情况。可用<code>-agentlib:hprof=help</code>来得到使用帮助列表（确保在win平台下的jre的<code>lib</code>目录下存在<code>hprof.dll</code>文件）。</p>
+<p><strong>-agentpath:<jarpath>[=<options>]</options></jarpath></strong></p>
+<p>设置虚拟机按全路径装载本地库，不再搜索<code>PATH</code>中的路径，其他功能同<code>-agentlib</code>。</p>
+<p><strong>-javaagent:<jarpath>[=<options>]</options></jarpath></strong></p>
+<p>虚拟机启动时装入java语言设备代理。<code>jarpath</code>文件中的<code>mainfest</code>文件必须有<code>Agent-Class</code>属性。代理类要实现</p>
+<pre><code>public static void premain(String agentArgs, Instrumentation inst)
+</code></pre><p>方法。当虚拟机初始化时，将按照代理类的说明顺序调用<code>premain</code>方法。</p>
+<h2 id="扩展参数说明"><a href="#扩展参数说明" class="headerlink" title="扩展参数说明"></a>扩展参数说明</h2><p><strong>-Xmixed</strong></p>
+<p>设置<code>-client</code>模式虚拟机对使用频率高的方法进行<code>Just-In-Time</code>编译和执行，对其他方法使用解释方式执行，该方式是虚拟机缺省模式。</p>
+<p><strong>-Xint</strong></p>
+<p>设置<code>-client</code>模式下运行的虚拟机以解释方式执行类的字节码，不将字节码编译为本机码。</p>
+<p><strong>-Xbootclasspath[/a|/p]:path</strong></p>
+<p>改变虚拟机装载缺省系统运行包<code>rt.jar</code>的路径，从<code>-Xbootclasspath</code>中设定的搜索路径中装载运行类。除非你自己能写一个运行时，否则不会用到这个参数。</p>
+<p>其中<code>/a</code>将在缺省搜索路径后加上path中的搜索路径，而<code>/p</code>在缺省路径前先搜索path中的路径。</p>
+<p><strong>-Xnoclassgc</strong></p>
+<p>关闭虚拟机对class的垃圾回收功能。</p>
+<p><strong>-Xincgc</strong></p>
+<p>启动增量垃圾收集器，缺省是关闭的。增量垃圾收集器能减少偶尔发生的长时间的垃圾回收造成的暂停时间。但增量垃圾收集器和应用程序并发执行，因此会占用部分CPU在应用程序上的功能。</p>
+<p><strong>-Xloggc:<file></file></strong></p>
+<p>将虚拟机每次垃圾回收的信息写到日志文件中，文件名由<code>file</code>指定，内容和<code>-verbose:gc</code>输出内容相同。</p>
+<p><strong>-Xbatch</strong></p>
+<p>虚拟机的缺省运行方式是在后台编译类代码，然后在前台执行代码，使用该参数将关闭虚拟机后台编译，在前台编译完成后再执行。</p>
+<p><strong>-Xms<size></size></strong></p>
+<p>设置虚拟机可用内存堆的初始大小，缺省单位为字节。该大小为1024的整数倍并且要大于1MB，可用k(K)或m(M)为单位来设置较大的内存数。初始堆的大小为2MB。例如：<code>-Xms6400K</code>、<code>-Xms256M</code></p>
+<p><strong>-Xmx<size></size></strong></p>
+<p>设置虚拟机内存堆的最大可用大小，缺省单位为字节，缺省堆最大值为64MB。该值必须为1024整数倍并且要大于2MB，可用k(K)或m(M)为单位来设置较大的内存数。</p>
+<p>当应用程序申请了大内存，运行时虚拟机抛出<code>java.lang.OutOfMemoryError: Java heap space</code>错误，就需要用改参数设置更大的内存数。</p>
+<p><strong>-Xss<size></size></strong></p>
+<p>设置线程栈的大小，缺省单位为字节，通常操作系统分配给线程栈的缺省大小为1MB。另外，也可以在java中创建线程对象时设置栈的大小，构造函数原型为：</p>
+<pre><code>Thread(ThreadGroup group, Runnable target, String name, long stackSzie)
+</code></pre><p><strong>-Xprof</strong></p>
+<p>输出CPU运行时的诊断信息。</p>
+<p><strong>-Xfuture</strong></p>
+<p>对类文件进行严格格式检查，以保证类代码符合类代码规范。为保证向后兼容，虚拟机缺省不进行严格的格式检查。</p>
+<p><strong>-Xrs</strong></p>
+<p>减少虚拟机中操作系统的信号的使用。该参数通常在虚拟机以后台服务方式运行时使用（如Serlet）。</p>
+<p><strong>-Xcheck:jni</strong></p>
+<p>对jni函数执行检查。</p>
+<p><strong>-Xshare:off</strong></p>
+<p>不尝试使用共享类的数据</p>
+<p><strong>-Xshare:auto</strong></p>
+<p>在可能的情况下使用共享类的数据，默认值。</p>
+<p><strong>-Xshare:on</strong></p>
+<p>要求使用共享类的数据，否则运行失败。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2014/07/28/java命令行运行参数/">https://blog.kazaff.me/2014/07/28/java命令行运行参数/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/jvm/">jvm</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2014/08/08/php页面白屏/"><i class="fa fa-chevron-left">  </i><span>Php页面白屏</span></a></div><div class="next-post pull-right"><a href="/2014/07/18/是什么系列之RMI/"><span>是什么系列之RMI</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2014/07/28/java命令行运行参数/';
+  this.page.identifier = '2014/07/28/java命令行运行参数/';
+  this.page.title = 'Java命令行参数';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

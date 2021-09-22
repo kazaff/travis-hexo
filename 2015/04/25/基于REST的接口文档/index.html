@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="前后端分离的契约：接口文档"><meta name="keywords" content="api,RAP,RESTful,mock"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>前后端分离的契约：接口文档 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">前后端分离的契约：接口文档</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 4月 25 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/团队协作/">团队协作</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/04/25/基于REST的接口文档/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/04/25/基于REST的接口文档/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>最近在公司开发部举办了一次关于前后端配合为主题的研（si）讨(b)会，主要矛盾还是针对前后端协作所使用的接口文档随意变更问题。<br><a id="more"></a><br>其实，接口文档是在我们前后端分离后产生的一个文档，现在的前端基于Angularjs，以Ajax的方式向后端暴露的RESTful接口进行调用，这就要求，在前后端各自开发的过程中如何尽可能的摆脱跨端的依赖。</p>
+<p>最直观的方案，就是在设计阶段中产生一个接口文档，在编码阶段开发人员根据分工各自根据接口文档进行功能的实现。这本来是一套简单可爱的流程，不过由于我们在设计阶段所暴露的问题导致了混乱产生：</p>
+<ul>
+<li>经验不足，无法一次性就设计出完美的接口</li>
+<li>时间不够</li>
+<li>认知问题，对接口文档重视程度不够</li>
+</ul>
+<p>经过几个小时的撕逼，基本上大家统一了一些基础观念，把接口文档当做是契约，在确定后严格履行其声明。</p>
+<p>不过，只是解决了认知问题远远不够，光有接口文档也是不能达到理想状态：</p>
+<ul>
+<li>拒绝写文档的繁琐</li>
+<li>尽可能的摆脱依赖</li>
+</ul>
+<p>好，第一个问题，我们需要一个足够“程序员化”的接口文档编写工具，找了找，发现一个轻量级的工具不错：<a href="http://apidocjs.com/" target="_blank" rel="noopener">APIDOC</a>。</p>
+<p>该工具针对RESTful风格的api，提供了多种语言的支持，而且基于码农擅长的注解方式完成接口的声明，十分贴心。而且，可以自动导出成html，方便部署在各种环境下。</p>
+<p>美中不足的是，它没有提供MOCK功能，自带的模拟请求也需要依赖后端服务。不过我依然推荐的理由是：真的很简单。</p>
+<p>跟我们的开发人员商量了一下，发现前端人员对mock数据的需求非常强烈，这让我不得不忍痛放弃APIDOC，继续寻找油腻的师姐。</p>
+<p>知乎上我看有人推荐一款工具：<a href="http://thx.github.io/RAP/" target="_blank" rel="noopener">RAP</a>，阿里吊炸天啊~</p>
+<p>RAP不仅提供了对Mock的完美支持，而且还加入了一些组织结构的功能用于满足团队的使用。</p>
+<p>不过就是复杂一些，还好官方提供了视频教学。目前能想到的遗憾之处，就是不像APIDOC那样，可以方便的直接作为接口文档开放给所有第三方使用。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/04/25/基于REST的接口文档/">https://blog.kazaff.me/2015/04/25/基于REST的接口文档/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/api/">api</a><a class="post-meta__tags" href="/tags/RAP/">RAP</a><a class="post-meta__tags" href="/tags/RESTful/">RESTful</a><a class="post-meta__tags" href="/tags/mock/">mock</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/04/27/Kafka+Avro的demo/"><i class="fa fa-chevron-left">  </i><span>Kafka+Avro的demo</span></a></div><div class="next-post pull-right"><a href="/2015/04/05/dubbo-admin与多注册中心/"><span>Dubbo-Admin与多注册中心</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/04/25/基于REST的接口文档/';
+  this.page.identifier = '2015/04/25/基于REST的接口文档/';
+  this.page.title = '前后端分离的契约：接口文档';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

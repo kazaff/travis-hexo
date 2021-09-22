@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="关于过度设计的思考"><meta name="keywords" content="过度"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>关于过度设计的思考 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">关于过度设计的思考</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 9月 15 2017</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/需求分析/">需求分析</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2017/09/15/关于过度设计的思考/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2017/09/15/关于过度设计的思考/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>最近的一些工作，让我突然想起了一个概念：<strong>过度设计</strong>。之前在看大牛分享的信息时，其实有反复看到关于过度设计的描述，不过给出的例子多数都是围绕着系统架构设计或编码阶段的一些具体实施来阐述“过度”的。</p>
+<p>我之前有写过一篇<a href="http://blog.kazaff.me/2016/11/07/%E4%B8%80%E6%AC%A1%E8%A2%AB%E5%92%A8%E8%AF%A2%E5%90%8E%E7%9A%84%E6%84%9F%E8%A7%A6/">文章</a>，其实就提到了一种过度依赖软件的情况。虽然与今天要讲的内容并不相同，但却都与“过度”二字有关联。</p>
+<p>最近我们团队在开发一个较为复杂的需求，这应算是这个项目目前为止复杂度数一数二的一个模块了。简单描述，该模块提供了公司职员工作安排功能：</p>
+<ol>
+<li>部门经理对员工未来周进行排班计划时，要尽可能满足该部门的工作时数限制（避免不合理的加班）</li>
+<li>该排班计划有灵活的多级审批流程，系统要识别出排班变更前后导致的差异并交给审批人批复</li>
+<li>公司要可以统计出该部门某一周的排班变更频率，不同时段的排班变的性质不同</li>
+<li>员工是跨部门的共享资源，多个部门排班对同一员工不能造成时间重叠</li>
+<li>不同部门对员工的标准工作时数要求是存在差异的（例如A部门可能要求员工一周不能超过40小数，而B部门要求员工不能连续工作超过5天）</li>
+<li>…..</li>
+</ol>
+<p>你可能不信，如果我这样罗列下去，大概能有将近50条各种各样的规则，可能更让你不可思议的是，这些规则在某些极端情况下还存在语义上的冲突（欢迎来到真实世界）。正是这些冲突，导致了软件的使用者和开发者之间的距离，或者说对相同系统的不同理解，不同视角。</p>
+<p>起初，我一直认为，大道至简，但现在认为，存在即合理。这应该是一种思想上的提升吧，毕竟你并非活在“<strong>任何逻辑必须合理且高效</strong>”的现实世界~~好啦，让我们继续话题。</p>
+<p>我花了一些时间静下来思考，该模块目前为止的状况，都是哪些因素引起的。这么多规则，<strong>哪些是客户本质的需求，哪些是由本质需求推理出来的间接规则，哪些是由于软件设计的局限性产生的，哪些是由所选择的具体技术栈引起的</strong>。<br>总结后发现，直接来自客户的本质需求只占总量的30% - 40%，而现有具体技术导致的大概占10%，剩下50%就都是在项目需求分析时细化推理出来的了。考虑到与客户沟通存在的理解偏差，加上开发人员的经验和能力，我认为这剩余50%的规则很值得寻味。</p>
+<p>我拿其中的一类问题来给大家看一下：</p>
+<ol>
+<li>如果部门的工作时数规则变更了，历史数据怎么处理？</li>
+<li>如果某个员工在不同部门出现排班，部门的限制又不相同，审批时该如何处理此员工？</li>
+<li>有的限制是以天为单位，有的是周，有的是连续性，那跨天排班，跨周连续性排班怎么计算？</li>
+</ol>
+<p>这些问题，在没有系统的时候，存在么？或者说，存在的那么明显么？换个角度思考，这些问题都一样的重要么？如果处理不当，整个系统会变得毫无意义么？如果我们的客户不是完美主义者，他接受一定程度的瑕疵，作为设计者，我们又该如何权衡？<br>我相信，尽最大可能的了解客户所在领域的背景知识此时就显得极为重要，以此来度量出不同类型数据的价值，此外结合自身对软件人机交互的理解，“曲线救国”。</p>
+<p>而，如果，追求极致的逻辑性，很可能使项目陷入停滞，而且设计出的方案一定是十分复杂的，实现起来，维护起来都是很困难的。最要命的是，如果没有对软件交互花足够的心思（一般程序员都会忽略），最终结果一定是惨烈的。花了那么多时间和精力，得到否定的结果，不仅影响团队的整体士气，客户也会对你失去信心。</p>
+<p>如果我们换个做法，不要过度放大一些问题，不要为破坏了某个规则而感到过度不安（主要是强迫症），及时且尽早的将一些冲突问题与客户讨论，观察分析他们对待此类问题的反映，以此来自我消化同类问题（如果所有问题都与客户讨论，不仅时间成本很大，也很可能遭到客户的反感）。</p>
+<p>最终你会在合理的时间交出一份90分的考卷，剩下的那10分你有足够的时间在未来搞定（也可能交给别人了）。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2017/09/15/关于过度设计的思考/">https://blog.kazaff.me/2017/09/15/关于过度设计的思考/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/过度/">过度</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2017/09/20/casperjs无字体问题/"><i class="fa fa-chevron-left">  </i><span>Casperjs无字体问题</span></a></div><div class="next-post pull-right"><a href="/2017/09/07/阿里云EC2-Centos6内核升级/"><span>阿里云EC2-Centos6内核升级</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2017/09/15/关于过度设计的思考/';
+  this.page.identifier = '2017/09/15/关于过度设计的思考/';
+  this.page.title = '关于过度设计的思考';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

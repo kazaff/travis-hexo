@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="是什么系列之RMI"><meta name="keywords" content="分布式,是什么系列,tcp"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>是什么系列之RMI | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">是什么系列之RMI</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 7月 18 2014</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2014/07/18/是什么系列之RMI/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2014/07/18/是什么系列之RMI/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>转型Java阵营没多久，就面对企业级的需求，所以大量的调研内容，“是什么系列”几乎都是针对javaEE领域的姿势，可见我最近是多么的充实啊~<br><a id="more"></a><br>这次记录一下关于RMI的科普知识，其实它比起之前的<a href="http://blog.kazaff.me/2014/07/07/%E6%98%AF%E4%BB%80%E4%B9%88%E7%B3%BB%E5%88%97%E4%B9%8BThrift/">Thrift</a>和<a href="http://blog.kazaff.me/2014/07/07/%E6%98%AF%E4%BB%80%E4%B9%88%E7%B3%BB%E5%88%97%E4%B9%8BAvro/">Avro</a>来说，已经非常的轻量级了~~</p>
+<p>RMI（Remote Method Invocation）是jdk1.1就已经存在的分布式应用解决方案，轻量简单是它最大的特点，广泛的应用在EJB中。如果我们的系统比较小，服务很少且很轻，并且不需要面向跨语言，那么RMI是一个比较理想的选择。</p>
+<p>在另外的一些场景，例如跨语言平台的分布式应用，RMI就显得过于简陋了，这个时候可能就需要其它的同类技术了~</p>
+<p>RMI是基于TCP协议的传递可序列化java对象字节数据的库，因此，在同等业务数据量的前提下，RMI的效率要高于基于SOAP规范的WebService。因此，RMI可以用在业务结构简单，要求实时性高的分布式应用中。</p>
+<p>设计角度上，java采用三层结构来实现RMI：客户端、服务端、注册表，这是很常见的基于服务的架构。具体细节可以从下图看出：</p>
+<p><img src="http://pic.yupoo.com/kazaff_v/DUIsJPar/149UNc.png" alt></p>
+<p><strong>客户端</strong>一方包含：</p>
+<ul>
+<li>桩（Stub）：远程对象在客户端上的代理；</li>
+<li>远程引用层（Remote Reference Layer）：解析并执行远程引用协议，完成了调用的方法与服务对应地址的转换；</li>
+<li>传输层（Transport）：发送调用、传递远程方法参数、接受远程方法执行结果。</li>
+</ul>
+<p><strong>服务端</strong>一方包含：</p>
+<ul>
+<li>骨架（Skeleton）：读取客户端传递的方法参数，调用服务器端的实际对象方法，并接受方法执行后的返回值；</li>
+<li>远程引用层（Remote Reference Layer）：处理远程引用语法之后向骨架发送远程方法调用；</li>
+<li>传输层（Transport）：监听客户端的入站连接，接受并转发调用到远程引用层。</li>
+</ul>
+<p><strong>注册表（Registry）</strong>：以URL形式注册远程对象，并向客户端回复远程对象的引用。</p>
+<p>在实际的应用中，客户端并没有真正的和服务端直接对话来进行远程调用，而是通过本地JVM的桩对象来进行的。</p>
+<ol>
+<li>客户端从远程服务器的注册表中查询并获得远程对象引用，当进行远程调用时，客户端首先会与桩对象进行对话，而这个桩对象将远程方法所需的参数序列化后，传递给它下层的远程引用层。</li>
+<li>桩对象与远程对象具有相同的接口和方法列表，当客户端调用远程对象时，实际是由相对应的桩对象代理完成的。远程引用层在将桩的本地引用转换为服务器上对象的远程引用后，再将调用传递给传输层，有传输层通过tcp协议发送调用。</li>
+<li>在服务器端，传输层监听入站连接，它一旦接受到客户端远程调用后，就将这个引用转发给其上层的远程引用。</li>
+<li>服务端的远程引用层将客户端发送的远程引用转化为本地虚拟机的引用后，再将请求传递给骨架。</li>
+<li>骨架读取参数，将请求传递给服务器，最后由服务器进行实际的方法调用。</li>
+<li>如果远程方法调用后有返回值，则服务器将这些结果又沿着骨架-&gt;远程引用层-&gt;传输层向下传递。</li>
+<li>客户端的传输层接受到返回值后，又沿着传输层-&gt;远程引用层-&gt;桩向上传递，最后由桩来反序列化这些返回值，并将最终结果传递给客户端程序。</li>
+</ol>
+<p>从这个流程上可以看出，java为我们隐藏了很多处理细节，开发者可以只关注业务细节。</p>
+<p>关于RMI的例子，网上非常的多，包括上面的内容，出自<a href="http://code727.iteye.com/blog/1874271" target="_blank" rel="noopener">这里</a>。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2014/07/18/是什么系列之RMI/">https://blog.kazaff.me/2014/07/18/是什么系列之RMI/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/分布式/">分布式</a><a class="post-meta__tags" href="/tags/是什么系列/">是什么系列</a><a class="post-meta__tags" href="/tags/tcp/">tcp</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2014/07/28/java命令行运行参数/"><i class="fa fa-chevron-left">  </i><span>Java命令行参数</span></a></div><div class="next-post pull-right"><a href="/2014/07/07/是什么系列之Thrift/"><span>是什么系列之Thrift</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2014/07/18/是什么系列之RMI/';
+  this.page.identifier = '2014/07/18/是什么系列之RMI/';
+  this.page.title = '是什么系列之RMI';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

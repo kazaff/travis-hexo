@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="casperjs+mocha+chai搭建E2E测试环境"><meta name="keywords" content="端到端测试,casperjs,mocha,chai"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>casperjs+mocha+chai搭建E2E测试环境 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#mocha-casperjs"><span class="toc-number">1.</span> <span class="toc-text">mocha-casperjs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#casper-chai"><span class="toc-number">2.</span> <span class="toc-text">casper-chai</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试用例"><span class="toc-number">3.</span> <span class="toc-text">测试用例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#表单页面"><span class="toc-number">3.1.</span> <span class="toc-text">表单页面</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#登录表单"><span class="toc-number">3.1.0.1.</span> <span class="toc-text">登录表单</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#复杂表单"><span class="toc-number">3.1.0.2.</span> <span class="toc-text">复杂表单</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#列表页面"><span class="toc-number">3.2.</span> <span class="toc-text">列表页面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#拖拽功能页面"><span class="toc-number">3.3.</span> <span class="toc-text">拖拽功能页面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#截图"><span class="toc-number">3.4.</span> <span class="toc-text">截图</span></a></li></ol><li class="toc-item toc-level-2"><a class="toc-link" href="#坑"><span class="toc-number">4.</span> <span class="toc-text">坑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#页面的逻辑js没有被执行"><span class="toc-number">4.1.</span> <span class="toc-text">页面的逻辑js没有被执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#页面默认是手机尺寸"><span class="toc-number">4.2.</span> <span class="toc-text">页面默认是手机尺寸</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#提示”0-passing”"><span class="toc-number">4.3.</span> <span class="toc-text">提示”0 passing”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#灵异问题"><span class="toc-number">4.4.</span> <span class="toc-text">灵异问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#心得总结"><span class="toc-number">5.</span> <span class="toc-text">心得总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考手册"><span class="toc-number">6.</span> <span class="toc-text">参考手册</span></a></li></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">casperjs+mocha+chai搭建E2E测试环境</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 8月 24 2016</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/前端/">前端</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2016/08/24/casperjs+mocha+chai搭建E2E测试环境/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2016/08/24/casperjs+mocha+chai搭建E2E测试环境/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>紧接着上一篇<a href="http://blog.kazaff.me/2016/08/18/%E5%B0%8F%E5%9B%A2%E9%98%9F%E7%8E%A9%E4%B8%8D%E8%BD%AC%E7%9A%84%E6%B5%8B%E8%AF%95/">《小团队玩不转的测试》</a>文章，我们继续来看看如何搭建一个端到端测试环境。</p>
+<p>废话不多说，直接开始动手，省的你说没干货:-)<br><a id="more"></a></p>
+<h2 id="mocha-casperjs"><a href="#mocha-casperjs" class="headerlink" title="mocha-casperjs"></a>mocha-casperjs</h2><p>前一篇文章分别介绍过每个用到的插件，而此刻提到的这个组合，也是有前辈整合好了能开箱即用的：<a href="https://github.com/nathanboktae/mocha-casperjs" target="_blank" rel="noopener">mocha-casperjs</a>。</p>
+<p>这里需要注意的是，根据官方提供的安装方法，推荐所有使用到的组件都使用<code>-g</code>全局安装，这样方便日后在任何项目中跑测试，而且如果有的采用全局安装有的采用非全局的话是跑不起来的，这一点官方也有说明：</p>
+<blockquote>
+<p>Note that mocha-casperjs has peer dependencies on casper and mocha, and will be installed ajacent to where you are installing mocha-casperjs (e.g. if you install mocha-casperjs globally, you’ll have mocha and casperjs also installed globally).</p>
+</blockquote>
+<p>如果你和我一样使用的是window开发环境，那你可能还需要自己手动安装<code>phantomjs</code>，并将其添加到系统环境变量中，否则会被<code>casperjs</code>提示缺少依赖。</p>
+<p>还有就是，win自带的终端对中文编码支持不够好，所以我推荐使用<code>Git Bash</code>，前提是你机器上安装了git环境，其实就是一个<code>MINGW</code>环境。这样就能方便的使用大部分shell命令了。</p>
+<p>对了，如果你win环境下没有python也不行，所以安装一个吧，并且将其加到系统环境变量中，一切就绪就可以运行官方提供的测试代码了：</p>
+<blockquote>
+<p>mocha-casperjs</p>
+</blockquote>
+<p>在你的测试项目路径下执行上面的这个命令，会自动查找test或tests文件夹下所有的测试脚本并自动执行，最终的测试报告默认会直接打印在终端中~</p>
+<h2 id="casper-chai"><a href="#casper-chai" class="headerlink" title="casper-chai"></a>casper-chai</h2><p>看了官方提供的测试例子，是不是蒙圈了？我对比了一下chai的文档，其实大多数chai提供的api都没有用到，毕竟都是针对单元测试的。而这个组件将casper的一些测试api用chai的方式提供给我们，感觉写起来更舒服一些。</p>
+<p>所以推荐你先来看一下<a href="https://github.com/brianmhunt/casper-chai/blob/master/docs/casper-chai.md" target="_blank" rel="noopener">官方手册</a>，看看都有哪些断言api可以用来写测试项。</p>
+<p>除此之外，你还应该看一下casperjs的<a href="http://docs.casperjs.org/en/latest/modules/index.html" target="_blank" rel="noopener">api文档</a>，这样才能玩得转端到端测试的各种场景。</p>
+<h2 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h2><p>接下来的内容我们就来尝试对一些有代表性的页面编写端到端测试用例。下面的测试项目中，<code>json</code>文件用来模拟接口响应，这里只是为了演示方便，正常情况下端到端测试应该是在公司内部测试服务器上进行的，要求测试服务器上的项目版本必须和线上完全一致，包括初始化数据在内。</p>
+<h3 id="表单页面"><a href="#表单页面" class="headerlink" title="表单页面"></a>表单页面</h3><h5 id="登录表单"><a href="#登录表单" class="headerlink" title="登录表单"></a>登录表单</h5><p>该页面的特点是：</p>
+<ul>
+<li>表单验证</li>
+<li>登录后跳转</li>
+<li>会话数据</li>
+</ul>
+<h5 id="复杂表单"><a href="#复杂表单" class="headerlink" title="复杂表单"></a>复杂表单</h5><p>该页面的特点是：</p>
+<ul>
+<li>ajax输入校验</li>
+<li>头像上传</li>
+<li>复杂的输入类型</li>
+</ul>
+<h3 id="列表页面"><a href="#列表页面" class="headerlink" title="列表页面"></a>列表页面</h3><p>该类型页面的特点是：</p>
+<ul>
+<li>弹窗表单</li>
+<li>翻页</li>
+<li>自动完成、日历等特殊功能输入框</li>
+</ul>
+<p>测试链接如下：</p>
+<blockquote>
+<p>　<a href="http://localhost/E2ETestDemo/pages/list/list.html?page=1" target="_blank" rel="noopener">http://localhost/E2ETestDemo/pages/list/list.html?page=1</a></p>
+</blockquote>
+<p>注意，这里之所以要提一下访问链接格式，是因为现有前端逻辑需要依赖地址栏中的<code>?page=1</code>参数。这一点正是我想说的，我们在写测试项时，必须要完全理解代码的含义和场景所需要的输入输出数据结构。有时候可能是因为我们模拟的测试环境丢失了一些数据导致测试不通过，而在线上产品中并没有重现该bug，这是最头疼，也是最无奈的。</p>
+<h3 id="拖拽功能页面"><a href="#拖拽功能页面" class="headerlink" title="拖拽功能页面"></a>拖拽功能页面</h3><p>该类型页面的特点是：</p>
+<ul>
+<li>可拖拽区块</li>
+<li>拖拽区限制</li>
+</ul>
+<hr>
+<p>上面的各个被测场景我已经放在<a href="https://github.com/kazaff/E2ETestDemo" target="_blank" rel="noopener">github</a>了，大家可以部署在自己本机的web环境里看一下页面的模样。对应页面的测试用例放在<code>tests</code>中，端到端测试用例脚本推荐以<code>e2e.js</code>结尾，这样未来当你还有单元测试等其他类型的测试脚本时容易区分。同时建议每个测试脚本对应一个页面，这样日后对应页面产生修改后也可以快速定位需要同步修改的测试脚本。</p>
+<h3 id="截图"><a href="#截图" class="headerlink" title="截图"></a>截图</h3><p><img src="http://pic.yupoo.com/kazaff/FOXhai4h/QcXZm.png" alt></p>
+<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><h3 id="页面的逻辑js没有被执行"><a href="#页面的逻辑js没有被执行" class="headerlink" title="页面的逻辑js没有被执行"></a>页面的逻辑js没有被执行</h3><p>这个坑是真的坑爹，坑的我差点崩溃！从表象上来看，你会发现你根据官方提供的接口无论如何都无法触发目标页面的js执行，拿我们上面那个登录页面来说，你会发现不论是使用<code>sendKeys</code>，还是<code>evaluate</code>里使用<code>__utils__</code>都无济于事！你可以通过<code>capture</code>生成截屏来验证！</p>
+<p>哥哥我当时就蒙圈了，说好的幸福呢？这尼玛让我如何完成对领导的承诺？！就在我万念俱灰准备离职之际，突然看到了一个歪果仁的解答：</p>
+<blockquote>
+<p>I find that this happens when casperJS is too fast for the browser and a casper.wait() will solve the issue.</p>
+</blockquote>
+<p>突然就醍醐灌顶了，一下子就好像打通了任督二脉！回味一下确实如此，内置的浏览器加载html所依赖的资源需要时间，而我们的测试脚本在html加载完毕后就会立即执行，所以就给我们感觉仿佛世界观崩塌了！</p>
+<p>解决方案很简单，只需要让测试脚本执行前<code>wait</code>几秒钟即可。</p>
+<h3 id="页面默认是手机尺寸"><a href="#页面默认是手机尺寸" class="headerlink" title="页面默认是手机尺寸"></a>页面默认是手机尺寸</h3><p>如果你的被测网站是响应式的，你会发现<code>capture</code>生成截屏默认是适配的手机样式。我起初以为和<code>UserAgent</code>有关：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">casper.userAgent(&apos;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36&apos;);</span><br></pre></td></tr></table></figure>
+<p>事实证明没鸟用，后来我又试图修改截图的尺寸，结果也是毫无意义。后来才发现官方提供了<code>viewport</code>接口，而且也明确表明，默认<code>phantomjs</code>采用的是<code>400 X 300</code>的设置。</p>
+<p>坑爹！</p>
+<h3 id="提示”0-passing”"><a href="#提示”0-passing”" class="headerlink" title="提示”0 passing”"></a>提示”0 passing”</h3><p>不知道为何，当我们的测试脚本存在语法错误时，执行测试命令后就会看到<code>0 passing</code>提示，这对我们调试造成了非常大的困难，尤其是当测试脚本行数非常大时！</p>
+<h3 id="灵异问题"><a href="#灵异问题" class="headerlink" title="灵异问题"></a>灵异问题</h3><p>在实际使用时，由于ui所使用的一些js组件，或其他一些不明真相的原因，会导致你写不出正确的测试用例，我在demo中有注解，仔细看的话会发现不少小问题，虽然都最终解决了，但不知道为何如此，不甘心啊~</p>
+<h2 id="心得总结"><a href="#心得总结" class="headerlink" title="心得总结"></a>心得总结</h2><p>经历了上述的几种常见场景，我觉得基本上只要有足够精力和时间，大部分项目都可以完成端到端测试。不过再次提醒，维护测试脚本也是要花时间和精力的，建议针对项目中相对稳定的界面和功能进行端到端测试，而处于待定阶段的页面还是人肉先行吧。</p>
+<p>测试用例之间最好不要有顺序上的依赖，除非你能保证日后该流程会被整体执行，否则当你想单独执行某个子测试用例时会非常尴尬！还有就是，你的项目一定会使用很多第三方成熟的ui组件，而针对这些组件你不需要写太多测试用例，你的测试关注点应该更多的集中在自己实现的逻辑中。</p>
+<p>推荐优先使用<code>thenClick</code>而非<code>click</code>接口，因为如果你连续调用（和两次调用代码位置无关），很可能会造成casperjs执行太快而导致早于你的业务逻辑js代码的执行，截屏上会让你感觉你的click调用未生效，但其实是太快了~~~</p>
+<p>最终，想要写出好的测试用例，排除测试代码自身质量因素外，还需要编写者对被测页面有足够的了解，不仅仅是页面上的显示元素，还包括该页面的加载细节（最头疼的<strong>网络延迟</strong>问题，不过可以使用casper.waitXXX相关api来优雅的解决这个问题），初始化细节等等。这样看来，其实最合适写测试用例的还是这个页面的实现者本尊，但同时这就要求你必须同时掌握测试相关的背景知识。现在来看，“测试先行”就显得非常合理了，根据设计书，开发人员完全可以先完成测试项（这里指的并非测试脚本，因为端到端测试不同于单元测试，它重度依赖UI，所以提前写端到端测试脚本不太现实，我这里指的测试项指的是<strong>文字描述的测试条目</strong>，有助于开发人员更好的分析页面逻辑），只不过这种做法的效率目前没办法评估，还要扭转开发人员现有的思维模式，是一个不小的挑战！</p>
+<p>这里我们也回避了一个较为重要的问题：到底一个页面需要多少个测试项才合理？前一篇文章和其参考文献中也有对该问题的相关描述，在考虑到诸多因素后如何权衡才能取得到一个平衡点，这是一门科学，等我日后有感悟了再回来表。</p>
+<p>这篇比上一篇干货要多不少吧，希望大家满意:-)</p>
+<h2 id="参考手册"><a href="#参考手册" class="headerlink" title="参考手册"></a>参考手册</h2><p><a href="http://docs.casperjs.org/en/latest/modules/index.html" target="_blank" rel="noopener">http://docs.casperjs.org/en/latest/modules/index.html</a></p>
+<p><a href="https://github.com/brianmhunt/casper-chai/blob/master/docs/casper-chai.md" target="_blank" rel="noopener">https://github.com/brianmhunt/casper-chai/blob/master/docs/casper-chai.md</a></p>
+<p><a href="http://chaijs.com/api/bdd/" target="_blank" rel="noopener">http://chaijs.com/api/bdd/</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2016/08/24/casperjs+mocha+chai搭建E2E测试环境/">https://blog.kazaff.me/2016/08/24/casperjs+mocha+chai搭建E2E测试环境/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/端到端测试/">端到端测试</a><a class="post-meta__tags" href="/tags/casperjs/">casperjs</a><a class="post-meta__tags" href="/tags/mocha/">mocha</a><a class="post-meta__tags" href="/tags/chai/">chai</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2016/09/09/译-在多个标签页之间共享sessionStorage/"><i class="fa fa-chevron-left">  </i><span>译-在多个标签页之间共享sessionStorage</span></a></div><div class="next-post pull-right"><a href="/2016/08/18/小团队玩不转的测试/"><span>小团队玩不转的测试</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2016/08/24/casperjs+mocha+chai搭建E2E测试环境/';
+  this.page.identifier = '2016/08/24/casperjs+mocha+chai搭建E2E测试环境/';
+  this.page.title = 'casperjs+mocha+chai搭建E2E测试环境';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Jedis异常Could Not Get a Resource From the Pool"><meta name="keywords" content="jedis,redis,连接池,jmeter,ulimit"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Jedis异常Could Not Get a Resource From the Pool | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Jedis异常Could Not Get a Resource From the Pool</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 1月 4 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/01/04/Jedis异常Could not get a resource from the pool/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/01/04/Jedis异常Could not get a resource from the pool/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>今天用<code>jmeter</code>对项目中的相关接口进行压力测试，发现一个问题：</p>
+<blockquote>
+<p>严重: Servlet.service() for servlet [mvc-dispatcher] in context with path [] threw exception<br>java.io.IOException: org.springframework.web.util.NestedServletException: Request processing failed; nested exception is org.springframework.data.redis.RedisConnectionFailureException: Cannot get Jedis connection; nested exception is redis.clients.jedis.exceptions.JedisConnectionException: Could not get a resource from the pool</p>
+</blockquote>
+<a id="more"></a>
+<p>字面意思来看，应该是redis连接池没有可申请的连接了。当然，在低并发测试时是不会看到这个报错的，大概在我把并发数调到200左右时会狂报这个错误！</p>
+<p>根据网上前辈们的总结，无非就是调整<code>Jedis</code>连接池的配置，redis本身的连接数的配置等等。这里我就不再复述了，我只想说，按照这些指示做了一边后问题并没任何好转。</p>
+<p>我用的是工作机，操作系统是WIN7 64位，redis用的是2.8.3 win64版，jedis的版本是2.6.1（网上说2.1.0之前的版本要手动归还连接），应用中操作redis的api是依赖spring-data封装的，配置如下：</p>
+<pre><code>&lt;!-- 会话持久层redis配置 --&gt;
+&lt;bean id=&quot;poolConfig&quot; class=&quot;redis.clients.jedis.JedisPoolConfig&quot;&gt;
+    &lt;property name=&quot;maxIdle&quot; value=&quot;${redis.maxIdle}&quot; /&gt;
+    &lt;property name=&quot;maxTotal&quot; value=&quot;${redis.maxTotal}&quot; /&gt;
+    &lt;property name=&quot;maxWaitMillis&quot; value=&quot;${redis.maxWaitMillis}&quot; /&gt;
+    &lt;property name=&quot;testOnBorrow&quot; value=&quot;${redis.testOnBorrow}&quot; /&gt;
+    &lt;property name=&quot;testOnReturn&quot; value=&quot;${redis.testOnReturn}&quot; /&gt;
+&lt;/bean&gt;
+
+&lt;bean id=&quot;jedisConnFactory&quot; class=&quot;org.springframework.data.redis.connection.jedis.JedisConnectionFactory&quot;&gt;
+    &lt;property name=&quot;hostName&quot; value=&quot;${redis.host}&quot; /&gt;
+    &lt;property name=&quot;port&quot; value=&quot;${redis.port}&quot; /&gt;
+    &lt;property name=&quot;password&quot; value=&quot;${redis.password}&quot; /&gt;
+    &lt;property name=&quot;usePool&quot; value=&quot;true&quot; /&gt;
+    &lt;property name=&quot;poolConfig&quot; ref=&quot;poolConfig&quot; /&gt;
+    &lt;property name=&quot;database&quot; value=&quot;${redis.db}&quot; /&gt;
+&lt;/bean&gt;
+
+&lt;bean id=&quot;redisTemplate&quot; class=&quot;org.springframework.data.redis.core.RedisTemplate&quot;&gt;
+    &lt;property name=&quot;connectionFactory&quot; ref=&quot;jedisConnFactory&quot; /&gt;
+    &lt;property name=&quot;keySerializer&quot;&gt;
+        &lt;bean class=&quot;org.springframework.data.redis.serializer.StringRedisSerializer&quot; /&gt;
+    &lt;/property&gt;
+    &lt;property name=&quot;valueSerializer&quot;&gt;
+        &lt;bean class=&quot;org.springframework.data.redis.serializer.JdkSerializationRedisSerializer&quot; /&gt;
+    &lt;/property&gt;
+&lt;/bean&gt;
+</code></pre><p>redis连接池相关的参数如下：</p>
+<pre><code>#redis配置
+redis.maxIdle=100
+redis.maxTotal=1000
+redis.maxWaitMillis=2000
+redis.testOnBorrow=true
+redis.testOnReturn=true
+</code></pre><p>中规中矩，而且按照我配置的相关参数，设置的并发500绝逼不应该报这个错误的！其中一个细节是，当应用狂报错时，redis-cli命令也无法连接到redis服务了，也就是说redis本身的配置根本就不匹配我在应用中连接池的配置，这应该是导致问题的根本原因，简单地说就是：</p>
+<blockquote>
+<p>redis本身的连接数上限必须大于应用连接池中的最大连接数</p>
+</blockquote>
+<p>可本尊看了一下redis.conf文件，其中<code>maxClients</code>的值为0，也就是不限制。这尼玛如何是好？</p>
+<p>突然想到多年之前，小弟我刚接触redis的时候，就看到过一个大牛曾经说过：<strong>redis的win版本基本上就是个玩具</strong>。</p>
+<p>抱着试一试的心态（<s>我也购买了两盒…</s>），我试着让应用直连centos中的redis服务，尼玛直接就解决了，或者说出现的情况至少和配置相吻合，而且在linux下redis-server在启动之初就会提醒你关于连接数的配置，很贴心。</p>
+<p>好吧，最好再延伸一个老知识点，如果你想把redis的连接数设置的很大，很可能会超过目前配置的系统可使用文件句柄数上限，这时你的配置就会失效，那如何突破这个瓶颈呢，你需要了解一下这个命令： <a href="http://linuxguest.blog.51cto.com/195664/362366/" target="_blank" rel="noopener">ulimit</a>。</p>
+<p>PS：redis在linux上跑起来，就像吃了枪药，打了鸡血，磕了军粮丸一样，根本停不下来啊！</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/01/04/Jedis异常Could not get a resource from the pool/">https://blog.kazaff.me/2015/01/04/Jedis异常Could not get a resource from the pool/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/jedis/">jedis</a><a class="post-meta__tags" href="/tags/redis/">redis</a><a class="post-meta__tags" href="/tags/连接池/">连接池</a><a class="post-meta__tags" href="/tags/jmeter/">jmeter</a><a class="post-meta__tags" href="/tags/ulimit/">ulimit</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/01/15/dubbo中SPI的基础--Cooma微容器/"><i class="fa fa-chevron-left">  </i><span>dubbo中SPI的基础--Cooma微容器</span></a></div><div class="next-post pull-right"><a href="/2014/12/24/在无图形界面的Centos6.5下使用OpenOfiice4.1/"><span>在无图形界面的Centos6.5下使用OpenOffice4.1</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/01/04/Jedis异常Could not get a resource from the pool/';
+  this.page.identifier = '2015/01/04/Jedis异常Could not get a resource from the pool/';
+  this.page.title = 'Jedis异常Could Not Get a Resource From the Pool';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

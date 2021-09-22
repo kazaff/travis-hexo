@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>kazaff&#39;s blog</title>
+  <icon>https://www.gravatar.com/avatar/09cb9d559adf8d0c08b3a0abe9787e9a</icon>
+  <subtitle>要相信，一切都是最好的安排~</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://blog.kazaff.me/"/>
+  <updated>2021-09-22T09:43:46.215Z</updated>
+  <id>https://blog.kazaff.me/</id>
+  
+  <author>
+    <name>kazaff</name>
+    <email>edisondik@gmail.com</email>
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>你写的代码是否无出安放-上</title>
+    <link href="https://blog.kazaff.me/2021/09/23/%E4%BD%A0%E5%86%99%E7%9A%84%E4%BB%A3%E7%A0%81%E6%98%AF%E5%90%A6%E6%97%A0%E5%A4%84%E5%AE%89%E6%94%BE-%E4%B8%8A/"/>
+    <id>https://blog.kazaff.me/2021/09/23/你写的代码是否无处安放-上/</id>
+    <published>2021-09-23T09:37:00.000Z</published>
+    <updated>2021-09-22T09:43:46.215Z</updated>
+    
+    <content type="html"><![CDATA[<p>其实一直想聊一下这个话题，主要想表达什么呢？我见过公司里一些开发新人，他们总是抱着一个MVC三层架构死不放，只会将代码粗颗粒度的摆放在这三层中的某一层。因为大概率下是不会放错的，毕竟MVC的年龄可能比他们本身都大，总不会被否定吧？！</p><p>但其实在实际开发过程中，还是存在很多“到底放那一层更合适”的抉择的，如果能停下来多思考一下，对开发人员来说一定是意义的。而且就我个人的经验而言，多思考这个问题也是非常有价值的~</p><p>我知道，谈这种偏理论学术的话题，需要自身有深厚的编码功底，至少阅码百万？或编码10年？。。呃，要不还是算了<del>我一介莽夫，怕会是谈错。不过，怕错怎么能进步呢？不是俗话说拉出来溜溜么？（主要是我的博客阅读量很少，哪怕说错应该不会有啥太大的影响</del>）</p><p>那么从哪里开始呢？之前听过一个ThoughtWorks的分享，分享者抛出一个观点，乍听起来觉得很震惊，但细品起来非常的有道理，那我们就先从“前后端分离”这个点开始吧。</p><p>前后端分离，写web项目的开发者一定非常的熟悉，毕竟现在不管是面向B端系统，还是面向C端系统，这种分离应该都已经是事实标准了，总不可能错吧？但八叉（上面提到的分享者）却偏说：在很长一段时间里，他对前后端分离这种做法持否定态度更多一些！！</p><p>纳尼？被雷到了？别急，且听一下他的解释，大概如下：<br>如果不考虑业务领域边界，仅仅从技术层面完成前后端分离，那这种分离一定会导致的是开发团队内部沟通成本增加，以及无法很好的完成端到端交付等相关问题。</p><p>我在听完这个解释后，细想一下还真的是没错。要想尽可能的表达我对这句话的认同感，需要随我一起回到过去<del>~</del>~</p><p>Long Long ago. Web世界连css都是新鲜事物，那时候所有的数据+样式（html+css）+交互（几乎无交互可言）都是一股脑的在后端服务器上计算好，然后再丢给浏览器渲染的。</p><p>随着web前端技术的不断推陈出新，当然也得益于Firefox和Chrome浏览器的不断发展，富客户端的概念慢慢成为了一个诱惑的选项，大家走到了一个技术路口！</p><p>前后端分离出现了，前几年（可能前十几年？）推广这个概念的时候，还炒过一段时间的“全栈程序员”的概念。它们可能没有什么直接关系，但就我的经历而言，还是想放在一起讲。只因为当时我已经在负责一个项目了，需求确定后，首先要确定的就是技术选型。而那时候团队里没有人会angular，ember或react这样的前端js框架，甚至都未曾听过这些陌生的名字。但如果不借助它们的能力，靠jQuery一个js库就去做全站的前后端分离，大家一定会觉得你疯了。。</p><p>所以当时我就成了团队里第一个吃螃蟹的人，最终将项目的前端部分用angular重构了一遍（当然是和组员一起哦）。之后的其他项目我又尝试过react，vue等几个前端框架，那段时间的自己，是需要解决项目里遇到的任何端（这里特指前端和后端）的问题的，也是那个时候我就开始思考：团队中需要一个角色，他必须是前后端都懂的，不需要精通，但要在理论和思维层面上则必须是有经验的。现在回想起来，假如当时的我把前端技术调研的工作交给同事去做，那我之后在做很多技术决策的时候一定是片面的，很可能会直接导致项目失败（虽然好像之前的项目最终也都终止了~~娃哈哈）。</p><p>只是那个时候我只是认知到了表象，即：<strong>需要“全栈思维”才能驾驭前后端分离。但这也只是前后端分离在技术层面对团队提出的一个小小的要求</strong>。当然随着框架的成熟和普及，这个要求慢慢的变的不再那么重要，毕竟经历过无数项目洗礼后，这些框架和使用它们的开发者也已经做了很多理论和思想的验证。哪怕你不思考，很多以前需要做的决策，也慢慢都成了业界的 SOP，被做成了框架的使用规范和最佳实践，根本就不会给你犯错的机会~~</p><p>那是不是说前后端分离就零成本了？答案就要回到八叉的观点了。确实，回想我参与过的前后端分离项目，的确存在着一个隐形的成本，尤其是在一些处理一些复杂业务的时候，没错，那就是沟通成本。你可能觉得沟通问题没什么难解决的，开会就完事儿了~~呃，确实，如果你很容易把所有相关人员都喊到会议室（需要参会的人数越多，发生个别同事请假，或不在状态的概率就会增加），并且他们的默契程度非常高，并且都有出色的表达能力，也有必要的同理心和责任感。那么恭喜你，你所在的团队真的是非常的出色，但我没有你那么走运，我所见过的团队，几乎没有符合这种条件的。。。</p><p>之前看过不少相关的文章，沟通，技术人员永远的痛。。尤其是当团队本身就存在前端工程师和后端工程师的独立岗位时，有时候调和他们之间的冲突，和调和不同团队，甚至不同公司之间的冲突没有什么两样，因为它们的共同点就是：立场不同！</p><p>科技公司的组织架构，也是经历过好几次迭代了。每个时代背景下出现的各种合适的组织架构都是服务于特定业务的，从来都不是由技术本身的要求决定的。前后端分离也不能例外，我们不能应为它的诸多优点（我非常认可它的所有优点，只是它对我们来说太熟悉了，不想重复描述了），就觉得它是银弹，对吧？那我们要怎么做才能最大化前后端分离的收益呢？</p><p>八叉也提到了这点，只要能做到敏捷开发中提到的端到端交付能力，就意味着团队在使用前后端分离的同时，也考虑到了业务领域的上下文。这样做能最大程度的减少不合适的领域知识扩散（当然这只是其中一点好处），将参与开发的人员降低到合理的数量，在这个业务领域内的所有知识，他们都需要共享，这是无法避免的，也是非常有价值的。</p><p>听着怎么像在夸微服务和 DDD 呢？没错啦，其实这些架构诞生都是为了解决存在的问题的。新的思想不断提供更好的解决方案，推动着整个软件开发行业的发展。这个世界就是这样运作的，不管是哪个领域都是如此。对吗？不过其实它们三个是在不同的层面解决问题的，完全可以相互配合来一起发力。</p><p>白霍了这么多，我的目的只是想从前后端分离的角度，引出一个思考：<strong>我的这个逻辑到底要放在前端还是后端来实现好呢？</strong></p><p>我们排除那些完全不需要纠结的逻辑，例如“将数据存储到DB”这种的，再白痴也知道是要在后端处理的，对吧！！？？请在你的编码人生中，找一下，看是否存在那么一个业务点，它让你纠结过的，如果有，真心希望你能留言分享一下，最好还能把你做的决定以及理由也分享出来~~感激不尽！</p><p>不管你以前是基于什么理由来做决策的，我都希望你以后在为某个逻辑思考这个问题时，能增加几个维度：</p><ul><li>该决策是否会造成不必要的沟通成本？</li><li>该决策是否会造成性能问题？</li><li>该决策是否会泄露商业秘密？</li><li>该是否存在安全隐患？</li><li>需求是否经常会发生变更，变更后该决策会造成哪些部署成本？</li></ul><p>这里只是笼统列了一下思考点，希望对你有帮助，有机会我们再展开聊一下~~</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;其实一直想聊一下这个话题，主要想表达什么呢？我见过公司里一些开发新人，他们总是抱着一个MVC三层架构死不放，只会将代码粗颗粒度的摆放在这三层中的某一层。因为大概率下是不会放错的，毕竟MVC的年龄可能比他们本身都大，总不会被否定吧？！&lt;/p&gt;
+&lt;p&gt;但其实在实际开发过程中，还
+      
+    
+    </summary>
+    
+      <category term="架构" scheme="https://blog.kazaff.me/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+      <category term="前后端分离" scheme="https://blog.kazaff.me/tags/%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>面对无休止的需求讨论会议的反思1</title>
+    <link href="https://blog.kazaff.me/2021/09/18/%E9%9D%A2%E5%AF%B9%E6%97%A0%E4%BC%91%E6%AD%A2%E7%9A%84%E9%9C%80%E6%B1%82%E8%AE%A8%E8%AE%BA%E4%BC%9A%E8%AE%AE%E7%9A%84%E5%8F%8D%E6%80%9D1/"/>
+    <id>https://blog.kazaff.me/2021/09/18/面对无休止的需求讨论会议的反思1/</id>
+    <published>2021-09-18T09:37:00.000Z</published>
+    <updated>2021-09-22T09:43:46.223Z</updated>
+    
+    <content type="html"><![CDATA[<p>不知道大家参与，甚至负责过的复杂业务需求分析都是怎么顺利完成交付的？有没有碰到最近发生在我身边的这种情况呢？翻来覆去，没完没了的需求分析会议，感觉真的就这样会一直无休无止的持续下去！</p><p>你可能会有如下几个疑问：</p><ul><li>业务真的那么复杂？没有任何业务专家能够讲清楚？</li><li>模型真的那么创新？毫无竞品参考？</li><li>内容真的那么庞大？上天入地，跨行跨业？</li><li>干系人真的那么多？几百上千？沟通不完？</li></ul><p>好像都没有。而且不光是没有，而是完全不是这种量级的系统。就是一个带有一点特殊功能的B2C电商系统，仅此而已。而所谓的“一点特殊”，就真的是一点了，我以一个10年开发经验的老兵的视角这么分析的，而不是以一个天真烂漫的新人产品经理为了“糊弄”开发人员才这么形容的。。</p><p>OK，既然如此，那怎么就能把一个Web领域平均开发经验在5年左右，将近10个人的技术团队为难成这样？</p><h3 id="立项阶段"><a href="#立项阶段" class="headerlink" title="立项阶段"></a>立项阶段</h3><p>该项目一开始投入的人力组成大概如下：</p><ul><li>项目经理 1名（中层管理）</li><li>产品经理 2名（领导层）</li><li>负责公司现有电商系统的开发人员 1名</li></ul><p>这个阶段的核心事务，是围绕着现有电商系统的已有功能，以及上线运营以来积累的一些新需求的。在过程中，参与人讨论重心在于：确定哪些功能应该保留，商定哪些功能应该升级，规划哪些功能应该新增。</p><p>这个阶段起初是比较顺利的，大家对已有系统的问题现状的认知，以及重构的目标保持一致，很容易就能达成意见一致。不过由于该阶段并没有有效产出物，大家这种所谓沟通良好的感觉都保存在各自的脑中。换句话说，可能每个人脑中的新需求的画面都各不相同，但又整体一致。</p><p>这其实在项目立项初期，也是可以接受的，我认为只要大的方向是毫无争议的，就足够能确立项目的价值，以及大致规模了。</p><h3 id="需求分析阶段"><a href="#需求分析阶段" class="headerlink" title="需求分析阶段"></a>需求分析阶段</h3><p>一开始投入到这个项目的人，并不是太多，大概包含：</p><ul><li>产品经理 2名</li><li>项目经理 1名</li><li>高级工程师 2名</li></ul><p>其实我在犹豫到底应不应该称那两位领导为产品经理角色？他们确实拥有要做哪些的决定权，但他们并不会事无巨细的画出详细的业务流程，甚至一张原型草图都不曾提供过。</p><p>只能由项目经理和那两位工程师根据会议口头讨论内容，结合常规电商系统的功能，以及现有系统的一些特殊功能，拼组出一份功能清单，对于一些复杂的用例也会提供相关的草图。</p><p>在这个阶段进行中，公司还提出了一些非功能性的需求，例如：要考虑产品化，要能通过简单的操作来剪裁个别功能，等一系列新的想法和挑战。</p><p>可以看出随着沟通的深入和广泛，需求点正在悄无声息的增加，但还没有到爆炸的程度，我觉得这种情况也属于正常现象。</p><p>不过这里我认为确实存在一个问题，参与的项目经理和工程师在日常的沟通讨论中，不自觉地在思考如何实现，甚至是设计数据库。现在看来是真的无语啊，天真的以为需求会简单的经过几轮讨论就固定下来。<br>倒不是说不能提前思考，只是太早这么做，不光会浪费时间，也会影响士气。试想你为一个灵光乍现的一个需求点花了一整夜的时间进行技术方案的构想，结果第二天上班领导说先不用做了，你心情会如何？</p><h3 id="设计阶段"><a href="#设计阶段" class="headerlink" title="设计阶段"></a>设计阶段</h3><p>设计阶段问题就开始不停的出现了，此时该项目的参与者已经多了起来：</p><ul><li>产品经理 2名</li><li>项目经理 1名</li><li>需求分析人员 2名</li><li>设计文档编写人员 5名</li></ul><p>一开始出现的问题，应该就是沟通问题。因为新进项目组的人员，之前对项目几乎可以算是完全不了解。而此时已经积累了大量的内容需要大家消化，再加上每个人的经验和能力都不一样，此时就出现了一些尴尬的情况，例如针对一个功能，重复反复的多次会议讨论。</p><p>你可能觉得这很正常，确实，但我无法表达出那种惊恐，当你发现针对某项需求点，几周下来不停的讨论，依然会不断的出现新的问题和逻辑缺失。。往往是正在讲解的过程中突然就爆出一个新的问题~~我就是这个时候开始觉得不对劲的。</p><p>我承认每个人的思维都是有死角的，我自己就是如此，即便是我自认为已经想的是否周全了，但还是会在和别人讨论的时候脑子里突然蹦出新的问题。。</p><p>但我无法接受的是，这种情况在一个需求点上周而复始的发生N次。。而且是在参与者都已经尽力的情况下发生的。。在我写这篇文章的时候我依然想知道到底是因为什么？</p><h3 id="开发阶段"><a href="#开发阶段" class="headerlink" title="开发阶段"></a>开发阶段</h3><p>你应该能猜想的到，在设计阶段问题如此之多的前提下，在开发阶段会发生多么惨烈的事儿。。。</p><h2 id="到底发生了什么"><a href="#到底发生了什么" class="headerlink" title="到底发生了什么"></a>到底发生了什么</h2><p>如果非要逼我说一下可能的理由的话，我只能不自信的列出下面的问题点了：</p><ul><li>项目管理经验不足</li><li>沟通技巧不足</li><li>会议技巧不足</li><li>文档编写能力不足</li><li>技术能力不足</li></ul><p>卧槽，这几乎是一个团队可能发生的所有问题了吧。。。可是它们怎么能隐藏的如此完美，在之前的项目中就完全没有爆发呢？难道是因为其他项目的要求不高？或者期望不高？肯定都不是啊！！</p><p>而且当这些问题都存在的时候，往往是恶性循环。沟通技巧不足往往意味着表达能力和理解能力有问题，这会严重影响一些稍微复杂点的需求的分析效率。再加上会议技巧，就已经足够让团队陷入毫无意义的会议中了。</p><p>而项目管理经验不足，会导致人员安排上达不到最佳配置，从而进一步导致任务排期出现错误。直接导致团队交付压力变大，进而让沟通变的越来越没有耐心，让文档变的越来越粗糙。由于没有完善的书面文档，项目增加人手变的非常困难，最终让项目不停的延期，却又无可奈何。</p><p>那要怎么破局呢？假如今天有个天降猛男，脚踏七彩祥云，他会如何指点江山呢？</p><p>To Be Continue…</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;不知道大家参与，甚至负责过的复杂业务需求分析都是怎么顺利完成交付的？有没有碰到最近发生在我身边的这种情况呢？翻来覆去，没完没了的需求分析会议，感觉真的就这样会一直无休无止的持续下去！&lt;/p&gt;
+&lt;p&gt;你可能会有如下几个疑问：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;业务真的那么复杂？没有任
+      
+    
+    </summary>
+    
+      <category term="需求分析" scheme="https://blog.kazaff.me/categories/%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90/"/>
+    
+    
+      <category term="需求分析" scheme="https://blog.kazaff.me/tags/%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90/"/>
+    
+      <category term="会议" scheme="https://blog.kazaff.me/tags/%E4%BC%9A%E8%AE%AE/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Vscode突然不智能了怎么办</title>
+    <link href="https://blog.kazaff.me/2021/09/13/vscode%E7%AA%81%E7%84%B6%E4%B8%8D%E6%99%BA%E8%83%BD%E4%BA%86%E6%80%8E%E4%B9%88%E5%8A%9E/"/>
+    <id>https://blog.kazaff.me/2021/09/13/vscode突然不智能了怎么办/</id>
+    <published>2021-09-13T09:37:00.000Z</published>
+    <updated>2021-09-22T09:43:46.215Z</updated>
+    
+    <content type="html"><![CDATA[<p>自从被人推荐开始使用微软的VSCODE，基本上已经不再使用其它任何同类工具了。。。<br>可见我对它的满意度有多高~~<br>但今天它却给我的热情狠狠的来了一击，对，没错，它突然罢工了。。。</p><p>表现为，不识别任何语言，虽然代码着色还在，但是却不提供任何自动提示，以及快速跳转等高级功能。没错，它现在和彩色的记事本没差别~~<br>网上也没有搜到我这种情况，怎么就突然病了呢？我今天甚至都没有做什么新的操作。。<br>找了一圈也没有看到有价值的信息，只能使用终极必杀技了：卸载，重装！！！</p><p>首先剧透一下，这招确实管用，但问题是你必须要卸载干净，否则重装也还是没鸟用（这足以证明是设置问题，而不是软件bug）。<br>那卸载它，到底要怎么才算彻底呢？你必须要：</p><ol><li>卸载vscode工具，可以通过任何一种常规方式卸载：如在控制面板里，或点击vscode安装文件夹里的卸载图标；</li><li>要手动删除 <code>%APPDATA%\Code</code>；</li><li>要手动删除 <code>%USERPROFILE%\.vscode</code>。</li></ol><p>这样你应该能通过重新安装得到一个崭新的vscode了，新到完全没有任何插件，是的，都删了。。<br>我不确定是否可以不执行上述第三步也能解决问题，但你知道的，我已经没有办法测试了。。</p><p>祝你好运~~</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;自从被人推荐开始使用微软的VSCODE，基本上已经不再使用其它任何同类工具了。。。&lt;br&gt;可见我对它的满意度有多高~~&lt;br&gt;但今天它却给我的热情狠狠的来了一击，对，没错，它突然罢工了。。。&lt;/p&gt;
+&lt;p&gt;表现为，不识别任何语言，虽然代码着色还在，但是却不提供任何自动提示，
+      
+    
+    </summary>
+    
+      <category term="工具" scheme="https://blog.kazaff.me/categories/%E5%B7%A5%E5%85%B7/"/>
+    
+    
+      <category term="vscode" scheme="https://blog.kazaff.me/tags/vscode/"/>
+    
+      <category term="卸载" scheme="https://blog.kazaff.me/tags/%E5%8D%B8%E8%BD%BD/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>这只猴子有点油</title>
+    <link href="https://blog.kazaff.me/2021/04/04/%E8%BF%99%E5%8F%AA%E7%8C%B4%E5%AD%90%E6%9C%89%E7%82%B9%E6%B2%B9/"/>
+    <id>https://blog.kazaff.me/2021/04/04/这只猴子有点油/</id>
+    <published>2021-04-04T09:37:00.000Z</published>
+    <updated>2021-09-22T09:43:46.219Z</updated>
+    
+    <content type="html"><![CDATA[<p>久仰大名Tampermonkey（油猴），之前一直没有机会用在工作中，所以一直都只是知道有这么个强大的东西。前段时间在和我们的客户讨论需求时，根据对方的描述，我觉得必须要油猴出马了。<br>有了动机，接下来就是学习，油猴的开发文档内容非常精炼，基本上30分钟就能通读完毕（上次让我有这种感叹的，应该是Vuejs）。<br>而之所以内容篇幅很小，我猜应该是因为“大道至简”吧，工作越久就越发能体会到这个概念的伟大，概括了事物的本质：简约（有点扯远）。<br>当你了解完油猴的自我价值定位后，你应该就能多少体会我的意思了：当我们解决问题时，视图抓住事物的本质（第一性原理）时会发现解决方案往往出其不意的简约（不是简单）。</p><p>那么请允许我说一下我是怎么理解油猴的：<strong>提供一种扩展目标网站的能力</strong>。可能是界面上的扩展，也可能是功能上的扩展，总之油猴只是提供最基本的接口，剩下的交给用户来发挥。<br>正因为油猴没有做更多的假设，所以才会这么纯粹，不仅仅文档内容精炼，接口也好不多余。</p><p>基本的用法，网上前辈们已经写了不少，我在最后的参考资料里会列出我觉得不错的文章链接，方便有需要的童鞋查阅。那么接下来，我主要写一些我实战后的心得体会吧。</p><h4 id="安全"><a href="#安全" class="headerlink" title="安全"></a>安全</h4><p>当用户使用你发布的油猴脚本时，最关注的应该就是它是否安全了，毕竟油猴太强大，能做太多事，不加思考的随意使用第三方提供的脚本，可能会给自己带来灭顶之灾（毫不为过）。<br>而油猴自身也明白这一点，所以它要求脚本明示自己会使用哪些油猴提供的能力，此外也做了沙盒环境来阻断脚本直接去修改源网站系统的Js变量。<br>但这对于粗心的用户 + 恶意开发者这种组合来说，对于安全提升似乎并没有什么太大的帮助。所以，衷心提醒广大童鞋，一定要当心噢！！！</p><p>那我们转过来说一下，当油猴的一些安全设定和我们的目标冲突的时候，该怎么办呢？<br>对我的业务场景来说，无法修改源网站系统中的JS变量，这对我造成了困扰。不过转念一想，既然油猴允许我们操作DOM，那我们<strong>只需要修改DOM追加一段脚本即可</strong>，在脚本里我们可以做任何想做的事儿（如: 覆盖window变量）。</p><p>额外的一点也需要提一下，如果你也需要获取浏览器端的cookie，尤其是设置为<code>httponly</code>类型的cookie，那传统的JS是绝对无法做到的，而油猴文档里其实有这方面的接口能力：<code>GM_cookie</code>，<br>但由于这个对安全的影响实在是太大了，稳定版的油猴是不允许使用这个能力的，官方建议使用Beta版本。所以你懂了吧，如果必须要用，就需要你的用户安装正确版本的油猴哦~~</p><h4 id="共享数据"><a href="#共享数据" class="headerlink" title="共享数据"></a>共享数据</h4><p>如果我们需要跨域名的数据共享，那么使用油猴的<code>GM_*Value</code>相关接口即可，它的命名空间我个人的理解应该是基于脚本的，并不是访问网站的域名。这样我们就可以做到同一个脚本插件下不同的页面灵活的传递数据了。<br>配合<code>GM_addValueChangeListener</code>监听目标变量的状态改变事件，可以实现更多炫酷的想法哦。</p><h4 id="复杂交互"><a href="#复杂交互" class="headerlink" title="复杂交互"></a>复杂交互</h4><p>假如只是不爽源网站的界面，那借助油猴你可以大刀阔斧的进行一番装修，直到满意为止~~<br>或者仅仅是想提供一个额外的按钮，点击后做点什么羞羞的事儿，那也不是什么难事儿~~<br>但如果你想要的是，“接管”用户的操作，让网站自动的进行一系列的操作（例如：在电商系统里，自动的完成将一系列的目标商品批量加入购物车），那你可就要停下来思考一下了。</p><p>没错，问题在于：<strong>浏览器刷新</strong>。<br>你写的油猴脚本载入并执行，是在每次浏览器加载页面后的指定事件发生时触发的。假如前面提到的这一系列的操作，会触发浏览器重新载入页面，那你的油猴脚本其实也会一并重新加载（即执行上下文重置）。<br>那每次刷新，脚本怎么知道要如何“继续”执行合适的操作呢？</p><p>这个时候，我们就还是要借助<code>GM_*Value</code>相关接口了，思路是这样的：把这一系列的操作，分解成一段一段的，<strong>每一段的最后一步一定要确保触发页面加载</strong>。<br>然后，我们只需要将拆分后得到的全部的可执行命令保存在<code>GM_VALUE</code>里，另一方面在脚本里监控目标变量是否有内容，有的话就优先开始按顺序取出指令进行执行即可（执行完记得删除哦）。</p><p>大概的代码如下：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">   <span class="function"><span class="keyword">function</span> <span class="title">createStep</span>(<span class="params"></span>)</span>&#123;  <span class="comment">//用来生成可执行命令集合。</span></span><br><span class="line">       <span class="keyword">let</span> steps = [&#123;<span class="attr">cmd</span>:<span class="string">'clearCart'</span>&#125;,</span><br><span class="line">                   &#123;<span class="attr">cmd</span>:<span class="string">'searchSKU'</span>, <span class="attr">data</span>: <span class="string">'kazaff'</span>&#125;,</span><br><span class="line">                   &#123;<span class="attr">cmd</span>:<span class="string">'keyinQTY'</span>, <span class="attr">data</span>: <span class="number">7</span>&#125;,</span><br><span class="line">                   &#123;<span class="attr">cmd</span>: <span class="string">"pageRefresh"</span>&#125;,</span><br><span class="line">                   &#123;<span class="attr">cmd</span>:<span class="string">'over'</span>&#125;</span><br><span class="line">       ];</span><br><span class="line"></span><br><span class="line">GM_setValue(<span class="string">'autoRun'</span>, steps);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">   <span class="comment">// 脚本加载完毕后会自动触发</span></span><br><span class="line">   (<span class="function"><span class="keyword">function</span> <span class="title">autoRun</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">       <span class="keyword">let</span> steps = GM_getValue(<span class="string">'autoRun'</span>, <span class="literal">null</span>);</span><br><span class="line">       <span class="keyword">if</span>(steps == <span class="literal">null</span> || steps.length == <span class="number">0</span>)&#123;</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">let</span> currentStep = steps.shift();</span><br><span class="line">       GM_setValue(<span class="string">'autoRun'</span>, steps);</span><br><span class="line">       <span class="keyword">switch</span>(currentStep.cmd)&#123;</span><br><span class="line">           <span class="keyword">case</span> <span class="string">"clearCart"</span>:</span><br><span class="line">               clearCart();<span class="keyword">break</span>;</span><br><span class="line">           <span class="keyword">case</span> <span class="string">"searchSKU"</span>:</span><br><span class="line">               searchSKU(currentStep.data);<span class="keyword">break</span>;</span><br><span class="line">           <span class="keyword">case</span> <span class="string">"keyinQTY"</span>:</span><br><span class="line">               keyinQTY(currentStep.data);<span class="keyword">break</span>;</span><br><span class="line">           <span class="keyword">case</span> <span class="string">"pageRefresh"</span>:</span><br><span class="line">               <span class="built_in">window</span>.location.reload();<span class="keyword">break</span>;</span><br><span class="line">           <span class="keyword">case</span> <span class="string">"over"</span>:</span><br><span class="line">               GM_deleteValue(<span class="string">'autoRun'</span>);</span><br><span class="line">               alert(<span class="string">"购物车导入完毕"</span>);</span><br><span class="line">       &#125;</span><br><span class="line">&#125;());</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">   <span class="comment">// 在页面上植入触发按钮</span></span><br><span class="line">   jQuery(<span class="string">'目标DOM'</span>).prepend(<span class="string">'&lt;button id="autoRun"&gt;自动加满购物车&lt;/button&gt;'</span>);</span><br><span class="line">   jQuery(<span class="string">'#autoRun'</span>).click(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">       createStep();</span><br><span class="line">   &#125;);</span><br></pre></td></tr></table></figure><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.jianshu.com/p/2408cdb487c0" target="_blank" rel="noopener">油猴脚本开发入门</a><br><a href="https://github.com/Tampermonkey/tampermonkey/issues/465#issuecomment-545530306" target="_blank" rel="noopener">GM_cookie - HttpOnly Cookie #465</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;久仰大名Tampermonkey（油猴），之前一直没有机会用在工作中，所以一直都只是知道有这么个强大的东西。前段时间在和我们的客户讨论需求时，根据对方的描述，我觉得必须要油猴出马了。&lt;br&gt;有了动机，接下来就是学习，油猴的开发文档内容非常精炼，基本上30分钟就能通读完毕（上
+      
+    
+    </summary>
+    
+      <category term="前端" scheme="https://blog.kazaff.me/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="tampermonkey" scheme="https://blog.kazaff.me/tags/tampermonkey/"/>
+    
+      <category term="油猴" scheme="https://blog.kazaff.me/tags/%E6%B2%B9%E7%8C%B4/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Centos7下安装puppeteer</title>
+    <link href="https://blog.kazaff.me/2021/03/22/centos7%E4%B8%8B%E5%AE%89%E8%A3%85puppeteer/"/>
+    <id>https://blog.kazaff.me/2021/03/22/centos7下安装puppeteer/</id>
+    <published>2021-03-22T09:37:00.000Z</published>
+    <updated>2021-09-22T09:43:46.211Z</updated>
+    
+    <content type="html"><![CDATA[<p>刚做了个服务迁移，结果发现比预期想的事儿要多啊，不开心。。<br>迁移后发现程序报错，提示缺少一大堆库文件。。。记忆里之前也解决过这个问题，搜了一下博客，竟然发现没有记录下来，那好吧，这次就补一下该内容。</p><p>其实一般碰到这种缺少库文件的问题时，没什么悬念，安装对应版本即可。<br>所以我淡定的按照提示缺少的库名，进行了一轮安装：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y at-spi2-atk libXcursor libXdamage cups-libs libXScrnSaver libXrandr atk pango gtk3</span><br></pre></td></tr></table></figure><p>由于我是在服务器环境下运行的，所以肯定开启的headless模式，所以官方提示需要预装的一些界面库我就不需要了。<br>有需要的同鞋可以参考下面这个列表：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">alsa-lib.x86_64</span><br><span class="line">atk.x86_64</span><br><span class="line">cups-libs.x86_64</span><br><span class="line">gtk3.x86_64</span><br><span class="line">ipa-gothic-fonts</span><br><span class="line">libXcomposite.x86_64</span><br><span class="line">libXcursor.x86_64</span><br><span class="line">libXdamage.x86_64</span><br><span class="line">libXext.x86_64</span><br><span class="line">libXi.x86_64</span><br><span class="line">libXrandr.x86_64</span><br><span class="line">libXScrnSaver.x86_64</span><br><span class="line">libXtst.x86_64</span><br><span class="line">pango.x86_64</span><br><span class="line">xorg-x11-fonts-100dpi</span><br><span class="line">xorg-x11-fonts-75dpi</span><br><span class="line">xorg-x11-fonts-cyrillic</span><br><span class="line">xorg-x11-fonts-misc</span><br><span class="line">xorg-x11-fonts-Type1</span><br><span class="line">xorg-x11-utils</span><br></pre></td></tr></table></figure><p>打完收工~~</p><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#chrome-headless-doesnt-launch-on-unix" target="_blank" rel="noopener">Chrome headless doesn’t launch on UNIX</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;刚做了个服务迁移，结果发现比预期想的事儿要多啊，不开心。。&lt;br&gt;迁移后发现程序报错，提示缺少一大堆库文件。。。记忆里之前也解决过这个问题，搜了一下博客，竟然发现没有记录下来，那好吧，这次就补一下该内容。&lt;/p&gt;
+&lt;p&gt;其实一般碰到这种缺少库文件的问题时，没什么悬念，安装对
+      
+    
+    </summary>
+    
+      <category term="运维" scheme="https://blog.kazaff.me/categories/%E8%BF%90%E7%BB%B4/"/>
+    
+    
+      <category term="centos" scheme="https://blog.kazaff.me/tags/centos/"/>
+    
+      <category term="puppeteer" scheme="https://blog.kazaff.me/tags/puppeteer/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Mail-listener下的IMAP ID怎么搞？</title>
+    <link href="https://blog.kazaff.me/2021/03/18/mail-listener%E4%B8%8B%E7%9A%84IMAP%20ID%E6%80%8E%E4%B9%88%E6%90%9E/"/>
+    <id>https://blog.kazaff.me/2021/03/18/mail-listener下的IMAP ID怎么搞/</id>
+    <published>2021-03-18T09:37:00.000Z</published>
+    <updated>2021-09-22T09:43:46.215Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天发现一直使用的nodejs的一个IMAP库，无法完成国内163邮箱的登录授权，会提示：</p><blockquote><p>Unsafe Login. Please contact <a href="mailto:kefu@188.com" target="_blank" rel="noopener">kefu@188.com</a> for help</p></blockquote><p>太讨厌了。然后一顿乱搜，原来是163邮箱在登录认证的时候，需要客户端携带特定的身份参数。<br>文章后面的参考资料里提供了官方的解释以及另一个博主的分享。</p><p>不过可惜，这些资料里提供的demo都不是基于nodejs的。所以还是只能靠自己来解决~~<br>经过进行源码阅读，发现其实nodejs的底层<code>imap</code>库也是提供了对应的方法的，只是奇怪的是无法直接使用。相关代码如下：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">let</span> &#123; MailListener &#125; = <span class="built_in">require</span>(<span class="string">"mail-listener5"</span>);</span><br><span class="line"><span class="keyword">let</span> mailWatcher = <span class="keyword">new</span> MailListener(&#123;</span><br><span class="line">username: <span class="string">"eyusei@163.com"</span>,</span><br><span class="line">password: <span class="string">"MSZOYXXOTHNTEERI"</span>,</span><br><span class="line">host: <span class="string">"imap.163.com"</span>,</span><br><span class="line">port: <span class="number">993</span>,</span><br><span class="line">tls: <span class="literal">true</span>,</span><br><span class="line">    <span class="comment">//debug: console.log,</span></span><br><span class="line">tlsOptions: &#123;<span class="attr">rejectUnauthorized</span>: <span class="literal">false</span>&#125;,</span><br><span class="line">mailbox: <span class="string">"INBOX"</span>,</span><br><span class="line">searchFilter: [<span class="string">"UNSEEN"</span>],</span><br><span class="line">markSeen: <span class="literal">true</span>,</span><br><span class="line">fetchUnreadOnStart: <span class="literal">true</span>,</span><br><span class="line">mailParserOptions: &#123;<span class="attr">streamAttachments</span>: <span class="literal">false</span>&#125;,</span><br><span class="line">attachments: <span class="literal">false</span>,</span><br><span class="line">attachmentOptions: &#123;<span class="attr">directory</span>: <span class="string">"./attachments/"</span>&#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">mailWatcher.start();</span><br><span class="line">mailWatcher.imap.id(&#123;<span class="string">"name"</span>: <span class="string">"kazaffClient"</span>, <span class="string">"version"</span>: <span class="string">"1.0"</span>&#125;);</span><br></pre></td></tr></table></figure><p>运行后会直接报错：</p><blockquote><p>Server does not support ID</p></blockquote><p>进行debug后发现，原来在调用<code>imap.id</code>方法时，直接就被拒绝了：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Connection.prototype.id = <span class="function"><span class="keyword">function</span>(<span class="params">identification, cb</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (!<span class="keyword">this</span>.serverSupports(<span class="string">'ID'</span>))</span><br><span class="line">     <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Server does not support ID'</span>);</span><br><span class="line">  ......</span><br></pre></td></tr></table></figure><p><a href="https://sourcegraph.com/github.com/mscdex/node-imap/-/blob/lib/Connection.js#L385" target="_blank" rel="noopener">完整代码</a>看这里。</p><p>尝试将385~386两行注释掉后，就完全ok了。<br>分析后果感觉是因为163邮件服务那边要求身份认证的时机和<code>imap</code>库认为的发送认证时机不匹配导致的。<br>直接注释掉这个校验，由于163邮件服务器肯定支持<code>ID</code>校验，所以不会有任何问题。</p><p>唯一不开心的问题是直接修改源码导致后期升级麻烦。不过至少可以先跑起来了~~</p><p>不知道有朋友知道更好的办法没有？请教了~</p><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://blog.yrpang.com/posts/45207/" target="_blank" rel="noopener">解决网易163邮箱Unsafe Login.错误</a><br><a href="https://help.mail.163.com/faqDetail.do?code=d7a5dc8471cd0c0e8b4b8f4f8e49998b374173cfe9171305fa1ce630d7f67ac211b1978002df8b23" target="_blank" rel="noopener">imap连接提示Unsafe Login，被阻止的收信行为</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;今天发现一直使用的nodejs的一个IMAP库，无法完成国内163邮箱的登录授权，会提示：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Unsafe Login. Please contact &lt;a href=&quot;mailto:kefu@188.com&quot; target=&quot;_bla
+      
+    
+    </summary>
+    
+      <category term="nodejs" scheme="https://blog.kazaff.me/categories/nodejs/"/>
+    
+    
+      <category term="163邮箱" scheme="https://blog.kazaff.me/tags/163%E9%82%AE%E7%AE%B1/"/>
+    
+      <category term="unsafe_login" scheme="https://blog.kazaff.me/tags/unsafe-login/"/>
+    
+      <category term="mail-listener" scheme="https://blog.kazaff.me/tags/mail-listener/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Puppeteer如何下载pdf文件</title>
+    <link href="https://blog.kazaff.me/2021/01/19/puppeteer%E5%A6%82%E4%BD%95%E4%B8%8B%E8%BD%BDpdf%E6%96%87%E4%BB%B6/"/>
+    <id>https://blog.kazaff.me/2021/01/19/puppeteer如何下载pdf文件/</id>
+    <published>2021-01-19T09:37:00.000Z</published>
+    <updated>2021-09-22T09:43:46.215Z</updated>
+    
+    <content type="html"><![CDATA[<p>相信大家伙儿都清楚，访问一些常见的文件格式，浏览器是会“自作主张”的提供预览功能的，但有时候我们想直接下载到文件。<br>尤其是在用puppeteer这种方式进行操作时，我们如何绕过浏览器的默认行为呢？</p><p>拿PDF文件来举个例子吧，因为chrome默认会使用内置的pdf viewer来直接预览文件，而浏览器进入到预览模式后其实上下文发生了切换，导致无法像操作普通页面那样来操作页面上的元素。<br>此时，我们就需要必须要找到办法直接下载文件了。</p><p>目前要下载文件，必须保证程序不是在headless模式下，换句话说即必须要有可视化窗口。接下来，我们就要动手绕过浏览器默认行为了。<br>思路很简单，浏览器之所以会进行预览，是因为请求的响应头中，包含了浏览器适配预览的内容类型（content-type）标识。所以我们的目标就是要想办法覆盖这个响应头设置即可。</p><p>查阅了一下文章后，发现chrome确实提供了这种接口：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">    <span class="keyword">const</span> browser = <span class="keyword">await</span> puppeteer.launch(&#123;</span><br><span class="line">        headless: <span class="literal">false</span>, </span><br><span class="line">        timeout: <span class="number">60000</span>, </span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">const</span> page = <span class="keyword">await</span> browser.newPage();</span><br><span class="line">    <span class="keyword">const</span> client = <span class="keyword">await</span> page.target().createCDPSession();  <span class="comment">// 激活 chrome devtools模式</span></span><br><span class="line">    <span class="keyword">await</span> client.send(<span class="string">'Fetch.enable'</span>, &#123; <span class="comment">// 开启request domain的控制开关</span></span><br><span class="line">        patterns: [</span><br><span class="line">            &#123;</span><br><span class="line">                urlPattern: <span class="string">'*'</span>,    <span class="comment">// 设置视图控制的request url模式</span></span><br><span class="line">                requestStage: <span class="string">'Response'</span>, <span class="comment">// 设置 目标请求的控制阶段， Response表示为拿到服务器响应内容，并在交给浏览器流程之前的阶段</span></span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 所有匹配url模式的请求都会触发这个事件回调，再没有手动触发Fetch.fulfillRequest，continueRequest, failRequest等事件之前，请求处于暂停状态</span></span><br><span class="line">    <span class="keyword">await</span> client.on(<span class="string">'Fetch.requestPaused'</span>, <span class="keyword">async</span> (reqEvent)=&gt;&#123;</span><br><span class="line">        <span class="keyword">const</span> &#123;requestId&#125; = reqEvent;   <span class="comment">// 获取浏览器为当前请求分配的编号</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 检查默认的responseHeader中是否包含目标内容</span></span><br><span class="line">        <span class="keyword">let</span> responseHeaders = reqEvent.responseHeaders || [];</span><br><span class="line">        <span class="keyword">let</span> contentType = <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">let</span> elements <span class="keyword">of</span> responseHeaders)&#123;</span><br><span class="line">            <span class="keyword">if</span>(elements.name.toLowerCase() == <span class="string">'content-type'</span>)&#123;</span><br><span class="line">                contentType = elements.value;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(contentType.endsWith(<span class="string">'pdf'</span>))&#123;</span><br><span class="line">            responseHeaders.push(&#123;  <span class="comment">// 直接覆盖默认的格式为附件类型，避免触发浏览器的默认预览模式</span></span><br><span class="line">                name: <span class="string">'content-disposition'</span>,</span><br><span class="line">                value: <span class="string">'attachment'</span>,</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">const</span> responseObj = <span class="keyword">await</span> client.send(<span class="string">'Fetch.getResponseBody'</span>, &#123;requestId&#125;);    <span class="comment">// 获取原本请求的响应内容</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">await</span> client.send(<span class="string">'Fetch.fulfillRequest'</span>, &#123; <span class="comment">// 覆盖默认的响应数据属性</span></span><br><span class="line">                requestId,</span><br><span class="line">                responseCode: <span class="number">200</span>,</span><br><span class="line">                responseHeaders,</span><br><span class="line">                body: responseObj.body,</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">await</span> client.send(<span class="string">'Fetch.continueRequest'</span>, &#123;requestId&#125;);    <span class="comment">// 直接“放行”，不进行任何属性覆盖</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        <span class="keyword">await</span> client.send(<span class="string">'Page.setDownloadBehavior'</span>, &#123;<span class="attr">behavior</span>: <span class="string">'allow'</span>, <span class="attr">downloadPath</span>: <span class="string">"这里填写想要保存附件的位置，默认会下载到系统的downloads文件夹"</span>&#125;);</span><br><span class="line">        <span class="keyword">await</span> page.goto(<span class="string">'这里填写pdf目标链接'</span>);</span><br><span class="line">    &#125;<span class="keyword">catch</span>(err)&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(err);   <span class="comment">// 目前会抛出一个异常，忽略即可。</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">await</span> client.send(<span class="string">'Fetch.disable'</span>); <span class="comment">// 关闭 request domain的控制开关</span></span><br><span class="line">    <span class="keyword">await</span> client.detach(); <span class="comment">// 关闭cdpSession</span></span><br><span class="line">......</span><br></pre></td></tr></table></figure><p>这样处理后，chrome就不会做任何“多余”的操作，直接老老实实的把文件下载到本地了。</p><p>不过需要注意的是，下面参考资料中，把这个方案用到的一些方法表示为：实验性（Experimental），已弃用（Deprecated）。<br>不排除未来的新版本chrome不再支持这些接口了。</p><p>希望这篇文章帮到你了，回见~~</p><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://stackoverflow.com/questions/56254177/open-puppeteer-with-specific-configuration-download-pdf-instead-of-pdf-viewer" target="_blank" rel="noopener">stack overflow</a><br><a href="https://chromedevtools.github.io/devtools-protocol/tot/Fetch/" target="_blank" rel="noopener">chrome devtools protocol</a><br><a href="https://pptr.dev/#?product=Puppeteer&amp;version=v5.5.0&amp;show=api-class-cdpsession" target="_blank" rel="noopener">CDPSession</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;相信大家伙儿都清楚，访问一些常见的文件格式，浏览器是会“自作主张”的提供预览功能的，但有时候我们想直接下载到文件。&lt;br&gt;尤其是在用puppeteer这种方式进行操作时，我们如何绕过浏览器的默认行为呢？&lt;/p&gt;
+&lt;p&gt;拿PDF文件来举个例子吧，因为chrome默认会使用内置
+      
+    
+    </summary>
+    
+      <category term="nodejs" scheme="https://blog.kazaff.me/categories/nodejs/"/>
+    
+    
+      <category term="puppeteer" scheme="https://blog.kazaff.me/tags/puppeteer/"/>
+    
+      <category term="chrome" scheme="https://blog.kazaff.me/tags/chrome/"/>
+    
+      <category term="devtools" scheme="https://blog.kazaff.me/tags/devtools/"/>
+    
+      <category term="pdf" scheme="https://blog.kazaff.me/tags/pdf/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>重新认识Innodb</title>
+    <link href="https://blog.kazaff.me/2020/12/25/%E9%87%8D%E6%96%B0%E8%AE%A4%E8%AF%86Innodb/"/>
+    <id>https://blog.kazaff.me/2020/12/25/重新认识Innodb/</id>
+    <published>2020-12-25T09:37:00.000Z</published>
+    <updated>2021-09-22T09:43:46.219Z</updated>
+    
+    <content type="html"><![CDATA[<p>打从第一天上班开始，就在与Mysql打交道，当时也啃过几本评分很高的讲mysql的书。记得曾经看过书中讲的眼花缭乱的复杂sql后也跃跃欲试的想要在项目中大展拳脚，但转眼就被各种慢查询和数据不一致问题虐的体无完肤。经历过各种尴尬，看过不少前辈的分享后，发现其实常见的互联网项目，大量的逻辑可以很好的在应用代码这一侧就完成，不仅能保证效率，有利于维护，而且未来的优化空间对一般开发人员来说也比较大，不至于面对数据库这个黑匣子一脸懵逼。所以从业一段时间后，自己接受的项目中就已经很少见什么子查询，各种join，更直接就禁用了存储过程等等。</p><p>我相信，不少人和我一样，停留在这个阶段。我之所以用“停留”这个词，就是想表达：这种程度还远远不够。我们可以让mysql这样的DB只用于持久化，但这并不代表就可以完全无视它的基础法则。如果你觉得你的sql足够简单，就可以完全不在意mysql的“复杂玩法”，那你就只能等着挨打了~~</p><p>写这么多，想必应该看得出，刚刚被打的，正是在下吧~  最近在帮同事排查问题的时候，发现自己在mysql方面有一些基础知识缺失了，导致从问题表象上看，各种反直觉。所以就决定花时间先把基础知识“复习”一下。</p><p>接下来我们就直奔主题，把这次复习到的内容全部总结出来（现学现卖），有兴趣的童鞋一定要认真看本文最后的“参考资料”，那里面会有大量的干货和实例。</p><h4 id="Innodb"><a href="#Innodb" class="headerlink" title="Innodb"></a>Innodb</h4><p>通常情况下我们选择使用mysql这样的传统db，多半离不开<code>ACID</code>，而要获取这样的保证，就肯定要基于事务，而mysql下支持事务的引擎就是Innodb，所以咱们本篇内容就只围绕Innodb来讲。</p><p>一般常识下，大家都知道Innodb支持行锁，有更好的并发性能，但其实这个理解中存在着很大的认知缺陷。<br>首先，<strong>Innodb的行锁是基于索引的，假如你的<code>where</code>条件无法使用索引的前提下，就会产生“锁表”（也有文章提到说是临键值锁，只是区间覆盖全表）</strong>。所以可见索引的重要性，可不仅仅是针对查询提速哦。</p><p>其次，一般情况下我们并不是“生硬”的直接去inert/update/delete，而是根据db中现有的数据值基础上进行一些数据变更（直白点讲说，就是使用select…for update），如果在事务中没有明确的申请查询锁（共享锁/排它锁）话，根据不同的事务隔离设置，会有截然不同的逻辑，如 快照读。</p><h4 id="事务隔离"><a href="#事务隔离" class="headerlink" title="事务隔离"></a>事务隔离</h4><p>咱们先来捋顺这个概念，mysql的事务隔离有四种：</p><ul><li>读未提交</li><li>读已提交（推荐）</li><li>可重复读（默认）</li><li>串行化</li></ul><p>不同的事务隔离设置主要是针对业务对“脏读，不可重复读，幻读”的接受度来考量的。当然，通常我们的项目肯定是不接受“脏读”的（即提前读到其他事务未commit的数据变更），但<strong>是否一定要求“可重复读”，这一点就要大家好好根据自身的业务需要好好思考了</strong>。</p><p>何为“可重复读”，主要就是指<strong>在事务中多次读取（未明确申请任何锁的前提下）相同的数据范围，得到的数据集是相同的，不会发生变化</strong>。mysql主要是依靠“快照读”来做到的，这里一定要注意一些细节：<strong>快照版本和事务开启的时刻无关，仅和该事务中第一次读操作的时刻有关</strong>，即从第一次读操作发生的时刻开始，其它任何事务的任何晚于这个时刻的提交，本事务都无法“感知”。这个特点给mysql在保证可重复读的前提下带来的很高的并发性能（避免了读写锁阻塞）。</p><h4 id="各种锁"><a href="#各种锁" class="headerlink" title="各种锁"></a>各种锁</h4><p><strong>如果你在事务中明确申请锁，那你的读取操作就不会在是快照读了，而是会尝试加锁获取当前数据</strong>。</p><p>接下来我们来看看，常见的锁：</p><ul><li>共享锁/排它锁</li><li>间隙锁</li><li>记录锁（行锁）</li><li>临键锁（间隙锁+记录锁）</li><li>自增锁</li></ul><p>共享锁其实就是读锁（如 select…lock share mode），解决<code>读读</code>并发问题。<br>排它锁就是写锁（如 select…for update, update, delete），排斥一切，包括自己。<br>其实还有“意向共享锁/意向排它锁”，它们是基于表的，存在的价值就是提速锁判断。具体大家可以自己阅读相关文献。</p><p>根据sql的where条件的范围，我们可以一次性获取 N 条数据的 读或写锁。这些锁，可能是记录锁（如 where id=1），也可能是临键锁（如 where id &gt; 1），即 记录锁 + 间隙锁。</p><p>记录锁很容易理解，就是我们一直挂嘴边的行锁。<br>那什么是间隙锁呢？它主要是来解决幻读的，假如事务A锁定一个数据范围（如 where id between 1 and 10），事务B尝试<code>insert</code>一条记录（如 id = 5，假如之前不存在id=5的记录）时，由于事务A在这个范围上加了间隙锁，事务B只能等待。当然，事务B更不可能<code>update/delete</code>任何记录，因为也都被事务A加上了记录锁。<br>这里要额外叮嘱一下：此时事务B如果进行<code>select id=5 for update</code>的时候，是不会阻塞的，而是会直接返回记录不存在。但随后可能的<code>insert</code>肯定会阻塞。</p><p>另外要注意哦，前面我们提到<strong>当使用的where条件没有命中索引的时候，mysql会进行全表范围的间隙锁</strong>哦~~</p><p>最后咱们在来看一下自增锁，这个主要是来对那些业务需要保证多次插入得到连续的自增值的场景，默认mysql是没有开启的。但若开启后，任何一个事务开启后，相当于会在整个表上增加一个自增锁，用来阻塞其他事务的insert操作。<br>根据这个定义，存在一个有意思的事儿：假设我们有一张新空表test，保持默认设置（即未开启自增锁），然后先开启A事务，然后插入一条数据，不提交，再开启B事务，也插入一条数据，此时提交B事务，你觉得B事务插入的记录的自增字段的值会是多少？<br>答案是：2。<br><strong>值会基于事务A未提交的那条记录的自增值+1，即便是在事务B提交前，事务A回滚也如此</strong>。</p><p>有点意思吧。</p><h4 id="orderby-limit-下的任性"><a href="#orderby-limit-下的任性" class="headerlink" title="orderby + limit 下的任性"></a>orderby + limit 下的任性</h4><p>最后，我们来看一个更“冷”的知识。在我们处理分页的时候，如果你的orderby时，刚巧碰到了多条记录该排序字段的值是相同的。你猜mysql会如何做？<br><strong>随机排序</strong>，吃惊么？其实一般场景下对这种处理并不敏感，甚至无视。</p><p>但加上limit设置的话，好死不死刚好随机发生在limit条件上，对应的分页结果就会表现的随机性。这还不是最狗血的，假如你的业务比较冷门，要基于当前表中的记录按照指定排序条件获取期望的特定数据值时（limit 0,1），恐怕这种随机性会让你抓狂。</p><p>我们的某个遗留系统中，就碰到这种问题，明明开了事务，加了锁，但按照创建时间倒序，想要获取最新的一条记录的订单号，在基于该订单号+1的逻辑创建新的订单号时，在压力测试（会发生同一秒创建多笔订单）的时候还是会出现订单号重复的bug。</p><p>我们先不管业务订单号必须连续的合理性，以及sql语句的严谨性之外，单单这个mysql的随机返回结果的特性，都让排查问题的时候基本抓瞎。</p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>了解了上面的基础知识后，相信在使用innodb的时候，尤其是处理一些“异常”的时候，会有思路一些吧。<br>强烈建议大家把下面分享的文献读一下，很开阔视野。</p><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;mid=2651961451&amp;idx=1&amp;sn=1bac366be5ad2dc721f79c9cb8e65e34&amp;chksm=bd2d0db78a5a84a101e05a02e337fe91c3fd179132bced897156e1f34f0d0ba7e48dc89a1b95&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">挖坑，InnoDB的七种锁</a><br><a href="https://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;mid=2651961498&amp;idx=1&amp;sn=058097f882ff9d32f5cdf7922644d083&amp;chksm=bd2d0d468a5a845026b7d2c211330a6bc7e9ebdaa92f8060265f60ca0b166f8957cbf3b0182c&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">4种事务的隔离级别，InnoDB如何巧妙实现？</a><br><a href="https://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;mid=2651961511&amp;idx=1&amp;sn=2be06ffcb0335da5bf85f3e648b0fd7e&amp;chksm=bd2d0d7b8a5a846d47e4a3b7f2fd3584f21b4007b31b9d297c960fae9dfb5003e3d9a4c6bb3e&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">InnoDB的快照读，到底和什么相关？</a><br><a href="https://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;mid=2651961486&amp;idx=1&amp;sn=b319a87f87797d5d662ab4715666657f&amp;chksm=bd2d0d528a5a84446fb88da7590e6d4e5ad06cfebb5cb57a83cf75056007ba29515c85b9a24c&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">数据库索引，到底是什么做的？</a><br><a href="https://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;mid=2651961030&amp;idx=1&amp;sn=73a04dabca409c1557e752382d777181&amp;chksm=bd2d031a8a5a8a0c6f7b58b79ae8933dfefbd840dfb5d34a5c708ab63e6decbbc1b13533ebc8&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">58到家MySQL军规升级版</a><br><a href="https://www.jianshu.com/p/ead491db9749" target="_blank" rel="noopener">Mysql order by与limit混用陷阱</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;打从第一天上班开始，就在与Mysql打交道，当时也啃过几本评分很高的讲mysql的书。记得曾经看过书中讲的眼花缭乱的复杂sql后也跃跃欲试的想要在项目中大展拳脚，但转眼就被各种慢查询和数据不一致问题虐的体无完肤。经历过各种尴尬，看过不少前辈的分享后，发现其实常见的互联网项目
+      
+    
+    </summary>
+    
+      <category term="数据库" scheme="https://blog.kazaff.me/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+    
+      <category term="mysql" scheme="https://blog.kazaff.me/tags/mysql/"/>
+    
+      <category term="innodb" scheme="https://blog.kazaff.me/tags/innodb/"/>
+    
+      <category term="锁" scheme="https://blog.kazaff.me/tags/%E9%94%81/"/>
+    
+      <category term="事务" scheme="https://blog.kazaff.me/tags/%E4%BA%8B%E5%8A%A1/"/>
+    
+      <category term="快照读" scheme="https://blog.kazaff.me/tags/%E5%BF%AB%E7%85%A7%E8%AF%BB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Github更换认证方式后sourcetree的设置</title>
+    <link href="https://blog.kazaff.me/2020/11/28/github%E6%9B%B4%E6%8D%A2%E8%AE%A4%E8%AF%81%E6%96%B9%E5%BC%8F%E5%90%8Esourcetree%E7%9A%84%E8%AE%BE%E7%BD%AE/"/>
+    <id>https://blog.kazaff.me/2020/11/28/github更换认证方式后sourcetree的设置/</id>
+    <published>2020-11-28T09:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.215Z</updated>
+    
+    <content type="html"><![CDATA[<p>个人非常喜欢sourcetree这款git客户端工具，比较喜欢它的设计理念，即将所有功能都集成在同一个UI中，而不是散落在不同的菜单或文件夹里。<br>不过之前一直用github的https协议来作为项目的git地址，sourcetree似乎对https协议的项目默认使用的认证授权方式就是账号密码。<br>但是随着github近期调整了认证方式，不再允许第三方工具基于账号密码来访问和管理项目了，所以我在sourcetree无法推送更新到github的代码仓库了。。。。<br>这就尴尬了。</p><p>一开始认为github推荐的OAuth方案，sourcetree应该也提供了对接吧。可不巧的是并没有，这就尴尬了。<br>不过我们还可以使用ssh协议+证书的方式来打通sourcetree和github，说干就干！！</p><p>首先，打开你的sourcetree，再顶部主菜单中选择 “Tools -&gt; Create or Import SSH Keys”，在弹出的窗口中点击“Generate”，根据提示再窗口中央的空白区域不停的摩擦鼠标直至生成完毕，然后我们把创建的“public key”的字符串拷贝好，并点击“Save private key”将私钥文件保存在文件中。</p><p>接下来，登录你的github的web后台，点击右上角你的头像，选择 “setting -&gt; SSH and GPG keys”，在跳转后的页面，左上角点击“New SSH key”，将上一步拷贝的公钥字符串黏贴在页面的“Key”输入框中，“Title”填写一个你觉得合适的名字即可。</p><p>最后，再回到sourcetree的界面， 点击 “Tools -&gt; Options” 打开sourcetree的选项菜单，然后在 “General” 选项卡中找到“SSH Client Configuration”设置块，其中的 “SSH Key”项我们就设置成前面我们私钥文件即可。</p><p>最后，在github中获取clone链接的时候，记得切换成SSH协议，用该协议的项目地址作为sourcetree使用的仓库地址，就完成了所有的配置哦。</p><p>祝福好运~~</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;个人非常喜欢sourcetree这款git客户端工具，比较喜欢它的设计理念，即将所有功能都集成在同一个UI中，而不是散落在不同的菜单或文件夹里。&lt;br&gt;不过之前一直用github的https协议来作为项目的git地址，sourcetree似乎对https协议的项目默认使用的
+      
+    
+    </summary>
+    
+      <category term="工具" scheme="https://blog.kazaff.me/categories/%E5%B7%A5%E5%85%B7/"/>
+    
+    
+      <category term="github" scheme="https://blog.kazaff.me/tags/github/"/>
+    
+      <category term="sourcetree" scheme="https://blog.kazaff.me/tags/sourcetree/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>DDD读书摘录</title>
+    <link href="https://blog.kazaff.me/2020/11/20/DDD%E5%AD%A6%E4%B9%A0%E6%91%98%E5%BD%95/"/>
+    <id>https://blog.kazaff.me/2020/11/20/DDD学习摘录/</id>
+    <published>2020-11-20T09:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.211Z</updated>
+    
+    <content type="html"><![CDATA[<p>最近在复习 领域驱动设计 相关的知识，主要是因为越发的觉得DDD思想和方法论能帮助自己甄别好坏以及辅助设计。<br>很早之前就读过DDD知识领域相关的“圣经”，但是初读时候并没有悟道太多，打算花时间再把能搜集到的资料整理一下看是否能沉淀更多价值出来。<br>索性全部记录在这篇博文中，方便自己日后复习和查证。目前没有想好要以如何结构来编排内容，暂时都一股脑的记录下来，以后有好的归纳想法后再调整吧，如果觉得阅读起来很乱，不妨试试用关键词检索的方式来抓取内容。</p><hr><h3 id="领域建模的步骤"><a href="#领域建模的步骤" class="headerlink" title="领域建模的步骤"></a>领域建模的步骤</h3><p><img src="https://pic.yupoo.com/kazaff_v/60fc9af4/big.jpg" alt></p><ol start="0"><li>在事件风暴中梳理业务过程中的用户操作、事件以及外部依赖关系等，根据这些要素梳理出领域实体等领域对象。</li><li>根据领域实体之间的业务关联性，将业务紧密相关的实体进行组合形成聚合，同时确定聚合中的聚合根、值对象和实体。在这个图里，聚合之间的边界是第一层边界，它们在同一个微服务实例中运行，这个边界是逻辑边界，所以用虚线表示。</li><li>根据业务及语义边界等因素，将一个或者多个聚合划定在一个限界上下文内，形成领域模型。在这个图里，限界上下文之间的边界是第二层边界，这一层边界可能就是未来微服务的边界，不同限界上下文内的领域逻辑被隔离在不同的微服务实例中运行，物理上相互隔离，所以是物理边界，边界之间用实线来表示。</li></ol><h3 id="DDD与微服务的关系"><a href="#DDD与微服务的关系" class="headerlink" title="DDD与微服务的关系"></a>DDD与微服务的关系</h3><p>DDD是一种架构设计方法，微服务是一种架构风格。</p><p>DDD主要关注：从业务领域视角划分领域边界，构建通用语言进行高效沟通，通过业务抽象，建立领域模型，维持业务和代码的逻辑一致性。</p><p>微服务主要关注：运行时的进程间通信、容错和故障隔离，实现去中心化数据管理和去中心化服务治理，关注微服务的独立开发、测试、构建和部署。</p><h3 id="领域，子域，核心域，通用域，支撑域"><a href="#领域，子域，核心域，通用域，支撑域" class="headerlink" title="领域，子域，核心域，通用域，支撑域"></a>领域，子域，核心域，通用域，支撑域</h3><p><strong>领域</strong>：在研究和解决业务问题时，DDD会按照一定的规则将业务领域进行细分，当领域细分到一定的程度后，DDD会将问题范围限定在特定的边界内，在这个边界内建立领域模型，进而用代码实现该领域模型，解决相应的业务问题。简言之，<code>DDD的领域就是这个边界内要解决的业务问题域</code>。</p><p><strong>子域</strong>: 领域可以进一步划分为子领域。我们把划分出来的多个子领域称为子域，<code>每个子域对应一个更小的问题域或更小的业务范围</code>。</p><p><strong>核心域</strong>：决定产品和公司核心竞争力的子域是核心域，它是业务成功的主要因素和公司的核心竞争力。</p><p><strong>通用域</strong>：没有太多个性化的诉求，同时被多个子域使用的通用功能子域是通用域。</p><p><strong>支撑域</strong>：既不包含决定产品和公司核心竞争力的功能，也不包含通用功能的子域，但这些功能子域又是必须的，那它们就是支撑域。</p><blockquote><p>举个实际的例子，我们将桃树细分为了根、茎、叶、花、果实和种子等六个子域，那桃树是否有核心域？有的话，到底哪个是核心域呢？</p><p>不同的人对桃树的理解是不同的。如果这棵桃树生长在公园里，在园丁的眼里，他喜欢的是“人面桃花相映红”的阳春三月，这时花就是桃树的核心域。但如果这棵桃树生长在果园里，对果农来说，他则是希望在丰收的季节收获硕果累累的桃子，这时果实就是桃树的核心域。</p></blockquote><h3 id="限界上下文"><a href="#限界上下文" class="headerlink" title="限界上下文"></a>限界上下文</h3><p><strong>限界上下文</strong>：用来封装通用语言和领域对象，提供上下文环境，保证在领域之内的一些术语、业务相关对象等（通用语言）有一个确切的含义，<code>没有二义性</code>。这个边界定义了模型的适用范围，使团队所有成员能够明确地知道什么应该在模型中实现，什么不应该在模型中实现。<code>领域边界就是通过限界上下文来定义的，将限界上下文内的领域模型映射到微服务，就完成了从问题域到软件的解决方案。</code>。理想情况下，子域和限界上下文是重合的，但<code>子域可能会包含多个限界上下文</code>。</p><p>限界上下文所界定的边界，究竟是逻辑边界，还是物理边界？这并没有定论，需得依据不同场景而做出不同的决策。</p><ul><li><p>逻辑边界：所有的限界上下文都部署在同一个进程中，因此不能针对某一个限界上下文进行水平伸缩。<code>编写代码时，我们需要谨守这条无形的逻辑边界，时刻注意不要逾界，并确定限界上下文各自对外公开的接口，避免对具体的实现产生依赖</code>。</p></li><li><p>物理边界：每个限界上下文就变成了一个个细粒度的微服务。可以保证边界内的服务、基础设施乃至于存储资源、中间件等其他外部资源的完整性，最终形成自治的服务。限界上下文之间仅仅通过限定的方式以限定的通信协议和数据格式进行通信，除此之外，彼此没有任何共享。但是运维与监控的复杂度也随之而剧增。</p></li></ul><h3 id="聚合，聚合根，实体，值对象"><a href="#聚合，聚合根，实体，值对象" class="headerlink" title="聚合，聚合根，实体，值对象"></a>聚合，聚合根，实体，值对象</h3><p><strong>实体</strong>：有ID标识，通过ID判断相等性，ID在聚合内唯一即可。对这些对象而言，重要的不是其属性，而是其延续性和标识，对象的延续性和标识会跨越甚至超出软件的生命周期。我们把这样的对象称为实体。在DDD里，这些实体类通常采用<code>充血模型，与这个实体相关的所有业务逻辑都在实体类的方法中实现，跨多个实体的领域逻辑则在领域服务中实现</code>。</p><p><strong>值对象</strong>：无ID，不可变，无生命周期，用完即扔。<code>值对象只是若干个属性的集合，只有数据初始化操作和有限的不涉及修改数据的行为，基本不包含业务逻辑。值对象的属性集虽然在物理上独立出来了，但在逻辑上它仍然是实体属性的一部分，用于描述实体的特征</code>。在值对象中也有部分共享的标准类型的值对象，它们有自己的限界上下文，有自己的持久化对象，可以建立共享的数据类微服务，比如数据字典。</p><p><strong>聚合</strong>：由业务和逻辑紧密关联的实体和值对象组合而成的，聚合是数据修改和持久化的基本单元，每一个聚合对应一个仓储，实现数据的持久化。聚合有一个聚合根和<code>上下文边界，这个边界根据业务单一职责和高内聚原则，定义了聚合内部应该包含哪些实体和值对象，而聚合之间的边界是松耦合的</code>。聚合内实体以<code>充血模型</code>实现个体业务能力，以及业务逻辑的高内聚。<code>跨多个实体的业务逻辑通过领域服务来实现，跨多个聚合的业务逻辑通过应用服务来实现</code>。</p><p><strong>聚合根</strong>：聚合根的主要目的是为了避免由于复杂数据模型<code>缺少统一的业务规则控制，而导致聚合、实体之间数据不一致性的问题</code>。首先它作为实体本身，拥有实体的属性和业务行为，实现自身的业务逻辑。其次它作为聚合的管理者，在聚合内部负责协调实体和值对象按照固定的业务规则协同完成共同的业务逻辑。最后在聚合之间，它还是聚合对外的接口人，以聚合根ID关联的方式接受外部任务和请求，在上下文内实现聚合之间的业务协同。也就是说，聚合之间通过聚合根ID关联引用，如果需要访问其它聚合的实体，就要先访问聚合根，再导航到聚合内部实体，外部对象不能直接访问聚合内实体。</p><h4 id="怎么设计聚合"><a href="#怎么设计聚合" class="headerlink" title="怎么设计聚合"></a>怎么设计聚合</h4><p><img src="https://pic.yupoo.com/kazaff_v/68f0df11/big.png" alt></p><p><strong>第5步</strong>：多个聚合根据业务语义和上下文一起划分到同一个限界上下文内。</p><blockquote><p>需要说明一下：投保人和被保人的数据，是通过关联客户ID从客户聚合中获取的，在投保聚合里它们是投保单的值对象，这些值对象的数据是客户的冗余数据，即使未来客户聚合的数据发生了变更，也不会影响投保单的值对象数据。从图中我们还可以看出实体之间的引用关系，比如在投保聚合里投保单聚合根引用了报价单实体，报价单实体则引用了报价规则子实体。</p></blockquote><p>判断一个实体是否是聚合根，可以结合分析：</p><ul><li>是否有独立的生命周期？是否有全局唯一ID？</li><li>是否可以创建或修改其它对象？</li><li>是否有专门的模块来管这个实体？</li></ul><h4 id="聚合的一些设计原则"><a href="#聚合的一些设计原则" class="headerlink" title="聚合的一些设计原则"></a>聚合的一些设计原则</h4><ul><li><code>在一致性边界内建模真正的不变条件。</code>聚合内有一套不变的业务规则，各实体和值对象按照统一的业务规则运行，实现对象数据的一致性，边界之外的任何东西都与该聚合无关，这就是聚合能实现业务高内聚的原因。</li><li><code>设计小聚合。</code>如果聚合设计得过大，聚合会因为包含过多的实体，导致实体之间的管理过于复杂，高频操作时会出现并发冲突或者数据库锁，最终导致系统可用性变差。</li><li><code>通过唯一标识引用其它聚合。</code>聚合之间是通过关联外部聚合根ID的方式引用，而不是直接对象引用的方式。外部聚合的对象放在聚合边界内管理，容易导致聚合的边界不清晰，也会增加聚合之间的耦合度。</li><li><code>在边界之外使用最终一致性。</code>在一次事务中，最多只能更改一个聚合的状态。如果一次业务操作涉及多个聚合状态的更改，应采用领域事件的方式异步修改相关的聚合，实现聚合之间的解耦。</li><li><code>通过应用层实现跨聚合的服务调用。</code>应避免跨聚合的领域服务调用和跨聚合的数据库表关联。</li></ul><h3 id="领域事件"><a href="#领域事件" class="headerlink" title="领域事件"></a>领域事件</h3><p>领域事件驱动设计可以切断领域模型之间的强依赖关系，事件发布完成后，发布方不必关心后续订阅方事件处理是否成功，这样可以实现领域模型的解耦，维护领域模型的独立性和数据的一致性。在领域模型映射到微服务系统架构时，领域事件可以解耦微服务，微服务之间的数据不必要求强一致性，而是基于事件的最终一致性。</p><p><img src="https://pic.yupoo.com/kazaff_v/aaafe0ca/big.jpg" alt></p><h3 id="应用服务，领域服务"><a href="#应用服务，领域服务" class="headerlink" title="应用服务，领域服务"></a>应用服务，领域服务</h3><p><strong>应用服务</strong>：位于应用层。应用服务会对多个领域服务或外部应用服务进行封装、编排和组合，对外提供粗粒度的服务，是一段独立的业务逻辑。</p><p><strong>领域服务</strong>：位于领域层。领域服务封装核心的业务逻辑，实现需要多个实体协作的核心领域逻辑。它对多个实体或方法的业务逻辑进行组合或编排，或者在严格分层架构中对实体方法进行封装，以领域服务的方式供应用层调用。所以如果有的实体方法需要被前端应用调用，我们会将它封装成领域服务，然后再封装为应用服务。<br>为隐藏领域层的业务逻辑实现，所有领域方法和服务等均须通过领域服务对外暴露。<br>为实现微服务内聚合之间的解耦，<code>原则上禁止领域服务进行跨聚合的编排和跨聚合的数据相互关联</code>。</p><p><img src="https://pic.yupoo.com/kazaff_v/d41518d5/big.png" alt></p><h3 id="DDD分层"><a href="#DDD分层" class="headerlink" title="DDD分层"></a>DDD分层</h3><p><img src="https://pic.yupoo.com/kazaff_v/3179ec83/big.jpg" alt></p><p>DDD分层架构有一个重要的原则：<code>每层只能与位于其下方的层发生耦合</code>。</p><p><img src="https://pic.yupoo.com/kazaff_v/070cd763/big.jpg" alt></p><p><img src="https://pic.yupoo.com/kazaff_v/c526409c/big.png" alt></p><h3 id="数据视图"><a href="#数据视图" class="headerlink" title="数据视图"></a>数据视图</h3><p>数据视图应用服务通过数据传输对象（DTO）完成外部数据交换。领域层通过领域对象（DO）作为领域实体和值对象的数据和行为载体。基础层利用持久化对象（PO）完成数据库的交换。</p><p>DTO 与 VO 通过 Restful 协议实现 JSON 格式和对象转换。</p><p>前端应用与应用层之间 DTO 与 DO 的转换发生在用户接口层。如微服务内应用服务需调用外部微服务的应用服务，则 DTO 的组装和 DTO 与 DO 的转换发生在应用层。</p><p>领域层 DO 与 PO 的转换发生在基础层。</p><p><img src="https://pic.yupoo.com/kazaff_v/229c0258/3e5f9377.png" alt></p><h3 id="DDD中的读操作"><a href="#DDD中的读操作" class="headerlink" title="DDD中的读操作"></a>DDD中的读操作</h3><p>在DDD的写操作中，我们需要严格地按照 “ 应用服务 -&gt; 聚合根 -&gt; 资源库 ” 的结构进行编码，而在读操作中，采用与写操作相同的结构有时不但得不到好处，反而使整个过程变得冗繁。常见的3种读操作的方式：</p><ul><li>基于领域模型的读操作 <ul><li>读操作完全束缚于聚合根的边界划分；</li><li>导致的结果是Repository上处理了太多的查询逻辑，变得越来越复杂，也逐渐偏离了Repository本应该承担的职责</li></ul></li><li>基于数据模型的读操作<ul><li>由于读操作和写操作共享了数据库，而此时的数据库主要是对应于聚合根的结构创建的，因此读操作依然会受到写操作的数据模型的牵制</li></ul></li><li>CQRS<ul><li>复杂度高(与“基于数据模型的读操作”不同的是，在CQRS中写操作和读操作使用了不同的数据库，数据从写模型数据库同步到读模型数据库，通常通过领域事件的形式同步变更信息)</li><li>数据一致性 受 数据同步策略影响</li></ul></li></ul><p><img src="https://pic.yupoo.com/kazaff_v/dd567e74/fe9b35b5.png" alt></p><hr><h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ul><li><a href="https://time.geekbang.org/column/intro/238" target="_blank" rel="noopener">《DDD实战课》</a></li><li><a href="https://zhuanlan.zhihu.com/p/31985410" target="_blank" rel="noopener">限界上下文的边界</a></li><li><a href="https://mp.weixin.qq.com/s/g1i04xjUgkqLOqtTeFukgQ" target="_blank" rel="noopener">领域驱动设计(DDD)编码实践</a></li><li><a href="https://www.infoq.cn/article/s_LFUlU6ZQODd030RbH9" target="_blank" rel="noopener">基于DDD的微服务设计和开发实战</a></li><li><a href="https://www.infoq.cn/article/8hlh2qEWP1Y00qumdMQj" target="_blank" rel="noopener">细数软件架构中的解耦</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;最近在复习 领域驱动设计 相关的知识，主要是因为越发的觉得DDD思想和方法论能帮助自己甄别好坏以及辅助设计。&lt;br&gt;很早之前就读过DDD知识领域相关的“圣经”，但是初读时候并没有悟道太多，打算花时间再把能搜集到的资料整理一下看是否能沉淀更多价值出来。&lt;br&gt;索性全部记录在这
+      
+    
+    </summary>
+    
+      <category term="架构" scheme="https://blog.kazaff.me/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+      <category term="领域建模" scheme="https://blog.kazaff.me/tags/%E9%A2%86%E5%9F%9F%E5%BB%BA%E6%A8%A1/"/>
+    
+      <category term="微服务" scheme="https://blog.kazaff.me/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+      <category term="读写分离" scheme="https://blog.kazaff.me/tags/%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>蝉</title>
+    <link href="https://blog.kazaff.me/2020/07/06/%E8%9D%89/"/>
+    <id>https://blog.kazaff.me/2020/07/06/蝉/</id>
+    <published>2020-07-06T09:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.219Z</updated>
+    
+    <content type="html"><![CDATA[<p>昨天做了一个非常刺激的梦，好像电影一样。我尝试把它写出来，并按照我希望的样子进行一点点加工，但90%的内容确实都是梦中的景象。<br>这个故事，有一点恐怖，但留给我更多的是那种细思极恐的感觉，非常奇怪的是最近也没有看过惊悚片，可能大脑太渴望了，就自发的以梦的形式自己导演了一步。<br>我不是很擅长写这种东西，但又非常想记录下它，所以可能叙事混乱，请见谅。</p><p>—————-正文分割线—————–</p><p><img src="https://pic.yupoo.com/kazaff_v/35f8ea8a/7c93f51a.jpg" alt></p><p>先介绍一下故事的主人公吧，“森林”是个普普通通的80后打工族，每天朝八晚五点半，和大学同学结婚，并有个快两岁的宝宝。<br>毕业十几年，还保持联系的大学同学就2人，一个外号“老杂”，一个外号“明哥”，他们经常在一个只有我们仨的微信群里闲聊。<br>不知道从什么时候开始，森林和老杂就习惯性的分享自己的梦，都是一些奇奇怪怪的梦，有时候做了一个非常屌的梦想在群里分享的时候，才发现早已记不清了。但即便如此，他们还是会偶尔聊到前一晚的梦。</p><p>这一天是2020年7月6号，森林前一晚做了一个吊炸天的梦，早上起来就迫不及待的想在微信群里分享。可是另外两人似乎没有啥兴趣听，但森林实在太想分享了，所以自顾自的开始不停的在群里发着消息。</p><p>“我昨儿做了个梦，你们想听么？超级牛逼” –森林</p><p>“。。讲啊，你已经忘了吧” –老杂</p><p>“牛逼，讲啊，不讲是老杂的几把” –明哥</p><p>“慌个毛线，这就开始~” –森林<br>“我昨儿梦见我在一个酒店包间里，和家人聚会，其实这个地方前段时间确实去过，梦里好像就是那次，但人比较多” –森林<br>“包间里有我爸妈，我姥姥，你们知道我姥姥已经过世了，对吧？ 还有我老婆孩子，还有我妹和她男朋友” –森林<br>“我妹的男朋友小陈是南方人，梦里面我们好像点了一盘菜，是油炸金蝉吧，我以前根本就不会吃的东西” –森林<br>“在小陈的推荐下，我决定尝一次鲜，但是我确实对这种东西很抵触，小心翼翼的放嘴里后并不敢嚼，喊了一会儿就吐了” –森林<br>“梦里都能感受到兴奋的心跳和满嘴的腥咸，很逼真的感觉” –森林<br>“我觉得去洗手间漱漱口，小陈和我妹起身要和我一起去，我们仨就出了包间，但是梦里洗手间和包间的距离好远，我们边走边闲聊” –森林<br>“然后我开始和他们讲前一天晚上我做的梦，牛逼吧，梦中梦，屌不屌？” –森林<br>“我说，梦里的事儿我记得是开始在我下班的路上，我和同事陈鑫挤上了回家的公交车，应该是傍晚吧，但天比较亮” –森林<br>“车上人虽然多，但依然有座位，所以我们俩就找了个座儿坐下了，但是似乎公交车并没有急着开” –森林<br>“我靠窗的位置，因为天气热所以车窗是半开的，突然从外面飞进来一只金蝉，落在我手臂上，我从小对昆虫就比较抵触，吓的我忍不住叫了一声” –森林<br>“我的同事先是楞了一下，然后不知为何开始破口大骂，大意是这么热的天也不开空调，开着窗户都往里面飞虫子，不嫌脏么” –森林<br>“我不想搞得动静太大，连忙示意他别骂了，嘘！” –森林<br>“可突然我发现，整个车厢都非常安静，所有乘客都以趴姿坐在各自的座位上，司机也趴在方向盘上。” –森林<br>“我突然觉得后背发凉，我们俩小心翼翼的往司机的位置挪动，然后整个梦中的世界就慢慢的变暗，最后彻底黑色了” –森林<br>“然后我妹问我：“就完了？”，我说，然后镜头再次亮了起来，但是视角是在马路对面，一群路人看到路中间横着一辆公交车” –森林<br>“公交车的玻璃全部都是黑色的，根本看不到里面，有胆子大的一些人就慢慢靠近，然后一点一点的拉开了司机那一侧的车门” –森林<br>“车门开了一条缝后，大家看到驾驶位置上只有一身衣服，空瘪瘪的挂在方向盘上，人不见了，等门开的再大一点的时候” –森林<br>“突然从后面车厢开始一阵阵震耳欲聋的金蝉的叫声，然后大量的金蝉就跟蝙蝠一样从开着的门缝中窜了出来，把路人吓跑了一大片” –森林<br>“大概一刻钟后，人们进到公交车里，看到的只是每个座位上的衣服，人全部都不见了。 恐怖么？” –森林<br>“小陈大笑，说你真能编啊，还梦呢，你是因为刚吃了金蝉，才编这个故事来吓我们吧” –森林<br>“听到小陈这么说，我突然楞住了，站在原地一动不动，是啊，好巧啊，为什么我前一天就梦到了金蝉？” –森林<br>“然后我的梦就醒了” –森林</p><p>“就这？就这就给你吹的那么牛逼么” –明哥</p><p>“还行吧，可能是你没有办法把梦里的感觉完全的描述出来” –老杂</p><p>“对，对，我确实讲不出来梦里的感受，反正梦里非常的恐怖” –森林</p><p>“嗯，没别的事儿我就出门了啊，今儿还要去赣州呢” –明哥</p><p>“写代码去” –老杂</p><p>“88” –森林</p><p>微信群恢复了平静，然后荧幕再次切换，一只蝉趴在键盘上，一只蝉趴在在ipad上，一只蝉趴在手机上，三个设备屏幕中，显示着一个微信群的窗口，最后一条消息是：</p><p>“88”</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;昨天做了一个非常刺激的梦，好像电影一样。我尝试把它写出来，并按照我希望的样子进行一点点加工，但90%的内容确实都是梦中的景象。&lt;br&gt;这个故事，有一点恐怖，但留给我更多的是那种细思极恐的感觉，非常奇怪的是最近也没有看过惊悚片，可能大脑太渴望了，就自发的以梦的形式自己导演了一
+      
+    
+    </summary>
+    
+      <category term="talk" scheme="https://blog.kazaff.me/categories/talk/"/>
+    
+    
+      <category term="知了" scheme="https://blog.kazaff.me/tags/%E7%9F%A5%E4%BA%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Mapping Set to Strict, Dynamic Introduction of [_Class] Within [_Doc] Is Not Allowed</title>
+    <link href="https://blog.kazaff.me/2020/06/26/mapping%20set%20to%20strict,%20dynamic%20introduction%20of%20%5B_class%5D%20within%20%5B_doc%5D%20is%20not%20allowed/"/>
+    <id>https://blog.kazaff.me/2020/06/26/mapping set to strict, dynamic introduction of [_class] within [_doc] is not allowed/</id>
+    <published>2020-06-26T09:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.215Z</updated>
+    
+    <content type="html"><![CDATA[<p>这个异常非常的“有趣”，因为我GG了一圈，竟然一个相关的结果都没有。。。一开始以为自己碰到疑难杂症了，深呼吸一口打算去翻源码了。<br>结果“非常不小心”被我在官方文档上以“_class”作为关键字检索到了相关的内容，好尴尬啊~</p><p>官方在<a href="https://docs.spring.io/spring-data/elasticsearch/docs/4.0.1.RELEASE/reference/html/#elasticsearch.mapping.meta-model.rules" target="_blank" rel="noopener">Mapping Rules</a>这一章节中，提到了<code>Type Hints</code>的概念：</p><blockquote><p>Mapping uses type hints embedded in the document sent to the server to allow generic type mapping. Those type hints are represented as _class attributes within the document and are written for each aggregate root.</p></blockquote><p>在我这个新手看来，应该是Spring-Data-Elasticsearch库对将Elasticsearch返回的结果自动封装成POJO时需要的一个标识。很自然也很直观，对吧~</p><p>恶心就恶心在，如果你和我一样是初次使用，并且在Elasticsearch中将Index的Mapping设置成严格的静态类型，就会导致本文标题的这个异常。然后你就会开始发蒙，<code>_class</code>这个属性是什么时候产生的。。。</p><p>解决这个异常的方法很简单，在我们的Mapping中增加_class属性的定义即可：</p><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">"mappings": &#123;</span><br><span class="line">        "dynamic": "strict",</span><br><span class="line">        "properties": &#123;</span><br><span class="line">          "_class" : &#123;</span><br><span class="line">              "type" : "keyword"</span><br><span class="line">            &#125;,</span><br><span class="line">....</span><br></pre></td></tr></table></figure><p>奇怪的是，全世界的开发者好像都没有碰到这个问题。。。是我确实太菜了吧可能。。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;这个异常非常的“有趣”，因为我GG了一圈，竟然一个相关的结果都没有。。。一开始以为自己碰到疑难杂症了，深呼吸一口打算去翻源码了。&lt;br&gt;结果“非常不小心”被我在官方文档上以“_class”作为关键字检索到了相关的内容，好尴尬啊~&lt;/p&gt;
+&lt;p&gt;官方在&lt;a href=&quot;htt
+      
+    
+    </summary>
+    
+      <category term="spring" scheme="https://blog.kazaff.me/categories/spring/"/>
+    
+    
+      <category term="elascticsearch7+" scheme="https://blog.kazaff.me/tags/elascticsearch7/"/>
+    
+      <category term="spring-data-elasticsearch" scheme="https://blog.kazaff.me/tags/spring-data-elasticsearch/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>关于电商系统的搜索框</title>
+    <link href="https://blog.kazaff.me/2020/05/26/%E5%85%B3%E4%BA%8E%E7%94%B5%E5%95%86%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%90%9C%E7%B4%A2%E6%A1%86/"/>
+    <id>https://blog.kazaff.me/2020/05/26/关于电商系统的搜索框/</id>
+    <published>2020-05-26T10:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.215Z</updated>
+    
+    <content type="html"><![CDATA[<p>这将会是一篇概括类的文章，可能最终遗留的问题比解决的多得多~~不是很有自信推荐你看，但如果有空闲时间的话，不妨跟着我一起思考其中的相关问题！<br><strong>注意: 本文章对解决问题的思考篇幅多于实战，且许多问题的解决方案也停留在理论阶段，未必有足够合理的可实施性。之所以分享出来，仅仅在于怕遗忘或错过思考过程中的火花，若能给你带来好的灵感，纯属巧合，也是我的荣幸。如若能将你的高见分享于我，那就太棒了！</strong></p><p>需求背景是源于我们公司的一个电商网站的改版，功能参考的是JD平台，本次主题主要围绕着商品搜索方面。其实现在大一些的电商平台，搜索体验做的都非常的好。<br>换句话说，用户对于一个好的搜索体验已经达成了基本的共识，包括但不限于下面几点：</p><ol><li>输入自动完成</li><li>可以对拼写自动纠错</li><li>支持拼音缩写检索</li><li>精准度和召回率上有一个比较好的平衡</li><li>返回结果能有一定的随机性提供惊喜</li></ol><p>这些功能，如果打算直接依托于传统的关系型数据库(如mysql)来实现的话，实现成本和性能都很难满足预期。而目前在这主题上深耕多年并建树的开源框架也屈指可数，我们这里选择影响力最大“之一”的<code>Elasticsearch</code>来作为主要解决方案。</p><h3 id="Elasticsearch入门"><a href="#Elasticsearch入门" class="headerlink" title="Elasticsearch入门"></a>Elasticsearch入门</h3><p>这篇文章不包含任何科普Elasticsearch的内容，强烈建议有兴趣的小伙伴精读《Elasticsearch in action》这本书，在这里我们就只列一下需要掌握的基本概念和术语：</p><ul><li>文档，类型和索引的概念和关系</li><li>节点，分片和副本的概念和关系</li><li>Mapping的写法和作用</li><li>CURD的DSL语法，尤其是各种Search语法</li><li>分析器，分词器和分词过滤器的概念和用法</li><li>聚集和桶的概念和用法</li><li>文档间的关系：对象型，嵌套型，父子型，反规范化</li><li>优化segments的手段有哪些</li></ul><p>除了上面列出的这些外，书中还有大量宝贵的内容，再次建议花时间阅读完整本书的内容~~</p><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><p>我们当然需要一个本地的测试环境来练手，对吧~~<br>当然Elasticsearch本身就已经是开箱即用了，大家去官网下载压缩包并按照说明就可以简单运行起来。<br>我这里还是推荐直接在docker中下载官方的镜像即可~~<br>本篇文章的所有内容都是在Elasticsearch6.5.1版本上做的（因为很早前搭建ELK环境的时候就装好了，懒得升级版本了~）。</p><p>强烈建议同时安装<code>Kibana</code>，它提供的Dev Tools非常方便我们调试语句。</p><h3 id="中文分词-和-词库"><a href="#中文分词-和-词库" class="headerlink" title="中文分词 和 词库"></a>中文分词 和 词库</h3><p>Elasticsearch默认的分词器对中文不是很友好，不过社区早已填补了这个遗憾。GG一下就会发现很多文章都推荐使用iK中文分词，使用和配置也非常的简单。<br>我在文章末尾的“参考文献”中贴出了我当时找到的资料地址，按照步骤很容易就安装成功了~</p><p>如果你也是在docker里跑的本地环境的话，记得直接重启容器，安装的插件才会生效哦~</p><p>当然每年都会诞生一批新的流行词语，这会对分词器造成很多困扰，不过iK的分词器支持扩展词库，而且同时提供静态词库和热更新方案，非常贴心了算是！<br>我们可以从网上搜索到比较新的词库文件，然后直接以静态文件的方式配置在iK配置文件中，然后在我们的电商系统后台，提供一个功能来自定义词库，使用热更新来动态更新到iK中。</p><p>更新了词库文件还不够哦，因为那些已经索引起来的数据是无法自动使用新的分词结果的，所以你需要<code>reindex</code>一下。<br>如果系统中有海量的数据的话，这个步骤可能会花很久，而且也可能会造成系统资源溢出问题，建议多了解一下这方面的资料，已经有很多相关的文献供参考了，无需担心~~</p><p>至于前面提到的词库，网上不少人推荐去搜狗上下载，不过下载的文件并不是txt，所以我们需要<a href="http://tools.bugscaner.com/sceltotxt/" target="_blank" rel="noopener">在线转换</a>一下~</p><p>这部分的最后，我们还需要提到<strong>同义词</strong>这个问题。一个好的同义词库，可以让搜索的结果产生更多惊喜，例如用户搜索“番茄”，搜索结果里还会自然的包含“西红柿”。<br>这种看似理所当然的逻辑，对于计算机来说其实是很麻烦的。还好Elasticsearch提供了<strong>synonym</strong>特性，我们可以优雅的解决这个问题~</p><p>不过如果想让synonym也拥有iK扩展词库那样的热更新能力，就得靠自己动手了，最后的“参考文献”中我贴了一个前辈自己封装的版本，不过可能需要根据你使用的具体版本进行调整，但是他的项目还是很有指导意义的~</p><h3 id="filter-vs-query"><a href="#filter-vs-query" class="headerlink" title="filter vs. query"></a>filter vs. query</h3><p>简单的说，并不是所有的场景都一味的使用<code>query context</code>的，如果我们是针对精确的值进行筛选，那我们使用<code>filter context</code>更加的合理。<br>它们的差别是，<code>filter</code>性能更好，不仅仅有缓存，也省去了为结果进行相关性打分的环节。</p><p>但在我们的场景中，其实相关性打分是很重要的，这并不是说明<code>filter</code>对我们来说就没有意义了。例如用户在某个分类下进行检索，甚至设定了价格区间范围，商品原产地条件等等，在这些情况下<code>filter</code>就非常的合适了。当然，这些用在<code>filter</code>中的条件，也都不是经过分析器处理后的原始内容。</p><h3 id="排序，分页"><a href="#排序，分页" class="headerlink" title="排序，分页"></a>排序，分页</h3><p>搜索离不开分页，而Elasticsearch最基本的分页方法和SQL的用法没什么两样：<code>from</code> 和 <code>size</code> 就搞定了。但是如果是海量的数据条件下，它的性能也和传统的SQL分页一样存在性能问题，如Mysql的<code>limit 100000, 10</code>这种。<br>Elasticsearch还是提供了对应的解决方案的：<code>Scroll</code>。这种我记得好像某些Nosql产品也有类似语法~~</p><p>在一些特定业务场景下，也可以根据数据的特定字段进行辅助的分页，例如自增的id，或更新时间等线性数据类型，且被依赖的字段必须保证足够的唯一性。但是这种场景对于前台系统复杂的检索条件，不是很适配。<br>为什么呢？这就涉及到另外一个话题：排序。</p><p>前面提到过，Elasticsearch默认是按照相关性得分进行排序的，这个得分是动态计算出来的，所以肯定不是线性的。即便是你的场景不需要依赖得分排序，但也很难固定的就使用id这种“毫无意义”的排序条件吧。一个好的排序，可能让用户得到更<strong>需要ta得到的结果</strong>！为何这么说呢？我们把商品列表页面比作一个大型商超的货架，卖家为了将一些利润更多的，或者急需要倾销的商品摆在更明显的地方，有助于达到销售目的。所以结果的排序，并不是单纯的基于相关性得分就能达到“双赢”的目的的。</p><p>这么做几乎是所有搜索系统的标配，直接将付钱的客户的页面放在置顶的位置，要脸点的系统会在对应的链接上打上“广告”的标签。不要脸的系统甚至不理会用户到底搜索的是什么~~<br>那Elasticsearch要怎么做到这种设置呢？别慌，其实<code>sort</code>是支持脚本的，这样就可以任意的影响搜索结果的排序问题，建议了解一下<code>function_score</code>(“参考文献”中有对应的文章)。</p><p>除了影响排序权重，还有个有趣的想法就是提供一定程度的随机性，这样在海量数据的时候能给用户带来某种神秘的惊喜感。这个也是可以通过<code>function_score</code>提供的<code>random_score</code>来实现的，算是比较方便了。</p><p>除此之外，还有像是根据地理位置距离，或者特定想使用多个字段经过复杂的计算来得到得分的诉求，Elasticsearch都是支持的，查看官方文档即可。</p><p>工具是都齐活了，难点在于根据自己所在的业务场景和数据性质，组合各种搜索条件和对应的权重来最终达到一个较为理想的检索效果。而且随着数据的变化，还要不断的调整参数来持续优化结果。这是一个漫长，但有趣的旅行~</p><h3 id="页面上的搜索元素"><a href="#页面上的搜索元素" class="headerlink" title="页面上的搜索元素"></a>页面上的搜索元素</h3><p>文章开头就提到了，我们对标的是JD的搜索功能，意味着和搜索密切相关的有几块：</p><p><img src="https://pic.yupoo.com/kazaff_v/b7af8891/9158bad2.png" alt></p><p>上图中黄色和蓝色方块，对标<code>filter</code>语句条件，随着用户的选择，全部会增加到query中去。蓝色区域的可选项，可以通过第一波query的结果进行聚集得到；而黄色方块包含的参数应该是每个商品都拥有的属性，其中比较有意思的是“出版时间”，应该是搜索结果都是图书类型导致的判断。如果我们将搜索关键字换成综合性质的内容，如“龙珠”，由于结果中包含各种类型的商品，所以对应地方显示的则是更加通用的“新品”~</p><p>红色方块对应的是检索结果，而有别于搜索结果的是绿色方块，为何这么讲呢？根据用户的输入，自动补全内容会给用户带来非常大的便利和鼓励。在这种刺激下用户输入更多内容的成本会非常低，而输入的线索越多，搜索结果就会越精准，所以这也是自动完成成为搜索必备特性的原因。</p><p>进一步思考就会发现，获取自动提示下来菜单中选项的语句和获取搜索结果的query语句应该是不同的，甚至所基于的索引和数据结构都可能是完全不同的。这又是为何呢？<br>用户在搜索框中输入的，多数情况下都是关键词（这不是废话吗），而不是根据你的数据原始内容来输入的，这意味着要想返回足够理想的结果，需要对输入的关键词进行分词，纠错，甚至拼音转换等等。那处理后得到的token要直接和索引中的token做匹配查询？</p><p>如果是这样，那你得到的查询结果集是一个一个具体的数据，而这些数据更适合出现在上图的红色方块中，而不是自动提示下拉菜单中，下拉菜单中的值来自哪里呢？<br>一种说法是，这些提示内容来自于一段时间的所有用户的搜索输入值，将所有用户在搜索框中输入的关键词收集，每个词的权重就是被输入的次数，并且定期进行关联条数的统计（对应上图中黑色椭圆形区域）。但还有一个初始化的问题，毕竟刚上线的时候没有历史搜索数据给你来收集分析~~一个解决方案是，基于现有数据自身的标签来生成第一批统计数据。</p><p>Elasticsearch针对搜索框自动提示，也有专门的语法：<code>suggester</code>，性能更好。</p><p>不过我开始反思一个问题，假如我们的电商系统中商品很少，我们是否还需要这套完整的方案？在自动提示下拉菜单中直接针对商品数据title使用<code>phrase_prefix</code>，有何不可吗？<br>我们也不需要像JD那样提醒对应的商品数量，毕竟我们的商品品类规模非常的小（差不多2K），且title相对保持很大的独特性。更多细节，可以在“参考文献”中《ELASTIC 搜索开发实战》中找到更详细的实现方法。</p><h3 id="业务场景和数据模型"><a href="#业务场景和数据模型" class="headerlink" title="业务场景和数据模型"></a>业务场景和数据模型</h3><p>前面提到的全部内容，都离不开对索引的<code>mapping</code>的设计，一个好的<code>mapping</code>有助于索引的查询性能，存储空间的优化，查询的精准，等等。<br>我们并不需要把DB中的所有数据都存在Elasticsearch中，而是只需要将用于搜索和部分用于结果展示的字段存在Elasticsearch中一份即可。而用户点击特定结果进而查看其更详细信息时会直接从DB中获取全部信息，这样各司其职不仅有助于资源利用率，也让维护数据一致性能更容易一些，毕竟谁都不想因为一个与搜索不相关的属性值的变更就要维护多个数据源。</p><p>具体的说，就是可以像上面那个JD图一样，根据我们自身的系统的搜索页面需要展示的数据范围设计<code>mapping</code>，并在程序中编写当这些属性变更的时候顺带更新一下Elasticsearch中对应的文档即可，未必需要维护绝对的一致性，完全可以将更新事件丢入消息队列，异步的完成Elasticsearch的数据更新即可。</p><p>还有一个有趣的问题，我们一般都会依照业务场景建立数据模型，然后再将数据模型转换成满足关系型数据库范式要求的结构，这么一番操作后，我们的数据就会切成一块一块的，并且块之间会有不同的关系: 一对一，一对多，多对多。</p><p>理解和处理这种关系，在Elasticsearch中需要特别的留意，因为它会影响搜索结果的正确性，也会涉及到数据变更的成本。<br>啰嗦一句，在Elasticsearch中存储和检索条件有关的字段，而不是全部。那些详情里才会展示出的内容，还是放在原处吧~~<br>在这个前提下，如果还存在复杂的数据关系，再考虑如何优化这种关系为普通关系，实在不行了再搞嵌套类型，父子类型等等。<br>这部分和业务场景很紧密，还是要看自己对Elasticsearch的掌握程度和对业务的理解程度了。</p><h3 id="最后的第一步"><a href="#最后的第一步" class="headerlink" title="最后的第一步"></a>最后的第一步</h3><p>做完所有的预备工作，真的去线上环境部署，才是旅程真正的开始~~为何如此？<br>原因很简单，数据是在不断进化的，不仅是在数量上，质量上也在不断的变化。新的流行词，同一件东西的新别名，彻底的新东西等等，这些都可以上升的文化层面。<br>上面也有提到大体的思路，那就是不断的收集用户的行为日志，通过各种手段分析得到这种变化，再反馈到Elasticsearch的数据结构，分词算法，权重上。<br>这是一个无尽的旅程，干什么着急结束呢？</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><p><a href="https://item.jd.com/12454556.html" target="_blank" rel="noopener">Elasticsearch实战 - JD购买链接</a>（买本看看吧，不亏）<br><a href="https://mp.weixin.qq.com/s/KQQJfKCOuqadTujbLNu5aA" target="_blank" rel="noopener">Elasticsearch 索引设计实战指南</a><br><a href="https://elastic-search-in-action.medcl.com/1.preface/" target="_blank" rel="noopener">ELASTIC 搜索开发实战</a>(强烈推荐)<br><a href="https://elasticsearch.cn/article/142" target="_blank" rel="noopener">Elasticsearch Suggester详解</a><br><a href="https://zhuanlan.zhihu.com/p/29183128" target="_blank" rel="noopener">Elasticsearch 默认分词器和中分分词器之间的比较及使用方法</a><br><a href="https://www.jianshu.com/p/e7a4ddf88ff3" target="_blank" rel="noopener">修改IK分词器源码来基于mysql热更新词库</a><br><a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.8/analysis-synonym-tokenfilter.html" target="_blank" rel="noopener">同义词 - 官方文档</a><br><a href="https://github.com/ginobefun/elasticsearch-dynamic-synonym" target="_blank" rel="noopener">基于mysql动态维护同义词的插件</a><br><a href="https://www.ctolib.com/docs/sfile/elasticsearch-java-master/search-api/search-template.html" target="_blank" rel="noopener">Elasticsearch Java API如何使用search template</a><br><a href="https://juejin.im/post/5daf2fa56fb9a04e054da1e3" target="_blank" rel="noopener">使用logstash同步MySQL数据到ES</a><br><a href="https://juejin.im/post/5ceb58f86fb9a07eb74b1a00" target="_blank" rel="noopener">使用 Elasticsearch 做一个好用的日语搜索引擎及自动补全</a><br><a href="https://segmentfault.com/a/1190000022388407" target="_blank" rel="noopener">仿京东淘宝搜索框实战</a><br><a href="https://segmentfault.com/a/1190000019374633" target="_blank" rel="noopener">基于Elasticsearch的地理位置简单搜索</a><br><a href="https://juejin.im/post/5df8f465518825123751c089" target="_blank" rel="noopener">Elasticsearch function_score使用</a><br><a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-request-sort.html" target="_blank" rel="noopener">排序 - 官方文档</a><br><a href="https://www.jianshu.com/p/58718a0c31ca" target="_blank" rel="noopener">Elasticsearch 随机返回数据 API</a>（但无法很好的结合分页）<br><a href="https://juejin.im/post/5d36b85bf265da1bc07e7ab1" target="_blank" rel="noopener">Elasticsearch 7.x Nested 嵌套类型查询</a><br><a href="https://juejin.im/post/5ec0fd966fb9a0433567b522" target="_blank" rel="noopener">父子文档</a><br><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/parent-join.html" target="_blank" rel="noopener">join类型 - 官方文档</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;这将会是一篇概括类的文章，可能最终遗留的问题比解决的多得多~~不是很有自信推荐你看，但如果有空闲时间的话，不妨跟着我一起思考其中的相关问题！&lt;br&gt;&lt;strong&gt;注意: 本文章对解决问题的思考篇幅多于实战，且许多问题的解决方案也停留在理论阶段，未必有足够合理的可实施性。之
+      
+    
+    </summary>
+    
+      <category term="需求分析" scheme="https://blog.kazaff.me/categories/%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90/"/>
+    
+    
+      <category term="自动完成" scheme="https://blog.kazaff.me/tags/%E8%87%AA%E5%8A%A8%E5%AE%8C%E6%88%90/"/>
+    
+      <category term="自动提示" scheme="https://blog.kazaff.me/tags/%E8%87%AA%E5%8A%A8%E6%8F%90%E7%A4%BA/"/>
+    
+      <category term="拼音转换" scheme="https://blog.kazaff.me/tags/%E6%8B%BC%E9%9F%B3%E8%BD%AC%E6%8D%A2/"/>
+    
+      <category term="简繁互转" scheme="https://blog.kazaff.me/tags/%E7%AE%80%E7%B9%81%E4%BA%92%E8%BD%AC/"/>
+    
+      <category term="elasticsearch" scheme="https://blog.kazaff.me/tags/elasticsearch/"/>
+    
+      <category term="分词" scheme="https://blog.kazaff.me/tags/%E5%88%86%E8%AF%8D/"/>
+    
+      <category term="模糊查询" scheme="https://blog.kazaff.me/tags/%E6%A8%A1%E7%B3%8A%E6%9F%A5%E8%AF%A2/"/>
+    
+      <category term="拼写纠错" scheme="https://blog.kazaff.me/tags/%E6%8B%BC%E5%86%99%E7%BA%A0%E9%94%99/"/>
+    
+      <category term="权重" scheme="https://blog.kazaff.me/tags/%E6%9D%83%E9%87%8D/"/>
+    
+      <category term="热更新" scheme="https://blog.kazaff.me/tags/%E7%83%AD%E6%9B%B4%E6%96%B0/"/>
+    
+      <category term="词库" scheme="https://blog.kazaff.me/tags/%E8%AF%8D%E5%BA%93/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>关于积分的Db设计之二</title>
+    <link href="https://blog.kazaff.me/2020/04/23/%E5%85%B3%E4%BA%8E%E7%A7%AF%E5%88%86%E7%9A%84db%E8%AE%BE%E8%AE%A1%E4%B9%8B%E4%BA%8C/"/>
+    <id>https://blog.kazaff.me/2020/04/23/关于积分的db设计之二/</id>
+    <published>2020-04-23T10:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.215Z</updated>
+    
+    <content type="html"><![CDATA[<p>继续积分这个话题，我们接着之前的<a href="https://blog.kazaff.me/2020/04/23/%E5%85%B3%E4%BA%8E%E7%A7%AF%E5%88%86%E7%9A%84db%E8%AE%BE%E8%AE%A1%E4%B9%8B%E4%B8%80/">那篇文章</a>往下说。上一篇给了一个db的设计方案，也简单讨论了一下它的精妙与不足。<br>那么，是否还可以有更好一些的db设计呢？</p><p>别着急，我们还是先来说业务。<br>其实除了上一篇文章提到的那些规则外，我们的电商系统里，还有另外一个额外的小规则，由于比较另类，所以我放在这里才说，因为它也会对上面的那个db设计造成一定的问题。</p><p>我们的电商系统，在客户结算时并不提供一个输入框来给客户输入打算用使用的积分数量，而是只提供了一个开关选项，如果客户选择使用积分（默认），则意味着会<strong>尽可能使用积分来完成结算</strong>。这一点应该算是比较另类了，这意味着，合理的情况下会尽可能避免用户的积分到期，除非他很久才回归。也意味着客户只要选择使用积分，就可能会关联一大批的积分记录（请结合之前的points表来理解这句话）。这也是我对之前的db设计直觉上总感到不完美的切入点。</p><p>我假设的是，客户每次下单都积累积分（假设10次），之后他想要使用积分了，就可能会影响10条记录，并且在这10条记录上做写锁以及扣减逻辑，未来退款还要再逆向做一次。而且，其实每次计算客户当前可用积分，<code>where</code>条件也很难很好的利用索引（<code>expire &gt; NOW</code>很难有效的过滤掉足够多的记录）。</p><p>那么结合这些因素，我们试着改良一下前面的db设计：</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> points_status(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT  <span class="keyword">COMMENT</span> <span class="string">'主键'</span> ,</span><br><span class="line">    user_id <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>   <span class="keyword">COMMENT</span> <span class="string">'用户id'</span> ,</span><br><span class="line">    points <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'可用积分总值'</span> ,</span><br><span class="line">    points_status <span class="built_in">TEXT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> [] <span class="keyword">COMMENT</span> <span class="string">'积分状态明细'</span> ,</span><br><span class="line">    PRIMARY <span class="keyword">KEY</span> (<span class="keyword">id</span>)</span><br><span class="line">)<span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COMMENT</span> = <span class="string">'积分状态表 '</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> points_logs(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT  <span class="keyword">COMMENT</span> <span class="string">'主键'</span> ,</span><br><span class="line">    user_id <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>   <span class="keyword">COMMENT</span> <span class="string">'用户id'</span> ,</span><br><span class="line">    order_id <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'订单id'</span> ,</span><br><span class="line">    <span class="keyword">type</span> <span class="built_in">CHAR</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'操作类型'</span> ,</span><br><span class="line">    points <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>   <span class="keyword">COMMENT</span> <span class="string">'积分变更值'</span> ,</span><br><span class="line">    <span class="keyword">expire</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'到期时间批次'</span> ,</span><br><span class="line">    PRIMARY <span class="keyword">KEY</span> (<span class="keyword">id</span>)</span><br><span class="line">)<span class="keyword">ENGINE</span>=MyISAM <span class="keyword">CHARSET</span>=utf8  <span class="keyword">COMMENT</span> = <span class="string">'积分流水表 '</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx1 <span class="keyword">ON</span> points_logs (user_id, <span class="keyword">type</span>, <span class="keyword">expire</span>, order_id);</span><br></pre></td></tr></table></figure><p>这次拆分成了两张表，也比较符合习惯，一张数据聚合表（points_status），另一张数据流水表（points_logs）。</p><p>其中<strong>积分状态表</strong>中直接将当前用户可用的积分总值存入<code>points</code>字段，方便获取，而为了记录每一批次积分的到期时间，该表的<code>points_status</code>字段中存放的也是json结构的数据字符串：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&#123;<span class="string">"expire"</span>: <span class="string">"精确到日期的时间戳"</span>, <span class="string">"val"</span>: <span class="string">"该批次的积分数值"</span>&#125;, ...]</span><br></pre></td></tr></table></figure><p>这里注意一个细节，<code>expire</code>键中存放的是精确到日期的时间戳，这样同一天到期的多个积分会自动汇总到一起。我们姑且称为<strong>积分批次</strong>。而在表<code>points_logs</code>中，每一条积分的流水记录也都有相同颗粒度的到期批次字段<code>expire</code>，这样当出现退款时，可以从对应流水记录中的批次得到每个批次应该退还多少数值。</p><p>我们还是举个具体的例子吧~~依然假设目前就只有一个客户，他通过下单，已经挣到了200积分，那么在db中会保存对应的记录：</p><p><strong>points_status表</strong></p><table><thead><tr><th style="text-align:left">id</th><th style="text-align:left">user_id</th><th style="text-align:left">points</th><th style="text-align:left">points_status</th></tr></thead><tbody><tr><td style="text-align:left">1</td><td style="text-align:left">1</td><td style="text-align:left">200</td><td style="text-align:left">[{“expire”:”2020-05-01”, “val”:100},{“expire”:”2020-06-01”, “val”:100}]</td></tr></tbody></table><p><strong>points_logs</strong></p><table><thead><tr><th style="text-align:left">id</th><th style="text-align:left">user_id</th><th style="text-align:left">points</th><th style="text-align:left">expire</th><th style="text-align:left">type</th><th style="text-align:left">order_id</th></tr></thead><tbody><tr><td style="text-align:left">1</td><td style="text-align:left">1</td><td style="text-align:left">+100</td><td style="text-align:left">2020-05-01</td><td style="text-align:left">earn</td><td style="text-align:left">1</td></tr><tr><td style="text-align:left">2</td><td style="text-align:left">1</td><td style="text-align:left">+100</td><td style="text-align:left">2020-06-01</td><td style="text-align:left">earn</td><td style="text-align:left">2</td></tr></tbody></table><p>每次客户挣得积分，业务代码操作时只需要锁定<code>points_status</code>表中对应<code>user_id</code>的那一条数据。至于积分流水表，以插入为主。<br>每当业务需要更新客户的积分状态时，都可以“顺便”做一件事儿：将<code>points_status.points_status</code>字段中的过期值清理一下，清理出得过期积分也要插入到<code>points_logs</code>表中，如下面这样的记录：</p><p><strong>points_logs</strong></p><table><thead><tr><th style="text-align:left">id</th><th style="text-align:left">user_id</th><th style="text-align:left">points</th><th style="text-align:left">expire</th><th style="text-align:left">type</th><th style="text-align:left">order_id</th></tr></thead><tbody><tr><td style="text-align:left">3</td><td style="text-align:left">1</td><td style="text-align:left">-100</td><td style="text-align:left">1984-07-23</td><td style="text-align:left">expire</td></tr></tbody></table><blockquote><p>注意：该记录的<code>type</code>为expire，我们可以暂定<code>type</code>字段供有三种类型值：earn(得取)，cost(消费)，expire(过期)</p></blockquote><p>我们也可以在每天的凌晨执行一个定时任务，用来把系统中所有客户的过期积分都处理一遍。当然如果系统的客户数据量巨大，也可以根据客户的活跃度分批次进行处理。即便是不处理，在客户决定使用积分的时候，也优先从<code>points_status.points_status</code>字段中动态计算积分的有效性，听起来好像也没有彻底解决实时计算的复杂度，但至少不会造成并发锁的冲突。</p><p>而且如果考虑到定时任务，那我们则可以认为<code>points_status.points</code>值就是精确的。即便是前面提到的数据量大而选择分批执行，我们也可以通过增加一个字段来存储是否精确，以此来最大程度减少频繁实时计算带来的性能问题。</p><p>我们再来看看之前提到的业务指标是否得到了满足：</p><ol><li>积分存在有效期，过期作废</li><li>用户可以查看当前可用积分总数</li><li>允许用户看到累积过期的积分总数</li><li>结算时，若用户选择使用积分，需要优先使用快要到期的积分部分</li><li>退款时，若用户之前有使用积分，需要按照积分的有效期，优先退还到期时间晚的积分部分</li></ol><p>第1、2，4点，直接在<code>points_status</code>表单条记录中就可以得到答案；<br>第3点，可以从<code>points_logs</code>表中按照<code>type==expire</code>的条件拿到总数；<br>第5点，需要借助<code>points_logs</code>中<code>type==cost &amp;&amp; order_id==退款订单id</code>的条件得到需要退款的积分数值和对应的批次，再去<code>points_status</code>表中进行具体查找修改即可（若在对应的记录中已经找不到对应的积分批次了，则说明该批次积分已经过期了，此时不需要其它操作，直接将需要退还的积分直接以<code>type=expire</code>类型插入积分流水表即可）。</p><p>这样的设计，解决了一部分问题。<br>可是，还有更好一些的设计方案吗？</p><p>我相信答案一定是肯定的，请留下你的看法，谢谢~~</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;继续积分这个话题，我们接着之前的&lt;a href=&quot;https://blog.kazaff.me/2020/04/23/%E5%85%B3%E4%BA%8E%E7%A7%AF%E5%88%86%E7%9A%84db%E8%AE%BE%E8%AE%A1%E4%B9%8B%E4%
+      
+    
+    </summary>
+    
+      <category term="数据库" scheme="https://blog.kazaff.me/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+    
+      <category term="积分设计" scheme="https://blog.kazaff.me/tags/%E7%A7%AF%E5%88%86%E8%AE%BE%E8%AE%A1/"/>
+    
+      <category term="有效期" scheme="https://blog.kazaff.me/tags/%E6%9C%89%E6%95%88%E6%9C%9F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>关于积分的Db设计之一</title>
+    <link href="https://blog.kazaff.me/2020/04/23/%E5%85%B3%E4%BA%8E%E7%A7%AF%E5%88%86%E7%9A%84db%E8%AE%BE%E8%AE%A1%E4%B9%8B%E4%B8%80/"/>
+    <id>https://blog.kazaff.me/2020/04/23/关于积分的db设计之一/</id>
+    <published>2020-04-23T09:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.215Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天来讲一个业务场景及其对应的解决方案：用户积分！肯定不陌生，毕竟现在很多电商系统都提供积分功能。简单说一下我手里的电商项目中积分的相关规则：</p><ol><li>下单会根据订单金额，奖励对应比例的积分</li><li>订单结算时，用户可以使用积分来按照比例抵扣现金消费</li><li>积分存在有效期，过期作废</li><li>用户可以查看自身的积分流水</li><li>用户可以查看当前可用积分总数</li></ol><p>极其常规的业务逻辑，对吧~~<br>这里延伸几点规则，算是基于上述规则的合理推导：</p><ol><li>结算时，若用户选择使用积分，需要优先使用快要到期的积分部分</li><li>退款时，若用户之前有使用积分，需要按照积分的有效期，优先退还到期时间晚的积分部分</li><li>有积分快过期时给用户足够的提醒</li><li>允许用户看到累积过期的积分总数</li></ol><p>那么接下来，如果要你来设计满足上面这些需求点的db结构，你会怎么做呢？<br>经过我们开发组的一轮商讨，给出了下面的一个表设计方案：</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> points(</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT  <span class="keyword">COMMENT</span> <span class="string">'主键'</span> ,</span><br><span class="line">    user_id <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>   <span class="keyword">COMMENT</span> <span class="string">'用户id'</span> ,</span><br><span class="line">    total_point <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'积分总值'</span> ,</span><br><span class="line">    <span class="keyword">expire</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>   <span class="keyword">COMMENT</span> <span class="string">'到期时间戳'</span> ,</span><br><span class="line">    cost_point <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'消耗积分值'</span> ,</span><br><span class="line">    used_detail <span class="built_in">TEXT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> [] <span class="keyword">COMMENT</span> <span class="string">'使用占比明细'</span> ,</span><br><span class="line">    order_id <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  <span class="keyword">DEFAULT</span> <span class="number">0</span> <span class="keyword">COMMENT</span> <span class="string">'订单id'</span> ,</span><br><span class="line">    PRIMARY <span class="keyword">KEY</span> (<span class="keyword">id</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">CHARSET</span>=utf8;</span><br></pre></td></tr></table></figure><p>单看表结构，无法直观的理解到这种设计的用意，我下面拿一个实际场景来举例吧~~</p><p>假设目前就只有一个客户，他通过下单，已经挣到了200积分，那么在db中会保存对应的记录：</p><table><thead><tr><th style="text-align:left">id</th><th style="text-align:left">user_id</th><th style="text-align:left">total_point</th><th style="text-align:left">expire</th><th style="text-align:left">cost_point</th><th style="text-align:left">order_id</th><th style="text-align:left">used_detail</th></tr></thead><tbody><tr><td style="text-align:left">1</td><td style="text-align:left">1</td><td style="text-align:left">+100</td><td style="text-align:left">2020/3/30</td><td style="text-align:left">0</td><td style="text-align:left">1</td><td style="text-align:left">[]</td></tr><tr><td style="text-align:left">2</td><td style="text-align:left">1</td><td style="text-align:left">+100</td><td style="text-align:left">2020/4/30</td><td style="text-align:left">0</td><td style="text-align:left">2</td><td style="text-align:left">[]</td></tr></tbody></table><blockquote><p>注意：我把expire字段写成容易阅读的时间格式了，实际存储的应该是unix时间戳</p></blockquote><p>目前应该不需要额外的解释，除了<code>cost_point</code>，<code>used_detail</code>外，其它字段的含义都是很直观的。</p><p>接下来，我们的客户又要开始shopping了，不过这次他结账的时候想要使用积分来抵扣现金了，那么db中会如何记录呢？</p><table><thead><tr><th style="text-align:left">id</th><th style="text-align:left">user_id</th><th style="text-align:left">total_point</th><th style="text-align:left">expire</th><th style="text-align:left">cost_point</th><th style="text-align:left">order_id</th><th style="text-align:left">used_detail</th></tr></thead><tbody><tr><td style="text-align:left">1</td><td style="text-align:left">1</td><td style="text-align:left">+100</td><td style="text-align:left">2020/3/30</td><td style="text-align:left">100</td><td style="text-align:left">1</td><td style="text-align:left">[]</td></tr><tr><td style="text-align:left">2</td><td style="text-align:left">1</td><td style="text-align:left">+100</td><td style="text-align:left">2020/4/30</td><td style="text-align:left">50</td><td style="text-align:left">2</td><td style="text-align:left">[]</td></tr><tr><td style="text-align:left">3</td><td style="text-align:left">1</td><td style="text-align:left">-150</td><td style="text-align:left">0</td><td style="text-align:left">0</td><td style="text-align:left">3</td><td style="text-align:left">[{id:2, val:-50},{id: 1, val:-100}]</td></tr></tbody></table><p>看到了么？这个时候，<code>used_detail</code>里保存了这次使用积分的细节，以json结构字符串保存在表中。这个json结构也比较明了吧：</p><ul><li>id: 指向对应的积分记录</li><li>val: 标识消耗了对应积分记录中的多少积分</li></ul><p>同时，对应积分记录的<code>cost_point</code>字段也会出现对应的值。</p><p>这么设计是否能很好的满足我们的业务需要呢？我们来拿前面提到的业务指标来核查一下是否都满足。其中一些简单的业务规则咱们就不讨论了，我们就拿其中比较重要的一些来检查：</p><ol><li>积分存在有效期，过期作废</li><li>用户可以查看当前可用积分总数</li><li>允许用户看到累积过期的积分总数</li><li>结算时，若用户选择使用积分，需要优先使用快要到期的积分部分</li><li>退款时，若用户之前有使用积分，需要按照积分的有效期，优先退还到期时间晚的积分部分</li></ol><p>第1点，靠<code>expire</code>字段可以很容易保证，只需要检查一下<code>expire</code>和当前时间对比一下，就可知道哪些积分已经过期了；<br>第2、3、4点，靠<code>expire</code>，<code>total_point</code>和<code>cost_point</code>三个字段就可以实时计算出值，不过感觉不是那么直观，相当于每次都需要做实时聚合操作；<br>第5点，可以靠<code>used_detail</code>字段中的明细信息，在退款时保证正确的返还合规的积分。</p><p>从上面的分析我们应该得到了初步的结论，这么设计表结构，有它精妙的地方，也有不足的地方。可以看出，我们在设计这个结构之初，过于关注退款所带来的限制条件，而忽略了一个细节：<strong>相比其它，退款发生的频率应该是最低的</strong>。这意味着，在相对频繁的场景中（如可用积分总数），我们不得不进行复杂繁琐的计算。</p><p>那么我们来试着在第4点的时候，把程序要做的步骤列一下：</p><ol start="0"><li>开启事务</li><li><code>SELECT * FROM points WHERE user_id=1 AND expire &gt; NOW AND total_point != cost_point ORDER BY expire asc FOR UPDATE</code>；</li><li>根据客户想要使用的积分数，从第一步得到的数据集合中，遵照集合中的记录顺序，完成扣减计算；</li><li>更新需要更新的记录，并提交事务。</li></ol><p>除了步骤多外，事务中的锁也会成为一个问题（当然同一个用户并发下单的可能性有待商讨）。但不可否认的是这么设计表结构是会导致这个场景中数据的使用是比较“麻烦”的~~不知道读到这里，你是否觉得这个表结构是可以接受的呢？是否觉得使用数据时并不是很复杂呢？</p><p>那有没有更好一些的设计方案呢？</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;今天来讲一个业务场景及其对应的解决方案：用户积分！肯定不陌生，毕竟现在很多电商系统都提供积分功能。简单说一下我手里的电商项目中积分的相关规则：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;下单会根据订单金额，奖励对应比例的积分&lt;/li&gt;
+&lt;li&gt;订单结算时，用户可以使用积分来按照比例抵扣现金
+      
+    
+    </summary>
+    
+      <category term="数据库" scheme="https://blog.kazaff.me/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+    
+      <category term="积分设计" scheme="https://blog.kazaff.me/tags/%E7%A7%AF%E5%88%86%E8%AE%BE%E8%AE%A1/"/>
+    
+      <category term="有效期" scheme="https://blog.kazaff.me/tags/%E6%9C%89%E6%95%88%E6%9C%9F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>审批流程中的一个有趣的需求点</title>
+    <link href="https://blog.kazaff.me/2019/12/09/%E5%AE%A1%E6%89%B9%E6%B5%81%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%B8%AA%E6%9C%89%E8%B6%A3%E7%9A%84%E9%9C%80%E6%B1%82%E7%82%B9/"/>
+    <id>https://blog.kazaff.me/2019/12/09/审批流程中的一个有趣的需求点/</id>
+    <published>2019-12-09T09:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.219Z</updated>
+    
+    <content type="html"><![CDATA[<p>这篇文章，我们来讨论一个比较有趣的需求，可能曾经出现在你设计的系统中，又或者你见过类似的解决方案。<br>不管怎样，我们抱着思考讨论的心态，一起来聊一下吧~</p><p>先来简单的描述一下目标功能的大概内容：我们的系统提供一个模块，该模块有3种用户类型：一线销售人员，销售经理，市场总监。<br>该模块最基本的一个流程是：销售人员提前填写未来周的工作计划（7天），提交后先由自己部门经理审批，通过后再由市场总监审批，最终流程完结。如果在审批过程中出现工作计划变更或审批拒绝，则回到流程原点。<br>我们这里不把关注点放在讨论该流程是否合理的方面（毕竟如果人数众多的话，市场总监怎么可能了解所有销售人员的工作明细呢？）。<br>我们假设这是一个用于十人的小型销售团队，此外该公司业务稳定，团队成员稳定。没毛病了吧？</p><p>由于需求过于常见，所以并没有什么值得深究的，一周开发下来就交付给客户了。<br>这个时候，对方提出了一个“小需求”：假如销售人员的工作计划中有错别字怎么办？</p><p>当听到这个需求，我第一感觉是无语。系统也要照顾到这类问题吗？换句话说，在一个严肃的审批流程中，如果错别字影响工作计划了，主观直接拒绝就好啦，如果有强迫症，那就改一下然后重新走审批流程不得了~</p><p>但客户不怎么想，站在客户的角度来看，如果只是因为一个错别字，就要麻烦领导重新审批，岂不是“非常的”不方便吗！！<br>实不相瞒，这个问题直接造成了我们团队认知上的撕裂。到底这个“错别字”问题是否应该让系统来解决呢？</p><p>经过一轮的讨论，大家最终妥协出一个方案：增加历史记录。但在我看来这已然严重破坏了这个模块的核心功能：审批。<br>何为增加历史记录？就需要将“是否重新审批”的权利交给销售人员，假如他选择了不重新审批，则他做的变更系统需要做历史版本的记录。<br>而他对一周的工作计划的变更的情况又非常复杂，包含了新增，删除，编辑其中的多项。<br>开发量和复杂度都直线上升，而且我们仅仅为的是“错别字”这个有点玩笑的需求。我个人觉得真的是不值得~</p><p>那有没有完美的方案呢？高端一点的自然语言识别来解决错别字纠错？搜了一下果然也是各种云服务可用，不过涉及到运营成本问题了。<br>不知道为这个“错别字”问题追加运营成本，公司领导又会有怎样的思考呢？</p><p>我们再说回“历史记录”这个方案，深入下去的话也还是有很多的小细节需要决策，例如系统默认显示的是更新后的版本还是更新前的版本呢？<br>显示更新后的版本，出了问题再追溯历史版本？但在我们的业务场景中，识别是否出问题的成本比较高，这也就意味着用户很容易忽略历史版本。<br>（那不是很好吗？本来历史版本也都是错别字才对吧）<br>但如果是恶意的更新呢？就让它悄声无息的覆盖掉原始的审批版本吗？所以我更倾向于优先显示更新前版本，然后标识出该计划有最新版本变更，用户可以手动切换到最新版本来看，负责审批的角色也可以在心情好的时候对新版本进行审批，之后系统就会显示最新审批过的那个版本。</p><p>不过不管怎么说，我们都要为“错别字”买单，而提出这个需求的用户，有思考过一个问题吗？错别字到底发生的概率和产生的后果有多大？是否值得如此厚待呢？</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;这篇文章，我们来讨论一个比较有趣的需求，可能曾经出现在你设计的系统中，又或者你见过类似的解决方案。&lt;br&gt;不管怎样，我们抱着思考讨论的心态，一起来聊一下吧~&lt;/p&gt;
+&lt;p&gt;先来简单的描述一下目标功能的大概内容：我们的系统提供一个模块，该模块有3种用户类型：一线销售人员，销售
+      
+    
+    </summary>
+    
+      <category term="需求分析" scheme="https://blog.kazaff.me/categories/%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90/"/>
+    
+    
+      <category term="审批流程" scheme="https://blog.kazaff.me/tags/%E5%AE%A1%E6%89%B9%E6%B5%81%E7%A8%8B/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Go Get 如何指定库的版本</title>
+    <link href="https://blog.kazaff.me/2019/12/09/go%20get%20%E5%A6%82%E4%BD%95%E6%8C%87%E5%AE%9A%E5%BA%93%E7%9A%84%E7%89%88%E6%9C%AC/"/>
+    <id>https://blog.kazaff.me/2019/12/09/go get 如何指定库的版本/</id>
+    <published>2019-12-09T09:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.215Z</updated>
+    
+    <content type="html"><![CDATA[<p>最近修改了一个很早前写的程序，然后在一台新的服务器上进行发布。本以为仅仅改了个参数，直接编译就搞定的事儿，没想到尴尬了！<br>一开始的报错，着实让人懵逼。后来翻看源码，才发现是依赖的第三方库有了不向下兼容的新版本~</p><p>然后继续天真的以为<code>go get</code>可以指定版本，可再次被打脸，才不可置信的发现原来老一点版本的golang，对包版本的管理真的很渣。<br>查了一下资料，golang的包管理相关的解决方案也五花八门，我这边急着发布呢，怎可能静下心来修行呢？！</p><p>转念一想，<code>go get</code>本来就是借助<code>git</code>去下载源码的，我为啥不直接去替换掉下载的源码文件呢？<br>所以你应该知道我的粗暴方案了，就是直接找到那个库的源码文件，然后去它官网的代码仓库中，找到你之前使用的那个版本，然后把代码覆盖掉你本地<code>go get</code>的那版，就搞定啦~</p><p>问题解决了，是时候静下心来看看golang新版本是如何优雅解决库版本依赖的问题了：<a href="https://juejin.im/post/5c9c8c4fe51d450bc9547ba1" target="_blank" rel="noopener">传送门</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;最近修改了一个很早前写的程序，然后在一台新的服务器上进行发布。本以为仅仅改了个参数，直接编译就搞定的事儿，没想到尴尬了！&lt;br&gt;一开始的报错，着实让人懵逼。后来翻看源码，才发现是依赖的第三方库有了不向下兼容的新版本~&lt;/p&gt;
+&lt;p&gt;然后继续天真的以为&lt;code&gt;go get
+      
+    
+    </summary>
+    
+      <category term="golang" scheme="https://blog.kazaff.me/categories/golang/"/>
+    
+    
+      <category term="go get" scheme="https://blog.kazaff.me/tags/go-get/"/>
+    
+      <category term="版本" scheme="https://blog.kazaff.me/tags/%E7%89%88%E6%9C%AC/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>它是如何知道请求来自于Puppeteer的</title>
+    <link href="https://blog.kazaff.me/2019/10/28/%E5%AE%83%E6%98%AF%E5%A6%82%E4%BD%95%E7%9F%A5%E9%81%93%E8%AF%B7%E6%B1%82%E6%9D%A5%E8%87%AA%E4%BA%8Epuppeteer%E7%9A%84/"/>
+    <id>https://blog.kazaff.me/2019/10/28/它是如何知道请求来自于puppeteer的/</id>
+    <published>2019-10-28T09:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.219Z</updated>
+    
+    <content type="html"><![CDATA[<p>一直以来，在采集的道路上，都是puppeteer与我相伴，感觉无往不利，无坚不摧。<br>但内心是知道总有一天，随着越来越规范，你使用puppeteer的目的会被限缩到固定范围的，毕竟它存在的意义是端到端测试。<br>而我们拿来作为采集数据的工具来用，总不算是正路~哇哈</p><p>闲话不多说，我们快入主题，我最近发现之前一直work的采集程序最近突然失败了，然后经过一番排查，发现目标网站识别出<br>请求是来自于非人类的，而拒绝登录了。好家伙，没想到这一天来得这么快~好歹等我交接出去啊~~😂</p><p>期初以为是对方识别user-agent来做出判断，但我设置了各种常规user-agent，并使用抓包工具确认设置成功，但依然无法突破！<br>这就奇怪了，也确实没有什么服务器可以用来识别的请求头了啊~</p><p>查了一圈，最后还是在puppeteer的社区求得了大神的帮忙。原来确实这种基于浏览器编程接口的模式下，浏览器会默认设置一个标识位：<br><code>navigator.webdriver</code>，如果目标系统用js脚本判断这个变量是否被设置，就可以识别出本次访问到底是人类还是程序了。<br>而这种机制，就是我前面提到的标准。puppeteer官方也不希望这个工具未来会被滥用以至于被唾弃。</p><p>不过进一步查了一下，<code>navigator.webdriver</code>这个标识位不仅仅用于puppeteer，其它界面测试的套件也都会设置这个标识位。<br>下面说一下暂时如何突破这一点的：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> browser = <span class="keyword">await</span> puppeteer.launch(&#123;<span class="attr">headless</span>: <span class="literal">false</span>, <span class="attr">ignoreDefaultArgs</span>: [<span class="string">"--enable-automation"</span>],&#125;);</span><br></pre></td></tr></table></figure><p>目前，我们可以在启动puppeteer的时候，忽略<code>--enable-automation</code>这个设置来避免<code>navigator.webdriver</code>标识位被初始化。<br>但我觉得未来可能就不会再有效了~</p><p>除非，我们基于chrome源码自己开发一个浏览器来做我们想做的事儿~~</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><p><a href="https://www.kingname.info/2019/02/12/hide-webdriver/" target="_blank" rel="noopener">一行js代码识别Selenium+Webdriver及其应对方案</a><br><a href="https://app.slack.com/client/T8WQY2F8Q/C8XEP1718" target="_blank" rel="noopener">puppeteer slack</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;一直以来，在采集的道路上，都是puppeteer与我相伴，感觉无往不利，无坚不摧。&lt;br&gt;但内心是知道总有一天，随着越来越规范，你使用puppeteer的目的会被限缩到固定范围的，毕竟它存在的意义是端到端测试。&lt;br&gt;而我们拿来作为采集数据的工具来用，总不算是正路~哇哈&lt;/
+      
+    
+    </summary>
+    
+      <category term="nodejs" scheme="https://blog.kazaff.me/categories/nodejs/"/>
+    
+    
+      <category term="puppeteer" scheme="https://blog.kazaff.me/tags/puppeteer/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>基于AES和RSA来保护数据</title>
+    <link href="https://blog.kazaff.me/2019/08/23/%E5%9F%BA%E4%BA%8EAES%E5%92%8CRSA%E6%9D%A5%E4%BF%9D%E6%8A%A4%E6%95%B0%E6%8D%AE/"/>
+    <id>https://blog.kazaff.me/2019/08/23/基于AES和RSA来保护数据/</id>
+    <published>2019-08-23T09:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.219Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天来说一下加解密相关的内容~</p><p>在这个后Rest时代，基本上HTTP API已经满大街了，如果你还不了解这个细节，或者你的项目不提供Rest API，你都不好意思来看我这篇文章~~<br>而通常我们简单的这些API，都不约儿童的包含了一个签名字段，主要目的是为了避免通信数据被恶意篡改，这也是https生而伟大的原因。</p><p>我们来进一步说一下这个签名逻辑：一般通信双方会提前约定好使用相同的一段字符串来作为签名的密钥，然后约定好使用的签名算法（例如md5），<br>然后双方在发送数据时，会把数据按照约定好的顺序拼接成一个字符串，然后再加上密钥，最后做个MD5就生成了一个签名字符串。</p><p>因为其他人不知道密钥，所以尽管他们能看到明文的通信数据，但他们无法生成相同的签名。同样，他们可以修改明文的数据，但也无法为修改后的数据<br>生成一个合法的签名。这样，只要接受数据的一方用接受到的明文数据+密钥做一次签名，然后和接受到的签名一比对，就知道数据是不是被篡改过了。</p><p>这并没有什么高深的思想，不过我们要注意一个细节：签名算法。一个比较好的签名算法，要求对碰撞几率足够低（即不同的字符串生成相同的签名值），<br>更要求签名不可逆性，最后也要保证签名性价比高（不能太慢，不能太耗资源）。</p><p>而签名的另外一个需要注意的细节是：传输过程中数据是明文的。为何必须要包含明文呢？</p><p>那么，如果传输的数据比较敏感呢？例如银行密码。那么只是签名肯定就是不够的了。这个时候就要对数据进行加密了。<br>常见的加密类型分为：对称加密，和非对称加密。对称加密比较好理解，通信双方约定好使用相同的密钥，然后在传递数据之前，对所有数据进行加密即可。<br>这样，只要密钥是安全的，中间人即便是抓包看到通信携带的数据，也因为无法解密而不能识别数据的含义。</p><p>听起来，岂不是不管三七二一，加就对了。那为何支付宝啊，微信啊，它们的接口都使用签名方式呢？<br>这个问题留给大家自己琢磨吧，我们今儿的主题不是它~</p><p>下面继续说一下非对称加密，这就有点意思了。一言以蔽之就是，加密和解密的时候需要使用不同的密钥来完成。神奇吧，什么？不知道这用来干啥么？<br>举个例子，假如请求方的密钥泄露了，是不是知道这个密钥的人都可以解密数据了？而非对称加密就能解决这个问题，牛逼吧！</p><p>那么，听起来，岂不是不管三七二一，非对称加就对了？那为何。。。（哎呀，别打我~）<br>其实冷静后不难得出，它们各自有各自的价值。</p><p>需要注意的是，非对称加密最安全，但性能越最低，然后是对称加密，然后是签名。所以如果用在接口上，考虑到并发量，还是需要根据具体场景具体分析的。</p><p>另外，如果你最终就是选择使用非对称加密来保护你的数据，你还要注意一点是，非对称加密对被加密的数据容量有限制，所以并不是想用就用的。<br>不过也别灰心，我们可以将它们结合在一起来使用：</p><ol><li>使用创建的随机的AES对称加密算法使用的key对目标字符串进行对称加密</li><li>使用私钥对创建的随机key进行非对称加密</li></ol><p>这样就可以避免数据量的问题。</p><p>不过我实际测试了一下，性能确实不理想啊。。。<br>如果你对数据的明文传输并不介意，但想要一个非对称的签名，那就既能保证足够的安全，性能也可以照顾到了。<br>幸运的是，RSA已经提供了这种非对称签名的实现，对这篇文章提到的内容有实战需求的朋友，可以看一下这个库：</p><p><a href="https://github.com/kazaff/CipherUtils" target="_blank" rel="noopener">https://github.com/kazaff/CipherUtils</a></p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><p><a href="https://niels.nu/blog/2016/java-rsa.html" target="_blank" rel="noopener">https://niels.nu/blog/2016/java-rsa.html</a><br><a href="https://www.novixys.com/blog/using-aes-rsa-file-encryption-decryption-java/" target="_blank" rel="noopener">https://www.novixys.com/blog/using-aes-rsa-file-encryption-decryption-java/</a><br><a href="https://blog.csdn.net/qq_32523587/article/details/79146977" target="_blank" rel="noopener">https://blog.csdn.net/qq_32523587/article/details/79146977</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;今天来说一下加解密相关的内容~&lt;/p&gt;
+&lt;p&gt;在这个后Rest时代，基本上HTTP API已经满大街了，如果你还不了解这个细节，或者你的项目不提供Rest API，你都不好意思来看我这篇文章~~&lt;br&gt;而通常我们简单的这些API，都不约儿童的包含了一个签名字段，主要目的是为
+      
+    
+    </summary>
+    
+      <category term="java" scheme="https://blog.kazaff.me/categories/java/"/>
+    
+    
+      <category term="对称加密" scheme="https://blog.kazaff.me/tags/%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86/"/>
+    
+      <category term="非对称加密" scheme="https://blog.kazaff.me/tags/%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86/"/>
+    
+      <category term="非对称签名" scheme="https://blog.kazaff.me/tags/%E9%9D%9E%E5%AF%B9%E7%A7%B0%E7%AD%BE%E5%90%8D/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>谈Puppeteer碰到的bug</title>
+    <link href="https://blog.kazaff.me/2019/08/22/%E8%B0%88puppeteer%E7%A2%B0%E5%88%B0%E7%9A%84bug/"/>
+    <id>https://blog.kazaff.me/2019/08/22/谈puppeteer碰到的bug/</id>
+    <published>2019-08-22T09:37:12.000Z</published>
+    <updated>2021-09-22T09:43:46.219Z</updated>
+    
+    <content type="html"><![CDATA[<p>什么是puppeteer？直观点说，就是一个提供以编程的方式控制浏览器（chromium）的nodejs库，非常的彪悍。<br>有了它，你可以用来做端到端测试，也可用来采集一些比较复杂的网站。我之前文章有涉及到这个神器，所以就不再啰嗦了~</p><p>这篇文章只是记录在使用中几个碰到的坑~</p><h3 id="page-click-无限阻塞"><a href="#page-click-无限阻塞" class="headerlink" title="page.click 无限阻塞"></a>page.click 无限阻塞</h3><p>从官网手册上看，<code>click</code>函数在发现页面上没有对应的元素的时候，会报错。但我在实际使用的时候发现，<code>puppeteer 1.12.x</code>版本下程序可能会无限阻塞在这个函数上，不抛异常，也不会返回。而且发生这种情况的时候，页面上确实是有对应的元素的，手动点击该按钮也是可以正常触发页面响应的。</p><p>此外，注意到一点是，当出现这个情况的时候，我切换成下面的写法:</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">await</span> page.evaluate(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  jQuery(<span class="string">'button'</span>).click();</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure><p>程序会直接报错，提示 <strong>执行期间，上下文被销毁</strong> 的异常信息。正常情况下，该方式和直接<code>page.click</code>都应该是可以触发按钮点击的，现在突然都失灵了~<br>更增加排查难度的是，在循环执行时，一开始是成功的，平均到第三次时，发生这个bug的可能性就非常大。同样的代码，使用<code>puppeteer 1.19.x</code>则完全正常！</p><p>和同事讨论了一下，他之前也碰到过这个问题，后来在网站找到另外一个解决方案：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 直接click方法，会导致莫名其妙的阻塞在click调用上</span></span><br><span class="line"><span class="keyword">let</span> submitBtn = <span class="keyword">await</span> page.$(<span class="string">'button'</span>);</span><br><span class="line"><span class="keyword">let</span> submitBox = <span class="keyword">await</span> submitBtn.boundingBox();</span><br><span class="line"><span class="keyword">let</span> boxX = submitBox.x + (submitBox.width / <span class="number">2</span>);</span><br><span class="line"><span class="keyword">let</span> boxY = submitBox.y + (submitBox.height / <span class="number">2</span>);</span><br><span class="line"><span class="keyword">await</span> page.mouse.click(boxX, boxY, &#123;<span class="attr">delay</span>: <span class="number">0</span>&#125;);</span><br></pre></td></tr></table></figure><p>这段代码就完全可以解决问题，它使用了更底层的一套接口，直接操作鼠标。。。不过实际使用的时候需要注意，<strong>该方式必须要将headless设置成false</strong>。</p><p>所以，目前的结论是，如果你不想升级版本的话，就是用鼠标接口，否则可以升级sdk版本来解决。</p><h3 id="page-click-点击无效"><a href="#page-click-点击无效" class="headerlink" title="page.click 点击无效"></a>page.click 点击无效</h3><p>依然是和 <code>page.click</code> 函数相关，在我们项目的某个页面（日历插件），发现<code>puppeteer 1.19.x</code>下，点击后无法影响该输入项的当前值。<br>但降低版本到<code>puppeteer 1.18.x</code>后，问题就解决了。</p><p>目前怀疑是最新版本的puppeteer可能存在bug（我们测试的时候，1.19.0才刚更新25天）。</p><p>以后有新的坑，再更新这个篇文章吧~<br>祝大家顺利~</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;什么是puppeteer？直观点说，就是一个提供以编程的方式控制浏览器（chromium）的nodejs库，非常的彪悍。&lt;br&gt;有了它，你可以用来做端到端测试，也可用来采集一些比较复杂的网站。我之前文章有涉及到这个神器，所以就不再啰嗦了~&lt;/p&gt;
+&lt;p&gt;这篇文章只是记录在使
+      
+    
+    </summary>
+    
+      <category term="nodejs" scheme="https://blog.kazaff.me/categories/nodejs/"/>
+    
+    
+      <category term="puppeteer" scheme="https://blog.kazaff.me/tags/puppeteer/"/>
+    
+  </entry>
+  
+</feed>

@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="React-Native-Android小结"><meta name="keywords" content="react-native,android"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>React-Native-Android小结 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">React-Native-Android小结</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 12月 21 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/移动端/">移动端</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/12/21/React-Native-Android小结/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/12/21/React-Native-Android小结/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>最近尝试使用react-native android为我们的一个创业项目写了一个demo，项目放在<a href="https://github.com/kazaff/ZhuiYuanDemo" target="_blank" rel="noopener">github</a>了，有兴趣的朋友可以看看，下面给出一些效果：<br><a id="more"></a></p>
+<embed src="http://player.youku.com/player.php/sid/XMTQxOTg2Nzk2MA==/v.swf" allowfullscreen="true" quality="high" width="480" height="400" align="middle" allowscriptaccess="always" type="application/x-shockwave-flash">
+
+
+<p>###关于height</p>
+<p>很多时候，这都是一个不折不扣的大坑，比方说当你Image加载一个网络图片时，如果你不给该Image设置width和height，那你将什么都看不到。这还不算，当你使用ListView时如果该组件同时存在一个兄弟元素，那么此时ListView必须设置height，否则你会发现它不再响应用户的滚动操作。。。</p>
+<p>###关于Fetch</p>
+<p>当你试图提交附件表单数据的时候，请一定要使用FormData对象将数据包裹，这应该算不上什么太古怪的事儿～</p>
+<p>如果你只是普通的json提交，就按照官方例子来做：</p>
+<pre><code>fetch(API_LOGIN_URL, {
+    method: &apos;POST&apos;,
+    headers: {
+      &apos;Accept&apos;: &apos;application/json&apos;,
+      &apos;Content-Type&apos;: &apos;application/json&apos;,
+    },
+    body: JSON.stringify({
+      account: this.state.account,
+      password: this.state.password,
+    })
+  })
+.....
+</code></pre><p>不然fetch会报错说你使用了不支持的body属性值类型～</p>
+<p>如果你和我一样需要实现类似用户头像修改的功能，你可能需要下面两个类库：</p>
+<p><a href="https://github.com/marcshilling/react-native-image-picker" target="_blank" rel="noopener">react-native-image-picker</a>：用于头像图片获取</p>
+<p><a href="https://github.com/PhilippKrone/react-native-fileupload" target="_blank" rel="noopener">react-native-fileupload</a>：用于图片文件表单上传，这是由于你使用image-picker获取到的图片只是本地url，你需要这个uploader来组装成原始的file上传表单～～</p>
+<p>顺便说一下，第三方依赖更新较快，代码也可能有bug，各种bug，所以你最好主动的去github上和项目的维护人员沟通，一起想办法解决问题～～</p>
+<p>###关于async/await</p>
+<p>至少在我目前的环境（默认安装react-native0.16.0自带的babel）是没有默认开启该特性的，不过貌似是可以手动开启的，有兴趣可以看<a href="https://medium.com/the-exponent-log/react-native-meets-async-functions-3e6f81111173#.ekvqrsala" target="_blank" rel="noopener">这里</a>。</p>
+<p>###关于第三方类库</p>
+<p>个人感觉，目前很多关注度高的第三方库还是值得信赖的，不过面向android平台的库功能还不足够强大，这可能由于fb刚开源不久的缘故，但是关注度高的库的作者响应也一般都很快，这一点很值得赞许～</p>
+<p>但是，老实讲，如果你要开发的app包含大量特殊的业务，或者效果，这个时候你就只能自己去实现FB暂时没有提供的原生控件了，这就要求你同时要熟悉android原生开发，目前这个阶段，我觉得你是无法避免这种尴尬局面的。</p>
+<p>###响应屏幕尺寸的变化</p>
+<p>FB提供了Dimensions组件可以用来获取屏幕的当前尺寸：</p>
+<pre><code>var deviceHeight = Dimensions.get(&apos;window&apos;).height;
+var deviceWidth = Dimensions.get(&apos;window&apos;).width;
+</code></pre><p>不过，由于设备可能旋转，所以如果你的app支持设备旋转的话，你就需要找到一种方法来实时获取当前设备尺寸，官方推荐的方法是每次render都要调用这个方法来刷新设备尺寸，<strong>而目前我还没有解决，主要是不知道应该如何获取屏幕旋转事件～～</strong></p>
+<p>###style小知识</p>
+<p>当你打算在某个控件上套用设置好的某个样式，但需要单独为其设置一个额外特殊值时，你可以这样：</p>
+<pre><code>&lt;View style={[styles.demo, {backgroundColor: &quot;blue&quot;}]}&gt;&lt;/View&gt;
+</code></pre><p>我也不懂，为何用数组类型的，但就是能这么写哟～</p>
+<p>###布局</p>
+<p>布局和web比起来其实不算复杂，但你务必要掌握Flex布局，强烈推荐看<a href="http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html#show-last-Point" target="_blank" rel="noopener">这里</a>。</p>
+<p>###TextInput</p>
+<p>这里主要说的是键盘问题，当用户点击这个控件后，系统会弹出键盘，这个键盘会占据屏幕控件的，所以，你可以将整个表单View放在ScollView中！这样用户就可以在屏幕上进行滚动了，但注意，滚动的是整个表单View，而不是滚动的TextInput内容（当你设置为支持多行输入时），最后还有就是别忘了给ScollView添加keyboardDismissMode属性，如下：<br>    <scrollview keyboarddismissmode="on-drag"></scrollview></p>
+<p>该属性会在滚动触发后自动关闭键盘～～</p>
+<p><strong><em>至于怎么滚动TextInput内部数据，目前没找到方法。</em></strong></p>
+<p>默认android系统的TextInput会有一个丑陋的下边框，style是无法去掉它的，不过你可以使用underlineColorAndroid属性将其设置为与背景色一样，来达到隐藏效果，这个时候你在外部包一个View来定义样式即可～～</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/12/21/React-Native-Android小结/">https://blog.kazaff.me/2015/12/21/React-Native-Android小结/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/react-native/">react-native</a><a class="post-meta__tags" href="/tags/android/">android</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/12/21/react-native-android关于我是如何打包APK的/"><i class="fa fa-chevron-left">  </i><span>React-Native-Android关于我是如何打包APK的</span></a></div><div class="next-post pull-right"><a href="/2015/12/05/关于React-Native的预备知识/"><span>关于React-Native的预备知识</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/12/21/React-Native-Android小结/';
+  this.page.identifier = '2015/12/21/React-Native-Android小结/';
+  this.page.title = 'React-Native-Android小结';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

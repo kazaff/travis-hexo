@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Redis中坑爹的pattern参数"><meta name="keywords" content="redis,pattern,zinterstore,zscan,zset,zunionstore"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Redis中坑爹的pattern参数 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Redis中坑爹的pattern参数</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 8月 29 2014</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/nosql/">nosql</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2014/08/29/redis中坑爹的pattern参数/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2014/08/29/redis中坑爹的pattern参数/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>很久没有更新博客了，久的都有点忘记自己还有个博客~~</p>
+<p>今天和同事讨论一个问题：如何从redis的多个zset中汇总并过滤数据给客户端。<br><a id="more"></a><br>你听起来可能有点费劲儿，我再来稍微描述一下场景：</p>
+<p>假设现在我们的redis中有2个zset，分别如下：</p>
+<pre><code>one =&gt; a,80
+       b,75
+       c,60
+
+two =&gt; x,99
+       y,66
+       z,100
+</code></pre><p>不熟悉redis或者zset用法的童鞋，请自己<a href="http://www.redis.cn/commands.html#sorted_set" target="_blank" rel="noopener">脑补</a>。</p>
+<p>我们假设 <code>one</code> 和 <code>two</code> 这两个集合中存放的是两个班级学生的名字和总分（不考虑学生重名的问题）。那么，现在我们要在系统中显示一个列表，该列表要按照分数排列显示这两个班级的学生名单，考虑到例子里的数据并不多，那我们只能假设每一页只显示3个人。</p>
+<p>场景描述到这里，应该就足够清晰了~~</p>
+<p>解决方案很多，我们以最佳性能为基准，来评论方案的好坏。当然，最简单的是从分别从2个集合中取出所有数据，然后在应用系统中进行排序和截断。但不用多想，这种方法是最吃力不讨好的，为什么这么说？首先要从redis中拿出全部数据，这就已经不太合理了，还要自己实现一个排序算法~~我不往下说了！</p>
+<p>还可以使用zset提供的<a href="http://www.redis.cn/commands/zunionstore.html" target="_blank" rel="noopener">ZUNIONSTORE</a>，调用后它会在redis中创建一个新的zset集合，不过却可以帮我们提供排序和截断方法，从另一个角度想，新建的这个zset集合其实充当了“缓存”的作用，只要在应用逻辑中先检查是否存在这个key，就避免了每次都做合并操作。但，数据更新后，如何即时的更新这个“缓存”就成了问题，这涉及到定时任务的话题，就不展开了，总之知道这种方法的利弊即可。当然你也可以说每次都做合并操作，但考虑到这个合并操作的时间复杂度是 <strong>O(N)+O(M log(M))</strong>，再加上并发请求，我可以认为，这是在玩火，但至于redis是内部如何处理并发创建集合的，是否有多线程保护等，我就不得而知了。总之，不推荐这么做。</p>
+<p>步入正题，现在我们延伸一下场景，如果我们给出一个<strong>学生名单{a,c,x,z}</strong>，我要求你在上述方案2中拿到的汇总集合上做一次子集的排序获取，并按照前端页面的要求，根据分数顺序只取前三个用于显示。</p>
+<p>这个名单中的学生，由于分数是错乱的，所以你该怎么办？分别获取每一个学生在集合中的score，再在应用系统中做排序和截断？这又回到了之前的那个方案1……</p>
+<p>好吧，我们还可以构建一个zset，如下：</p>
+<pre><code>list =&gt; a,0
+        c,0
+        x,0
+        z,0
+</code></pre><p>然后执行：</p>
+<pre><code>//total代表学生总集合
+//target表示我们临时创建的目标集合
+zinterstore target 2 list total
+</code></pre><p>这样就拿到了我们学生名单中的所有学生的zset集合，然后可以根据显示需求做分页显示了。这么做的问题我在方案2中已经提过了，就不多说了。总之觉得这么做很不尽人意！</p>
+<p>其实说到这里，也就没什么好办法了，不过翻了翻文档，发现redis2.8以后，提供了一个新的操作：<strong><a href="http://www.redis.cn/commands/scan.html" target="_blank" rel="noopener">ZSCAN</a></strong>。</p>
+<p>我擦，以为找到了希望，眼睛瞬间冒了绿光。尝试这么做：</p>
+<pre><code>zscan total a|c|x|z 3
+</code></pre><p>我觉得这么做太爽了，要是真的管用，那就更好了T_T</p>
+<p>返回的结果里，毛都没有，哇哈哈哈~为什么呢？难道是我的正则写错了？换了好几种写法，还是不行。</p>
+<p>最后发现，原来，redis命令中所谓的pattern模式参数，并不支持正则这么强大的规则，我们可以在<a href="http://www.redis.cn/commands/keys.html" target="_blank" rel="noopener">这里</a>看到redis的pattern所支持的模式。</p>
+<p>额，貌似有点悲剧的味道~~~</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2014/08/29/redis中坑爹的pattern参数/">https://blog.kazaff.me/2014/08/29/redis中坑爹的pattern参数/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/redis/">redis</a><a class="post-meta__tags" href="/tags/pattern/">pattern</a><a class="post-meta__tags" href="/tags/zinterstore/">zinterstore</a><a class="post-meta__tags" href="/tags/zscan/">zscan</a><a class="post-meta__tags" href="/tags/zset/">zset</a><a class="post-meta__tags" href="/tags/zunionstore/">zunionstore</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2014/09/05/又一次新气象/"><i class="fa fa-chevron-left">  </i><span>又一次新气象</span></a></div><div class="next-post pull-right"><a href="/2014/08/08/php页面白屏/"><span>Php页面白屏</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2014/08/29/redis中坑爹的pattern参数/';
+  this.page.identifier = '2014/08/29/redis中坑爹的pattern参数/';
+  this.page.title = 'Redis中坑爹的pattern参数';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

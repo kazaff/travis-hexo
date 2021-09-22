@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="DDD读书摘录"><meta name="keywords" content="领域建模,微服务,读写分离"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>DDD读书摘录 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#领域建模的步骤"><span class="toc-number">1.</span> <span class="toc-text">领域建模的步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DDD与微服务的关系"><span class="toc-number">2.</span> <span class="toc-text">DDD与微服务的关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#领域，子域，核心域，通用域，支撑域"><span class="toc-number">3.</span> <span class="toc-text">领域，子域，核心域，通用域，支撑域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限界上下文"><span class="toc-number">4.</span> <span class="toc-text">限界上下文</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#聚合，聚合根，实体，值对象"><span class="toc-number">5.</span> <span class="toc-text">聚合，聚合根，实体，值对象</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#怎么设计聚合"><span class="toc-number">5.1.</span> <span class="toc-text">怎么设计聚合</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#聚合的一些设计原则"><span class="toc-number">5.2.</span> <span class="toc-text">聚合的一些设计原则</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#领域事件"><span class="toc-number">6.</span> <span class="toc-text">领域事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#应用服务，领域服务"><span class="toc-number">7.</span> <span class="toc-text">应用服务，领域服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DDD分层"><span class="toc-number">8.</span> <span class="toc-text">DDD分层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据视图"><span class="toc-number">9.</span> <span class="toc-text">数据视图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DDD中的读操作"><span class="toc-number">10.</span> <span class="toc-text">DDD中的读操作</span></a></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#参考文献"><span class="toc-number"></span> <span class="toc-text">参考文献</span></a></li></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">DDD读书摘录</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 11月 20 2020</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/架构/">架构</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2020/11/20/DDD学习摘录/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2020/11/20/DDD学习摘录/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>最近在复习 领域驱动设计 相关的知识，主要是因为越发的觉得DDD思想和方法论能帮助自己甄别好坏以及辅助设计。<br>很早之前就读过DDD知识领域相关的“圣经”，但是初读时候并没有悟道太多，打算花时间再把能搜集到的资料整理一下看是否能沉淀更多价值出来。<br>索性全部记录在这篇博文中，方便自己日后复习和查证。目前没有想好要以如何结构来编排内容，暂时都一股脑的记录下来，以后有好的归纳想法后再调整吧，如果觉得阅读起来很乱，不妨试试用关键词检索的方式来抓取内容。</p>
+<hr>
+<h3 id="领域建模的步骤"><a href="#领域建模的步骤" class="headerlink" title="领域建模的步骤"></a>领域建模的步骤</h3><p><img src="https://pic.yupoo.com/kazaff_v/60fc9af4/big.jpg" alt></p>
+<ol start="0">
+<li>在事件风暴中梳理业务过程中的用户操作、事件以及外部依赖关系等，根据这些要素梳理出领域实体等领域对象。</li>
+<li>根据领域实体之间的业务关联性，将业务紧密相关的实体进行组合形成聚合，同时确定聚合中的聚合根、值对象和实体。在这个图里，聚合之间的边界是第一层边界，它们在同一个微服务实例中运行，这个边界是逻辑边界，所以用虚线表示。</li>
+<li>根据业务及语义边界等因素，将一个或者多个聚合划定在一个限界上下文内，形成领域模型。在这个图里，限界上下文之间的边界是第二层边界，这一层边界可能就是未来微服务的边界，不同限界上下文内的领域逻辑被隔离在不同的微服务实例中运行，物理上相互隔离，所以是物理边界，边界之间用实线来表示。</li>
+</ol>
+<h3 id="DDD与微服务的关系"><a href="#DDD与微服务的关系" class="headerlink" title="DDD与微服务的关系"></a>DDD与微服务的关系</h3><p>DDD是一种架构设计方法，微服务是一种架构风格。</p>
+<p>DDD主要关注：从业务领域视角划分领域边界，构建通用语言进行高效沟通，通过业务抽象，建立领域模型，维持业务和代码的逻辑一致性。</p>
+<p>微服务主要关注：运行时的进程间通信、容错和故障隔离，实现去中心化数据管理和去中心化服务治理，关注微服务的独立开发、测试、构建和部署。</p>
+<h3 id="领域，子域，核心域，通用域，支撑域"><a href="#领域，子域，核心域，通用域，支撑域" class="headerlink" title="领域，子域，核心域，通用域，支撑域"></a>领域，子域，核心域，通用域，支撑域</h3><p><strong>领域</strong>：在研究和解决业务问题时，DDD会按照一定的规则将业务领域进行细分，当领域细分到一定的程度后，DDD会将问题范围限定在特定的边界内，在这个边界内建立领域模型，进而用代码实现该领域模型，解决相应的业务问题。简言之，<code>DDD的领域就是这个边界内要解决的业务问题域</code>。</p>
+<p><strong>子域</strong>: 领域可以进一步划分为子领域。我们把划分出来的多个子领域称为子域，<code>每个子域对应一个更小的问题域或更小的业务范围</code>。</p>
+<p><strong>核心域</strong>：决定产品和公司核心竞争力的子域是核心域，它是业务成功的主要因素和公司的核心竞争力。</p>
+<p><strong>通用域</strong>：没有太多个性化的诉求，同时被多个子域使用的通用功能子域是通用域。</p>
+<p><strong>支撑域</strong>：既不包含决定产品和公司核心竞争力的功能，也不包含通用功能的子域，但这些功能子域又是必须的，那它们就是支撑域。</p>
+<blockquote>
+<p>举个实际的例子，我们将桃树细分为了根、茎、叶、花、果实和种子等六个子域，那桃树是否有核心域？有的话，到底哪个是核心域呢？</p>
+<p>不同的人对桃树的理解是不同的。如果这棵桃树生长在公园里，在园丁的眼里，他喜欢的是“人面桃花相映红”的阳春三月，这时花就是桃树的核心域。但如果这棵桃树生长在果园里，对果农来说，他则是希望在丰收的季节收获硕果累累的桃子，这时果实就是桃树的核心域。</p>
+</blockquote>
+<h3 id="限界上下文"><a href="#限界上下文" class="headerlink" title="限界上下文"></a>限界上下文</h3><p><strong>限界上下文</strong>：用来封装通用语言和领域对象，提供上下文环境，保证在领域之内的一些术语、业务相关对象等（通用语言）有一个确切的含义，<code>没有二义性</code>。这个边界定义了模型的适用范围，使团队所有成员能够明确地知道什么应该在模型中实现，什么不应该在模型中实现。<code>领域边界就是通过限界上下文来定义的，将限界上下文内的领域模型映射到微服务，就完成了从问题域到软件的解决方案。</code>。理想情况下，子域和限界上下文是重合的，但<code>子域可能会包含多个限界上下文</code>。</p>
+<p>限界上下文所界定的边界，究竟是逻辑边界，还是物理边界？这并没有定论，需得依据不同场景而做出不同的决策。</p>
+<ul>
+<li><p>逻辑边界：所有的限界上下文都部署在同一个进程中，因此不能针对某一个限界上下文进行水平伸缩。<code>编写代码时，我们需要谨守这条无形的逻辑边界，时刻注意不要逾界，并确定限界上下文各自对外公开的接口，避免对具体的实现产生依赖</code>。</p>
+</li>
+<li><p>物理边界：每个限界上下文就变成了一个个细粒度的微服务。可以保证边界内的服务、基础设施乃至于存储资源、中间件等其他外部资源的完整性，最终形成自治的服务。限界上下文之间仅仅通过限定的方式以限定的通信协议和数据格式进行通信，除此之外，彼此没有任何共享。但是运维与监控的复杂度也随之而剧增。</p>
+</li>
+</ul>
+<h3 id="聚合，聚合根，实体，值对象"><a href="#聚合，聚合根，实体，值对象" class="headerlink" title="聚合，聚合根，实体，值对象"></a>聚合，聚合根，实体，值对象</h3><p><strong>实体</strong>：有ID标识，通过ID判断相等性，ID在聚合内唯一即可。对这些对象而言，重要的不是其属性，而是其延续性和标识，对象的延续性和标识会跨越甚至超出软件的生命周期。我们把这样的对象称为实体。在DDD里，这些实体类通常采用<code>充血模型，与这个实体相关的所有业务逻辑都在实体类的方法中实现，跨多个实体的领域逻辑则在领域服务中实现</code>。</p>
+<p><strong>值对象</strong>：无ID，不可变，无生命周期，用完即扔。<code>值对象只是若干个属性的集合，只有数据初始化操作和有限的不涉及修改数据的行为，基本不包含业务逻辑。值对象的属性集虽然在物理上独立出来了，但在逻辑上它仍然是实体属性的一部分，用于描述实体的特征</code>。在值对象中也有部分共享的标准类型的值对象，它们有自己的限界上下文，有自己的持久化对象，可以建立共享的数据类微服务，比如数据字典。</p>
+<p><strong>聚合</strong>：由业务和逻辑紧密关联的实体和值对象组合而成的，聚合是数据修改和持久化的基本单元，每一个聚合对应一个仓储，实现数据的持久化。聚合有一个聚合根和<code>上下文边界，这个边界根据业务单一职责和高内聚原则，定义了聚合内部应该包含哪些实体和值对象，而聚合之间的边界是松耦合的</code>。聚合内实体以<code>充血模型</code>实现个体业务能力，以及业务逻辑的高内聚。<code>跨多个实体的业务逻辑通过领域服务来实现，跨多个聚合的业务逻辑通过应用服务来实现</code>。</p>
+<p><strong>聚合根</strong>：聚合根的主要目的是为了避免由于复杂数据模型<code>缺少统一的业务规则控制，而导致聚合、实体之间数据不一致性的问题</code>。首先它作为实体本身，拥有实体的属性和业务行为，实现自身的业务逻辑。其次它作为聚合的管理者，在聚合内部负责协调实体和值对象按照固定的业务规则协同完成共同的业务逻辑。最后在聚合之间，它还是聚合对外的接口人，以聚合根ID关联的方式接受外部任务和请求，在上下文内实现聚合之间的业务协同。也就是说，聚合之间通过聚合根ID关联引用，如果需要访问其它聚合的实体，就要先访问聚合根，再导航到聚合内部实体，外部对象不能直接访问聚合内实体。</p>
+<h4 id="怎么设计聚合"><a href="#怎么设计聚合" class="headerlink" title="怎么设计聚合"></a>怎么设计聚合</h4><p><img src="https://pic.yupoo.com/kazaff_v/68f0df11/big.png" alt></p>
+<p><strong>第5步</strong>：多个聚合根据业务语义和上下文一起划分到同一个限界上下文内。</p>
+<blockquote>
+<p>需要说明一下：投保人和被保人的数据，是通过关联客户ID从客户聚合中获取的，在投保聚合里它们是投保单的值对象，这些值对象的数据是客户的冗余数据，即使未来客户聚合的数据发生了变更，也不会影响投保单的值对象数据。从图中我们还可以看出实体之间的引用关系，比如在投保聚合里投保单聚合根引用了报价单实体，报价单实体则引用了报价规则子实体。</p>
+</blockquote>
+<p>判断一个实体是否是聚合根，可以结合分析：</p>
+<ul>
+<li>是否有独立的生命周期？是否有全局唯一ID？</li>
+<li>是否可以创建或修改其它对象？</li>
+<li>是否有专门的模块来管这个实体？</li>
+</ul>
+<h4 id="聚合的一些设计原则"><a href="#聚合的一些设计原则" class="headerlink" title="聚合的一些设计原则"></a>聚合的一些设计原则</h4><ul>
+<li><code>在一致性边界内建模真正的不变条件。</code>聚合内有一套不变的业务规则，各实体和值对象按照统一的业务规则运行，实现对象数据的一致性，边界之外的任何东西都与该聚合无关，这就是聚合能实现业务高内聚的原因。</li>
+<li><code>设计小聚合。</code>如果聚合设计得过大，聚合会因为包含过多的实体，导致实体之间的管理过于复杂，高频操作时会出现并发冲突或者数据库锁，最终导致系统可用性变差。</li>
+<li><code>通过唯一标识引用其它聚合。</code>聚合之间是通过关联外部聚合根ID的方式引用，而不是直接对象引用的方式。外部聚合的对象放在聚合边界内管理，容易导致聚合的边界不清晰，也会增加聚合之间的耦合度。</li>
+<li><code>在边界之外使用最终一致性。</code>在一次事务中，最多只能更改一个聚合的状态。如果一次业务操作涉及多个聚合状态的更改，应采用领域事件的方式异步修改相关的聚合，实现聚合之间的解耦。</li>
+<li><code>通过应用层实现跨聚合的服务调用。</code>应避免跨聚合的领域服务调用和跨聚合的数据库表关联。</li>
+</ul>
+<h3 id="领域事件"><a href="#领域事件" class="headerlink" title="领域事件"></a>领域事件</h3><p>领域事件驱动设计可以切断领域模型之间的强依赖关系，事件发布完成后，发布方不必关心后续订阅方事件处理是否成功，这样可以实现领域模型的解耦，维护领域模型的独立性和数据的一致性。在领域模型映射到微服务系统架构时，领域事件可以解耦微服务，微服务之间的数据不必要求强一致性，而是基于事件的最终一致性。</p>
+<p><img src="https://pic.yupoo.com/kazaff_v/aaafe0ca/big.jpg" alt></p>
+<h3 id="应用服务，领域服务"><a href="#应用服务，领域服务" class="headerlink" title="应用服务，领域服务"></a>应用服务，领域服务</h3><p><strong>应用服务</strong>：位于应用层。应用服务会对多个领域服务或外部应用服务进行封装、编排和组合，对外提供粗粒度的服务，是一段独立的业务逻辑。</p>
+<p><strong>领域服务</strong>：位于领域层。领域服务封装核心的业务逻辑，实现需要多个实体协作的核心领域逻辑。它对多个实体或方法的业务逻辑进行组合或编排，或者在严格分层架构中对实体方法进行封装，以领域服务的方式供应用层调用。所以如果有的实体方法需要被前端应用调用，我们会将它封装成领域服务，然后再封装为应用服务。<br>为隐藏领域层的业务逻辑实现，所有领域方法和服务等均须通过领域服务对外暴露。<br>为实现微服务内聚合之间的解耦，<code>原则上禁止领域服务进行跨聚合的编排和跨聚合的数据相互关联</code>。</p>
+<p><img src="https://pic.yupoo.com/kazaff_v/d41518d5/big.png" alt></p>
+<h3 id="DDD分层"><a href="#DDD分层" class="headerlink" title="DDD分层"></a>DDD分层</h3><p><img src="https://pic.yupoo.com/kazaff_v/3179ec83/big.jpg" alt></p>
+<p>DDD分层架构有一个重要的原则：<code>每层只能与位于其下方的层发生耦合</code>。</p>
+<p><img src="https://pic.yupoo.com/kazaff_v/070cd763/big.jpg" alt></p>
+<p><img src="https://pic.yupoo.com/kazaff_v/c526409c/big.png" alt></p>
+<h3 id="数据视图"><a href="#数据视图" class="headerlink" title="数据视图"></a>数据视图</h3><p>数据视图应用服务通过数据传输对象（DTO）完成外部数据交换。领域层通过领域对象（DO）作为领域实体和值对象的数据和行为载体。基础层利用持久化对象（PO）完成数据库的交换。</p>
+<p>DTO 与 VO 通过 Restful 协议实现 JSON 格式和对象转换。</p>
+<p>前端应用与应用层之间 DTO 与 DO 的转换发生在用户接口层。如微服务内应用服务需调用外部微服务的应用服务，则 DTO 的组装和 DTO 与 DO 的转换发生在应用层。</p>
+<p>领域层 DO 与 PO 的转换发生在基础层。</p>
+<p><img src="https://pic.yupoo.com/kazaff_v/229c0258/3e5f9377.png" alt></p>
+<h3 id="DDD中的读操作"><a href="#DDD中的读操作" class="headerlink" title="DDD中的读操作"></a>DDD中的读操作</h3><p>在DDD的写操作中，我们需要严格地按照 “ 应用服务 -&gt; 聚合根 -&gt; 资源库 ” 的结构进行编码，而在读操作中，采用与写操作相同的结构有时不但得不到好处，反而使整个过程变得冗繁。常见的3种读操作的方式：</p>
+<ul>
+<li>基于领域模型的读操作 <ul>
+<li>读操作完全束缚于聚合根的边界划分；</li>
+<li>导致的结果是Repository上处理了太多的查询逻辑，变得越来越复杂，也逐渐偏离了Repository本应该承担的职责</li>
+</ul>
+</li>
+<li>基于数据模型的读操作<ul>
+<li>由于读操作和写操作共享了数据库，而此时的数据库主要是对应于聚合根的结构创建的，因此读操作依然会受到写操作的数据模型的牵制</li>
+</ul>
+</li>
+<li>CQRS<ul>
+<li>复杂度高(与“基于数据模型的读操作”不同的是，在CQRS中写操作和读操作使用了不同的数据库，数据从写模型数据库同步到读模型数据库，通常通过领域事件的形式同步变更信息)</li>
+<li>数据一致性 受 数据同步策略影响</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://pic.yupoo.com/kazaff_v/dd567e74/fe9b35b5.png" alt></p>
+<hr>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ul>
+<li><a href="https://time.geekbang.org/column/intro/238" target="_blank" rel="noopener">《DDD实战课》</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/31985410" target="_blank" rel="noopener">限界上下文的边界</a></li>
+<li><a href="https://mp.weixin.qq.com/s/g1i04xjUgkqLOqtTeFukgQ" target="_blank" rel="noopener">领域驱动设计(DDD)编码实践</a></li>
+<li><a href="https://www.infoq.cn/article/s_LFUlU6ZQODd030RbH9" target="_blank" rel="noopener">基于DDD的微服务设计和开发实战</a></li>
+<li><a href="https://www.infoq.cn/article/8hlh2qEWP1Y00qumdMQj" target="_blank" rel="noopener">细数软件架构中的解耦</a></li>
+</ul>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2020/11/20/DDD学习摘录/">https://blog.kazaff.me/2020/11/20/DDD学习摘录/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/领域建模/">领域建模</a><a class="post-meta__tags" href="/tags/微服务/">微服务</a><a class="post-meta__tags" href="/tags/读写分离/">读写分离</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2020/11/28/github更换认证方式后sourcetree的设置/"><i class="fa fa-chevron-left">  </i><span>Github更换认证方式后sourcetree的设置</span></a></div><div class="next-post pull-right"><a href="/2020/07/06/蝉/"><span>蝉</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2020/11/20/DDD学习摘录/';
+  this.page.identifier = '2020/11/20/DDD学习摘录/';
+  this.page.title = 'DDD读书摘录';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

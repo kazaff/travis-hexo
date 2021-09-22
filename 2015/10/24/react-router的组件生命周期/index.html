@@ -1,0 +1,103 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="React-Router的组件生命周期"><meta name="keywords" content="react,react-router,lifecycle,组件生命周期,componentDidUpdate"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>React-Router的组件生命周期 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">React-Router的组件生命周期</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 10月 24 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/前端/">前端</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/10/24/react-router的组件生命周期/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/10/24/react-router的组件生命周期/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>昨天碰到个<a href="http://segmentfault.com/q/1010000003899542" target="_blank" rel="noopener">问题</a>，GG了半天也没有发现一篇对应主题的文章，最后还是在react-router的github官方求助，才被热心的大牛给上了一课，其实这也都怪自己没有耐心仔细阅读react-router的官方资料，下面就来简单汉化一下官方针对这个问题的相关解释。</p>
+<p>以下内容翻译自官方文档，原文链接：<a href="https://github.com/rackt/react-router/blob/master/docs/guides/advanced/ComponentLifecycle.md" target="_blank" rel="noopener">https://github.com/rackt/react-router/blob/master/docs/guides/advanced/ComponentLifecycle.md</a></p>
+<a id="more"></a>
+<hr>
+<p>##Component Lifecycle</p>
+<p>理解router在其生命周中会触发哪些hooks调用对于实现你的应用场景非常重要，常见的场景是何时抓取数据。</p>
+<p>在router中组件的生命周期和react中定义的并没有什么不同，让我们来假设一个场景，其route配置如下：</p>
+<pre><code>&lt;Route path=&quot;/&quot; component={App}&gt;
+      &lt;IndexRoute component={Home}/&gt;
+      &lt;Route path=&quot;invoices/:invoiceId&quot; component={Invoice}/&gt;
+      &lt;Route path=&quot;accounts/:accountId&quot; component={Account}/&gt;
+&lt;/Route&gt;
+</code></pre><p>###Lifecycle hooks when routing</p>
+<ol>
+<li><p>我们假设用户访问应用的”/“页面。</p>
+<p> | 组件 | 生命周期内的hooks调用 |<br> |———–|————————|<br> | App | <code>componentDidMount</code> |<br> | Home | <code>componentDidMount</code> |<br> | Invoice | N/A |<br> | Account | N/A |</p>
+</li>
+<li><p>然后，用户从”/“页面跳转到”/invoice/123”</p>
+<p> | 组件 | 生命周期内的hooks调用 |<br> |———–|————————|<br> | App | <code>componentWillReceiveProps</code>, <code>componentDidUpdate</code> |<br> | Home | <code>componentWillUnmount</code> |<br> | Invoice | <code>componentDidMount</code> |<br> | Account | N/A | </p>
+<ul>
+<li><code>App</code>组件由于之前已经被渲染过，但是由于将会从router中接受到新的props（<code>children</code>，<code>params</code>，<code>location</code>等），所以会调用其<code>componentWillReceiveProps</code>和<code>componentDidUpdate</code>方法</li>
+<li><code>Home</code>组件此时已经不再需要了，所以它会被卸载</li>
+<li><code>Invoice</code>组件此时将会被首次渲染</li>
+</ul>
+</li>
+<li><p>再然后，用户从”/invoice/123”页面跳转到”/invoice/789”</p>
+<p> | 组件 | 生命周期内的hooks调用 |<br> |———–|————————|<br> | App | componentWillReceiveProps, componentDidUpdate |<br> | Home | N/A |<br> | Invoice | componentWillReceiveProps, componentDidUpdate |<br> | Account | N/A |</p>
+<p> 这次所有需要的组件之前都已经被加载了，此时它们都会接收到来自router传递的新props。</p>
+</li>
+<li><p>最后，用户从”/invoice/789”页面跳转访问”/accounts/123”</p>
+<p> | 组件 | 生命周期内的hooks调用 |<br> |———–|————————|<br> | App | componentWillReceiveProps, componentDidUpdate |<br> | Home | N/A |<br> | Invoice | componentWillUnmount |<br> | Account | componentDidMount |</p>
+</li>
+</ol>
+<p>###Fetching Data</p>
+<p>在使用router时有很多种方法来获取数据，其中最简单的一种方式就是利用组件的生命周期hooks，并保存数据在组件的state中（译者：这一点在Redux设计理念中被强烈反对，事实证明即便是不依赖state，这种方式照样可行，我们后面会给出例子）。我们已经知道了当router切换时组件的生命周期hooks调用过程，我们来为之前的<code>Invoice</code>组件来实现一个简单的获取数据逻辑。</p>
+<pre><code>let Invoice = React.createClass({
+
+      getInitialState () {
+        return {
+              invoice: null
+        }
+      },
+
+      componentDidMount () {
+        // fetch data initially in scenario 2 from above
+        this.fetchInvoice()
+      },
+
+      componentDidUpdate (prevProps) {
+        // respond to parameter change in scenario 3
+        let oldId = prevProps.params.invoiceId
+        let newId = this.props.params.invoiceId
+        if (newId !== oldId)
+              this.fetchInvoice()
+      },
+
+      componentWillUnmount () {
+        // allows us to ignore an inflight request in scenario 4
+        this.ignoreLastFetch = true
+      },
+
+      fetchInvoice () {
+        let url = `/api/invoices/${this.props.params.invoiceId}`
+        this.request = fetch(url, (err, data) =&gt; {
+          if (!this.ignoreLastFetch)
+            this.setState({ invoice: data.invoice })
+        })
+      },
+
+      render () {
+        return &lt;InvoiceView invoice={this.state.invoice}/&gt;
+      }
+})
+</code></pre><hr>
+<p>##译者总结</p>
+<p>在本篇开头我的那篇问题贴中已描述场景，由于我一直以来对react的生命周期hooks错误的理解，导致死活无法优雅的实现兼容浏览器前进后退操作的组件。经过上面内容的学习，一切都不在话下。</p>
+<p>首先，我之前总是习惯使用<code>componentWillMount</code>方法来初始化组件的状态，事实证明这种写法并非适用于所有场景（尽管使用它也可以，但至少不是更多人推荐的）。其次，尽可能避免让组件包含太多会话状态，保证组件的纯净。</p>
+<p>在我的代码中，更改后的完美版本如下：</p>
+<p>（算了，想了想这部分代码的附加逻辑太多，不适合用来阐述上述观点，还是不贴了～）</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/10/24/react-router的组件生命周期/">https://blog.kazaff.me/2015/10/24/react-router的组件生命周期/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/react/">react</a><a class="post-meta__tags" href="/tags/react-router/">react-router</a><a class="post-meta__tags" href="/tags/lifecycle/">lifecycle</a><a class="post-meta__tags" href="/tags/组件生命周期/">组件生命周期</a><a class="post-meta__tags" href="/tags/componentDidUpdate/">componentDidUpdate</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/11/16/react写小项目后感/"><i class="fa fa-chevron-left">  </i><span>React写小项目后感</span></a></div><div class="next-post pull-right"><a href="/2015/10/14/Webpack科普/"><span>Webpack科普</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/10/24/react-router的组件生命周期/';
+  this.page.identifier = '2015/10/24/react-router的组件生命周期/';
+  this.page.title = 'React-Router的组件生命周期';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

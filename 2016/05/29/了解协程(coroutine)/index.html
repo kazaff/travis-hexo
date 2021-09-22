@@ -1,0 +1,68 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="了解协程（Coroutine）"><meta name="keywords" content="quasar,fiber,线程,协程"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>了解协程（Coroutine） | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#node-fibers"><span class="toc-number">1.</span> <span class="toc-text">node-fibers</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#quasar"><span class="toc-number">2.</span> <span class="toc-text">quasar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fiber概念"><span class="toc-number">3.</span> <span class="toc-text">fiber概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#神作"><span class="toc-number">4.</span> <span class="toc-text">神作</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">了解协程（Coroutine）</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 5月 29 2016</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/架构/">架构</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2016/05/29/了解协程(coroutine)/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2016/05/29/了解协程(coroutine)/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>这个技术名词并不是第一次听到，但如果你和我一样并未深究过其细节，那可以先来看看大家是怎么评价协程的：<br><a id="more"></a><br><a href="http://niusmallnan.github.io/_build/html/_templates/openstack/coroutine_usage.html" target="_blank" rel="noopener">openstack中的协程</a></p>
+<p><a href="https://www.zhihu.com/question/20511233" target="_blank" rel="noopener">知乎贴1</a></p>
+<p><a href="https://www.zhihu.com/question/32218874/answer/55469714" target="_blank" rel="noopener">知乎贴2</a></p>
+<p><a href="http://www.ituring.com.cn/article/207808" target="_blank" rel="noopener">协程与事件循环</a></p>
+<p><a href="https://blog.maxleap.cn/archives/816" target="_blank" rel="noopener">Java里的协程</a></p>
+<p>除此之外，还有不少文章在对比线程和协程的区别：</p>
+<blockquote>
+<p>线程使用了隐式切换+抢占机制，而协程则是显式+协作式；</p>
+</blockquote>
+<p>（隐式指的是靠OS来中断并切换任务，显式则表明交给程序员来做，这就意味着协程需要开发人员更多的精力来设计和开发。而且，资源非抢占会更容易导致 <strong>饥饿任务</strong>。）</p>
+<blockquote>
+<p>线程可以实现多核并行，而协程则并非真正的并行。</p>
+</blockquote>
+<p>其实仔细想想，前面提到的大牛们的解释，协程不过也就是提供给编程人员来自己调度执行流程的一种接口，在我看来，这与之前的<code>goto</code>语句比起来并没有太多差别！（其实不仅要解决执行流跳转问题，还需要保持跳转时的数据栈）</p>
+<p>Nodejs中大量的异步函数都集中在IO上，而在IO阻塞时，将计算机资源释放，将控制权转让给其它可执行语句非常好理解。而对于非io密集型呢？是否也需要进行调度？我们举一个非IO的阻塞例子：<strong>一个线程由于锁，或信号量而阻塞</strong>。<strong>其实，只要是存在协作的任务，就需要调度，不管是何种类型的</strong>。以这种视角来理解协程，就容易接受很多！</p>
+<p>既然线程才是真正意义上可以利用多核来并行的，那么协程这样的东西的价值是什么？问题在于，如果我们的场景里存在大量的并发逻辑，且这些逻辑可能会经常的自阻塞，那么就会造成os级别的线程上下文切换，即便是在创建的线程总数没有造成资源瓶颈的情况下也会造成性能折损。在这种场景下想要获得性能优化，协程就会发挥作用。如果我们将阻塞任务调度交给开发人员来管理，由于他比OS更了解场景的特殊性，那理应做出更佳的调度结果，相对的，我们的os的调度规则是面向通用场景的，无法照顾所有特殊的情况。</p>
+<p>我们来看下面两个协程库：</p>
+<p><a href="https://github.com/laverdet/node-fibers" target="_blank" rel="noopener">node-fibers</a></p>
+<p><a href="https://github.com/puniverse/quasar" target="_blank" rel="noopener">quasar</a></p>
+<h3 id="node-fibers"><a href="#node-fibers" class="headerlink" title="node-fibers"></a>node-fibers</h3><p>听名字就知道该库是nodejs系的，node一直是我比较关注的一个生态环境，所以我们就从它开始吧。</p>
+<p>从官方例子来看，node-fibers很好的解决node的<a href="https://bjouhier.wordpress.com/2012/03/11/fibers-and-threads-in-node-js-what-for/#show-last-Point" target="_blank" rel="noopener">回调地狱问题</a>，不过这在<code>Promise</code>和<code>Generator</code>已主流的今天，似乎不再有价值了（纯属我个人观点）。</p>
+<h3 id="quasar"><a href="#quasar" class="headerlink" title="quasar"></a>quasar</h3><p>前面说过协程和线程的差别，那么我们想想，在java中常见的处理并发业务时的做法应该是多线程吧，为了避免频繁的创建线程，一般还会配合一种线程池使用。</p>
+<p>但可以创建的线程数量是受操作系统和硬件限制的，而且超过了最佳值后性能还会受到影响。那如何可以打破这个瓶颈呢？</p>
+<p>quasar带来了轻量级线程概念，其实也就是协程的意思。它提供了M:N(M&gt;N)模型来实现M个协程映射到N个系统级别线程，这样就可以让java拥有类似nodejs那样的性能。可以通过阅读<a href="http://blog.paralleluniverse.co/2014/02/06/fibers-threads-strands/#show-last-Point" target="_blank" rel="noopener">这篇博文</a>来了解一下quasar的实现细节。</p>
+<p>其中，官方给出了一条法则：</p>
+<blockquote>
+<p>Code that runs in short bursts and blocks often (e.g. code that receives and responds to messages) is better suited to run in a fiber, while code performs a lot of computations and blocks infrequently better belongs in a plain thread.</p>
+</blockquote>
+<p>意思是：</p>
+<ul>
+<li>fiber适合那些阻塞频繁而间歇性执行任务的场景；</li>
+<li>thread适合那些大量计算性任务而偶尔阻塞的场景。</li>
+</ul>
+<p>这和上面的分析也是吻合的，只有阻塞频繁的业务才应该交给应用自己来处理。</p>
+<p>quasar默认借助java提供的ForkJoinPool来做调度器的，使用java agent来对相关代码进行字节码增强，内部使用特定的异常机制来触发资源让步，并使用应用级别的栈容器来管理fiber的内部状态和代码指针的。</p>
+<p>面对web领域，我们可以直接使用<a href="http://www.paralleluniverse.co/comsat/" target="_blank" rel="noopener"><code>comsat</code></a>提供的高级框架层来写我们的逻辑，貌似很容易上手。它提供了actor model的编程模型，就是针对高性能应用场景的，有兴趣的朋友可以耍耍。</p>
+<h3 id="fiber概念"><a href="#fiber概念" class="headerlink" title="fiber概念"></a>fiber概念</h3><p>其实不难，用于解决异步执行中的回调模式带来的各种问题（不易理解，不易阅读等），各种语言天生或第三方扩展出来fiber，也叫纤程，其实就是协程的意思。</p>
+<h3 id="神作"><a href="#神作" class="headerlink" title="神作"></a>神作</h3><p>偶然间看到一篇<a href="http://www.zcfy.cc/article/365#show-last-Point" target="_blank" rel="noopener">译文</a>，感觉简直屌爆了！感谢那么牛逼的原作者，也感激同样牛逼的译者！</p>
+<p>文章中有一段话很深刻：</p>
+<blockquote>
+<p>实现了一个虚拟机，将所有的代码转成状态机，然后通过抛异常来保存所有函数调用栈的状态。这样做意味着每一个函数都被转为一个非常大的 switch 语句，每一个表达式（语句）都对应成一个单独的 case 语句，这样做了之后，我就能够在代码的任意处跳转。</p>
+</blockquote>
+<p>这似乎就是协程的秘密吧（只能算是一种实现方式~）。</p>
+<p>这是神作的<a href="http://www.zcfy.cc/article/363#show-last-Point" target="_blank" rel="noopener">姊妹篇</a>，同样强烈推荐！！！！</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2016/05/29/了解协程(coroutine)/">https://blog.kazaff.me/2016/05/29/了解协程(coroutine)/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/quasar/">quasar</a><a class="post-meta__tags" href="/tags/fiber/">fiber</a><a class="post-meta__tags" href="/tags/线程/">线程</a><a class="post-meta__tags" href="/tags/协程/">协程</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2016/06/01/刚知道的wordpress设计精妙/"><i class="fa fa-chevron-left">  </i><span>刚知道的Wordpress设计精妙</span></a></div><div class="next-post pull-right"><a href="/2016/05/21/centos下安装nginx+php-fpm/"><span>Centos安装nginx+php-Fpm</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2016/05/29/了解协程(coroutine)/';
+  this.page.identifier = '2016/05/29/了解协程(coroutine)/';
+  this.page.title = '了解协程（Coroutine）';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

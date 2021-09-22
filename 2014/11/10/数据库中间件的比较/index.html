@@ -1,0 +1,66 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="数据库中间件的比较"><meta name="keywords" content="读写分离,mysql,负载均衡,Atlas,分库分表,性能,侵入性"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>数据库中间件的比较 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Atlas"><span class="toc-number">1.</span> <span class="toc-text">Atlas</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cobar"><span class="toc-number">2.</span> <span class="toc-text">Cobar</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">数据库中间件的比较</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 11月 10 2014</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/数据库/">数据库</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2014/11/10/数据库中间件的比较/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2014/11/10/数据库中间件的比较/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>这年头，但凡是搞开发的，都要和互联网挂上边儿，但凡是搞互联网的，都要和大数据挂上钩儿，我们也不例外~~哇哈哈哈哈！<br><a id="more"></a><br>这里我们不谈什么高大上的数据挖掘分析（为什么看到“挖掘”就不自觉地联想到山东呢？），今次我们要聊的是应用中要如何处理海量数据的数据库存储和使用。说的更详细一些，就是如何保证面对应用所需的海量数据，我们如何确保mysql数据库高可用和高性能：</p>
+<ul>
+<li>高可用，自然是做冗余备份，并能做到Failover；</li>
+<li>高性能，一般就是数据库调优，读写分离，分库分表。</li>
+</ul>
+<p>在此我们不考虑更复杂的方案，例如：引入nosql，缓存，等等。</p>
+<p>其实现存的数据库高可用的开源解决方案中，已经有很多<a href="http://www.aboutmood.com/post/2014-06-17/40062036560" target="_blank" rel="noopener">现成模块</a>足够我们选择的了。</p>
+<p>就我个人而言，是比较亲近阿里的。本来以为会毫不犹豫的选择<strong>cobar</strong>，不过出于复杂度的考虑，我目前可能更倾向于<strong>Atlas</strong>~~还是自己搭建一下运行环境测试测试再做最后的决定吧。</p>
+<h2 id="Atlas"><a href="#Atlas" class="headerlink" title="Atlas"></a>Atlas</h2><p>我比较欣赏的是它的简单，非常适合中小型项目或者刚起步的创业公司。正是由于它的简单，所以不需要什么耗时的学习和调优就可以快速投入使用。</p>
+<p>我在虚拟机中测试安装，<a href="https://github.com/Qihoo360/Atlas/wiki/Atlas%E7%9A%84%E5%AE%89%E8%A3%85" target="_blank" rel="noopener">步骤</a>很简单，我使用是<code>rpm</code>安装：</p>
+<pre><code>rpm -ivh Atlas-2.2.el6.x86_64.rpm
+</code></pre><p>一切是如此的顺利，接下来就是按照说明书修改配置文件。最后，<a href="https://github.com/Qihoo360/Atlas/wiki/Atlas%E7%9A%84%E8%BF%90%E8%A1%8C%E5%8F%8A%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" target="_blank" rel="noopener">执行</a>：</p>
+<pre><code>sudo ./mysql-proxyd test start
+</code></pre><p>搞定。接下来就是在终端中以管理员的身份连接Atlas：</p>
+<pre><code>mysql -h127.0.0.1 -P2345 -uadmin -p123456
+</code></pre><p>注意，上面的参数是需要和配置文件保持一致的。然后在终端中执行：</p>
+<pre><code>mysql&gt; select * from help;
++----------------------------+---------------------------------------------------------+
+| command                    | description                                             |
++----------------------------+---------------------------------------------------------+
+| SELECT * FROM help         | shows this help                                         |
+| SELECT * FROM backends     | lists the backends and their state                      |
+| SET OFFLINE $backend_id    | offline backend server, $backend_id is backend_ndx&apos;s id |
+| SET ONLINE $backend_id     | online backend server, ...                              |
+| ADD MASTER $backend        | example: &quot;add master 127.0.0.1:3306&quot;, ...               |
+| ADD SLAVE $backend         | example: &quot;add slave 127.0.0.1:3306&quot;, ...                |
+| REMOVE BACKEND $backend_id | example: &quot;remove backend 1&quot;, ...                        |
+| ADD CLIENT $client         | example: &quot;add client 192.168.1.2&quot;, ...                  |
+| REMOVE CLIENT $client      | example: &quot;remove client 192.168.1.2&quot;, ...               |
+| SAVE CONFIG                | save the backends to config file                        |
++----------------------------+---------------------------------------------------------+
+10 rows in set (0.00 sec)
+</code></pre><p>可以看到管理员可以使用的运维命令。</p>
+<p>我们可以只使用它提供的读写分离，但是你的mysql主从配置还是需要自己在mysql中配置好的。</p>
+<p>Atlas的这种中间代理的设计架构，不可避免的会损失掉一部分<a href="https://github.com/Qihoo360/Atlas/wiki/Atlas%E7%9A%84%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95" target="_blank" rel="noopener">性能</a>，主要是数据转发引起的，就看你是否接受了。</p>
+<p>至于分库分表功能，Atlas并不是非常的强大，细节可以看<a href="https://github.com/Qihoo360/Atlas/wiki/Atlas的分表功能简介" target="_blank" rel="noopener">这里</a>。还是那句话，中小项目足矣！</p>
+<p>目前我能想到的Atlas的代码侵入性也就是在分库分表中如果想要指定sql执行的服务器，需要加入：</p>
+<pre><code>/*master*/
+</code></pre><p>另外的侵入性体现在分库分表需要用户自己创建固定个数的数据表，而且表名也有硬性规则。别的应该木有啦~~</p>
+<p>对于我们目前的项目来说，完全足够了~</p>
+<h2 id="Cobar"><a href="#Cobar" class="headerlink" title="Cobar"></a>Cobar</h2><p>有人说，阿里开源出来的东西里，cobar算是一个非常成功的项目之一（还有LVS，Dubbo等）！这也是我一直比较亲睐阿里的原因之一，毕竟能够回馈开源，展示国人实力，是一件非常伟大的使命，阿里做到了。不说废话，先来学习一下Cobar的基础知识：<a href="https://github.com/alibaba/cobar/wiki" target="_blank" rel="noopener">传送门</a>（万万没想到github上Cobar的wiki现在还在完善中，只能通过下载“其他”栏目中的原来的wiki资料学习了！）</p>
+<p>简单的总结一下就是说，Cobar在分库分表和提高SQL查询上做了非常多的工作，所以不可避免的引入了复杂性！如果项目足够大，确实可以考虑使用，不过小项目还是算了。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2014/11/10/数据库中间件的比较/">https://blog.kazaff.me/2014/11/10/数据库中间件的比较/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/读写分离/">读写分离</a><a class="post-meta__tags" href="/tags/mysql/">mysql</a><a class="post-meta__tags" href="/tags/负载均衡/">负载均衡</a><a class="post-meta__tags" href="/tags/Atlas/">Atlas</a><a class="post-meta__tags" href="/tags/分库分表/">分库分表</a><a class="post-meta__tags" href="/tags/性能/">性能</a><a class="post-meta__tags" href="/tags/侵入性/">侵入性</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2014/11/14/聊聊大文件上传/"><i class="fa fa-chevron-left">  </i><span>聊聊大文件上传</span></a></div><div class="next-post pull-right"><a href="/2014/11/01/关于redis集群和事务/"><span>关于Redis集群和事务</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2014/11/10/数据库中间件的比较/';
+  this.page.identifier = '2014/11/10/数据库中间件的比较/';
+  this.page.title = '数据库中间件的比较';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="关于电商项目的需求难点"><meta name="keywords" content="电商"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>关于电商项目的需求难点 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#订单编辑"><span class="toc-number">1.</span> <span class="toc-text">订单编辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#营销活动"><span class="toc-number">2.</span> <span class="toc-text">营销活动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#页面布局自定义"><span class="toc-number">3.</span> <span class="toc-text">页面布局自定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SEO"><span class="toc-number">4.</span> <span class="toc-text">SEO</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">关于电商项目的需求难点</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 3月 7 2019</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/需求分析/">需求分析</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2019/03/07/关于电商项目的需求难点/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2019/03/07/关于电商项目的需求难点/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>现在国内的电商产品真的是多如牛毛，功能其实都大同小异，质量参差不齐。有的当软件产品卖，有的依托在完整的SaaS平台中卖服务，百家齐放。</p>
+<p>我司本身有运营着一个B2C的电商系统，基于国外一个开源电商项目二次开发而来，修修改改也使用了将近三年了，今年公司打算对其进行重构（基本上是推倒重来），并进一步将其产品化。之所以有这种想法，也是因为我们调研了一圈市面上的产品后，觉得这个市场还是有机会的。</p>
+<p>我之前少有接触过此类项目，现在的电商系统早不再是简单的产品展示+在线支付的粗犷派，其中充斥着各种营销各种活动，应该说是及其复杂。本文简单的罗列出这段时间来我们团队梳理出的一些需求难点，供大家思考和讨论。</p>
+<h3 id="订单编辑"><a href="#订单编辑" class="headerlink" title="订单编辑"></a>订单编辑</h3><p>订单应该是电商系统中的核心业务，几乎所有角色都会“与其有染”。教科书式的订单的简单模型是：</p>
+<ul>
+<li>下单用户</li>
+<li>购买的商品</li>
+<li>支付方式</li>
+<li>物流方式及收货地址</li>
+<li>订单状态（待支付，已支付，已发货，已完成，已取消）</li>
+</ul>
+<p>通常会包含这些基本的属性。但真实世界会更加黑暗和复杂，比方说下面这些属性：</p>
+<ul>
+<li>使用的积分数</li>
+<li>使用的优惠券</li>
+<li>物流拆分（如常温与冷冻）</li>
+</ul>
+<p>这些都会导致订单价格计算的时候引入复杂逻辑。当然，模型一旦确定，搞就完事儿了，不服就干嘛~</p>
+<p>实际开发中，我们得到的宝贵结论（教训）是：订单编辑才是万恶之首。<br>我们参考了一些电商项目，它们提供订单编辑的操作往往都是在订单未付款的状态下。一旦用户付款就锁定订单不允许编辑了。</p>
+<p>但其实，即便是未付款状态，订单编辑依然是很复杂的，考虑的情况非常的繁杂，下面我举一些例子：</p>
+<ul>
+<li>编辑后优惠券条件不满足</li>
+<li>编辑后影响积分使用条件</li>
+<li>物流成本和方式变更</li>
+</ul>
+<p>此外，还存在订单编辑带来的安全问题，账目核对问题等。尤其是在用户已经支付后再编辑订单的时候，一切就更加的邪恶。<br>参考主流的电商平台，一般也都是让用户取消当前订单并再次下单。</p>
+<p>其实上述问题不光涉及到开发复杂性，商户在使用的时候也很难完全理解每一种情况。而下单用户呢？多数下单用户发现订单被编辑了，我相信一定还是会感到不安，即便是已经线下和商户协商好了，这种协商往往很灵活（各种突发奇想的操作），或者很“死板”（直接退单再下）。</p>
+<p>针对已付款的订单进行编辑，从金额角度会有三种情况：价格不变，变低，变高。前两种好办，可以不麻烦下单用户就完成，而价格变高就必须让用户补差价了，之前很多电商平台中的商户都会创建一个虚拟商品专门用来补差价。</p>
+<p>总结来说就是，由于导致订单编辑的原因和编辑波及的方面太多，无法轻易收敛，所以目前建议放弃模式匹配的思维。<br>可能提供“松散”的策略会更易于开发和使用：</p>
+<p><img src="http://pic.yupoo.com/kazaff_v/fcc1f0d0/22458eeb.png" alt></p>
+<p>可以在此思路上继续往走下去。</p>
+<h3 id="营销活动"><a href="#营销活动" class="headerlink" title="营销活动"></a>营销活动</h3><p>只有你想不到，没有做不到的营销，水深的很。我们看一下有赞电商后台提供的营销类型：</p>
+<p><img src="http://pic.yupoo.com/kazaff_v/89b3740b/47525e87.png" alt></p>
+<p>简直是眼花缭乱，试问谁能抵抗这么多类型的诱惑完成荷包保卫战？你们先聊，我去下单了~</p>
+<p>这些营销活动，最终都会直接影响购物流程，甚至改变购物流程。要想让系统能够轻松扩展出各种影响活动，对系统的扩展性就要提出很高的要求才行。</p>
+<p>这些活动中，有些是独立入口，有些则辅佐在主流程的某些步骤中，有些只是逻辑扩展，有些会涉及到页面展示。这就要求系统在页面渲染和计算流程中处处提供扩展点。这些扩展点有些是同步执行，有些可以异步调用。<br>针对各种场景，我们可以在扩展点处提供Hook，或事件消息机制，尽可能让这些营销活动模块化插件化。</p>
+<p>另外一方面，商户新建一个营销活动，除了规则和玩法以外，还需要设置该活动的范围，这里所说的范围，分为：</p>
+<ul>
+<li>商品维度范围</li>
+<li>用户维度范围</li>
+<li>时间维度范围</li>
+</ul>
+<p>各种维度的交集才是有效范围。在电商系统中展示商品时，要动态计算出该商品所处于哪个活动范围也是一个不小的问题。解决这类问题，需要前后端配合，单一方的优化总感觉不够完美。</p>
+<p>例如，我们系统的首页，加载商品数据后，异步加载活动规则，前端计算出商品和活动的匹配关系。又或者在活动创建时强绑定和商品的关系，在商品CURD时维护这种关系。</p>
+<p>在时间维度方面，可以借助定时任务触发活动上线和下线时机。具体怎么做，还是根据具体情况来决策。</p>
+<p>最后想说的是，涉及到抢购的那种活动比较危险，有条件的话应该隔离部署这些活动，并做抢购相关的优化。关于抢购可以在GG上搜到大量的技术方案分享。</p>
+<h3 id="页面布局自定义"><a href="#页面布局自定义" class="headerlink" title="页面布局自定义"></a>页面布局自定义</h3><p>回顾我个人的上网经验，最早看到这种功能还是在QQ空间，后来很多不同类型的网站也都提供此类功能，主要是因为我们人类关于个性的追求。<br>在电商系统中，常见的页面布局主要是首页，首页又分成pc端和mobile端。这种自定义，可简单可复杂，开发成本较高。<br>我不确定业界都是怎么实现的，个人感觉借助现代前端框架组件化方案，再设计一种简单的DSL来序列化存储用户的配置，应该是一个完整的解决方案。</p>
+<p>总之，直觉告诉我，这一块感觉坑不浅。</p>
+<h3 id="SEO"><a href="#SEO" class="headerlink" title="SEO"></a>SEO</h3><p>之前看过一篇文章，好像是18年年底的，主要是讲google目前的爬虫是否能识别js代码。结论是google对外宣称这一点的时候，用了“maybe”，实际测试虽然比较理想，但官网却不提供任何保证。更何况其它搜索引擎呢？所以就目前来看，SEO还是需要考虑的！</p>
+<p>所以，在选择前端技术的时候，要多考虑SSR（Server-side Render），一般主流框架都有完善的SSR方案。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2019/03/07/关于电商项目的需求难点/">https://blog.kazaff.me/2019/03/07/关于电商项目的需求难点/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/电商/">电商</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2019/03/18/关于mysql的insert for update在多条插入记录下的使用/"><i class="fa fa-chevron-left">  </i><span>关于Mysql的insert for Update在多条插入记录下的使用</span></a></div><div class="next-post pull-right"><a href="/2018/12/20/yum remove害死人/"><span>Yum Remove害死人</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2019/03/07/关于电商项目的需求难点/';
+  this.page.identifier = '2019/03/07/关于电商项目的需求难点/';
+  this.page.title = '关于电商项目的需求难点';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

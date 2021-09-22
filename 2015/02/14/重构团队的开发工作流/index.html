@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="重构团队的开发工作流"><meta name="keywords" content="git,gitlab,code review,sonar,运维"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>重构团队的开发工作流 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#代码质量"><span class="toc-number">1.</span> <span class="toc-text">代码质量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#自动化测试"><span class="toc-number">2.</span> <span class="toc-text">自动化测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运维监控"><span class="toc-number">3.</span> <span class="toc-text">运维监控</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">重构团队的开发工作流</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2月 14 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/团队协作/">团队协作</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/02/14/重构团队的开发工作流/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/02/14/重构团队的开发工作流/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>靠近年根儿，手上的工作其实还有很多，不过还是要总结一下，展望一下，这就是人类。</p>
+<p>在公司的年会上，我代表开发部做了一个简短的工作汇报，在PPT里写了很多14年的业绩和不足，也包含了15年的计划和方案。与往年不同，今年不仅是公司发展的一年，也是团队壮大的一年，也是个人成长最快的一年。<br><a id="more"></a><br>其实自己确实有思考过很多，也收获了很多，找到了团队的痛点，也拿到了公司的授权，所以在15年初，要落实一些新的计划。想要强调的是，这些改革并不是我个人的主观意愿，并非我个人想为而为之的，而是包含了开发部各个层面的景愿的。我把我ppt中相关的一页截了个图，给大家展示一下：</p>
+<p><img src="http://pic.yupoo.com/kazaff/EqIBD7s3/medish.jpg" alt></p>
+<p>你可能会诧异，这些都是围绕这工具的，是的没错，我们的团队以往一直都是靠人海战术来完成这些工作的，尽管团队也就才11个人而已。也许身在大公司的你觉得不可思议的是，没有这些工具，那开发人员要怎么活？项目质量怎么可能有保证？产品怎么可能如期交付？</p>
+<p>这些问题其实在任何一家小公司，创业公司都很常见，像我们这种小城市的创业小团队就更习以为常了，我这么说并非妄自菲薄，纯粹是尊重事实而已！刚到公司，刚走上这个岗位的时候，也曾看过一些敏捷开发，摩拳擦掌想要试试，甚至激进的和大领导申请SOHO办公。</p>
+<p>后来在InfoQ上看了一些关于团队协作的分享后，确实得到了很多启发，也迫使自己真的第一次思考了一下所处的真实环境。尊重现实吧骚年，妄想那些远在天边的不切实际，最终只是浪费青春。</p>
+<p>废话不多说，我们回过头来继续聊主题，如何完成幻灯片上提到的那些点。</p>
+<h2 id="代码质量"><a href="#代码质量" class="headerlink" title="代码质量"></a>代码质量</h2><p>深入思考以后，我把代码质量分为两个方面：</p>
+<ul>
+<li>业务</li>
+<li>代码本身</li>
+</ul>
+<p>判断程序员写的代码的质量高低，以我们现在的能力和认知，从上述两个方面最容易做到。<strong>业务</strong>指的是程序员完成项目需求的程度，是否存在功能缺失，是否存在业务理解错误等方面，而<strong>代码本身</strong>则指的是程序员提交的代码是否满足团队的代码规范等相关要求。</p>
+<p>可以看出来，前者需要有经验的人来检验团队中的其他参与者，有点像师傅带徒弟的模式，在我们的团队（我相信很多公司都如此），师傅带徒弟模式反而是一种非常高效的培养骨干的方式。</p>
+<p>后者则可以交给一些现成的工具来完成，下面我就简单聊一下我脑子里的一些计划。首先要引入两个开源工具：</p>
+<ul>
+<li><a href="https://about.gitlab.com/" target="_blank" rel="noopener">GitLab</a></li>
+<li><a href="http://www.sonarqube.org/" target="_blank" rel="noopener">Sonar</a></li>
+</ul>
+<p>前者是类似github那样的一个基于git的协同开发平台，提供了功能完善的web界面。之所以选择它，而不是直接使用git，是因为gtilab提供了许多辅助文档化的功能，比方说可以让问题和代码更好的关联在一起，具体做法，可以参见<a href="http://www.15yan.com/story/6yueHxcgD9Z/#show-last-Point" target="_blank" rel="noopener">gitlab flow</a>。</p>
+<p>后者提供了强大的代码质量监督功能，不仅支持多种语言，而且也有很好的统计以及社交界面。不过也有些许的不如意，可能是用的不熟的原因吧，具体问题可以看<a href="http://segmentfault.com/q/1010000002553887" target="_blank" rel="noopener">这里</a>。</p>
+<p>这两个工具都支持与持续集成套件协作，这就为日后的工作提供了衔接。</p>
+<p>在借鉴了一些成熟的work flow后，结合我们团队目前的真实情况，我草拟了一个工作流，如下图：</p>
+<p><a href="http://pic.yupoo.com/kazaff/EqOi8ovp/j8VYL.png" target="_blank" rel="noopener"><img src="http://pic.yupoo.com/kazaff/EqOi8ovp/medish.jpg" alt></a></p>
+<p>有兴趣的童鞋可以留言一起讨论哇~</p>
+<p>只有解决了这些问题，才可以为PPT上后面两项最好工具基础。</p>
+<h2 id="自动化测试"><a href="#自动化测试" class="headerlink" title="自动化测试"></a>自动化测试</h2><p>还在我写垃圾网站的那些岁月了，我就已经对持续集成这个概念热血沸腾了，不过那个时候更多的只是被其逼格所吸引。随着团队的壮大，项目的成长，慢慢觉得持续集成不仅仅是搞个工具，定个流程那么简单地问题。这玩意儿是需要很多理论支撑的，需要团队成员有相当的职业素养和扎实的技能。甚至也需要其他部门的大力配合，毕竟是一件有得有失的事儿。</p>
+<p>我们团队目前的痛点集中在测试环节上，他们已经被手工测试作业折腾的苦不堪言了，更不要说每次修改完bug后的回归测试了，那感觉简直就像是被轮奸，特酸爽。</p>
+<p>当然，也不是说自动化就意味着能够把测试完全交给机器来做，凭借公司现在的实力也不可能像模像样的成立一个专门的测试部门，而且我比较认可一个观点：己所不欲勿施于人。如果只是因为程序员不喜欢做测试，而把测试工作交给别的部门来做，那问题依然存在，其他部门也会恶心于这份工作的枯燥乏味。</p>
+<p>那么如何能够增加测试的趣味性呢？这个恐怕真的很难做到，不过倒是可以让测试变得不再那么枯燥，引入测试驱动是一个很好的方法，不过这其实并不是减轻了工作量，从某种角度来看反而是加大了代码量，毕竟测试代码也是要交给程序员来完成的。</p>
+<p>优势在于回归测试，如果上升到理论的话，程序员还会因为这种思维模式而在编程思想上得到升华。omg~~</p>
+<p>自动化测试中包括的关键词有：单元测试，代码覆盖率等，早在以前我也花了一些时间去了解这些玩意儿，不过一直没有投入使用。15年要迫使自己带头推行测试驱动开发。</p>
+<p><strong>测试又要分为：前端，后端。前端又分为：交互，兼容，逻辑。</strong>当然，这种分类是源于我个人的粗浅理解。至于使用什么具体的工具来搭建自动化测试平台和工作流程，目前无解。</p>
+<p>目前目标锁定在：Junit，Jenkins，Mockito等框架。</p>
+<p>哇哈哈哈哈哈哈哈哈~实践后再来补充吧。</p>
+<h2 id="运维监控"><a href="#运维监控" class="headerlink" title="运维监控"></a>运维监控</h2><p>这里想说的主要还是监控预警，至于日志分析什么的，并不在这个主题下。我也不曾做过运维相关的职位，也没有太多使用云平台的经验，在这个主题下，我只能说自己的认知很片面，停留在架设一套开源运维监控系统来搞定，目前目标锁定在：Nagios。</p>
+<p>至于应用的监控，可能会尝试花一些时间看一下：kafka，flume，kibana等工具。</p>
+<hr>
+<p>好啦，这篇算是个伏笔吧，等在上面三个方向上尝试过以后再来补充。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/02/14/重构团队的开发工作流/">https://blog.kazaff.me/2015/02/14/重构团队的开发工作流/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/git/">git</a><a class="post-meta__tags" href="/tags/gitlab/">gitlab</a><a class="post-meta__tags" href="/tags/code-review/">code review</a><a class="post-meta__tags" href="/tags/sonar/">sonar</a><a class="post-meta__tags" href="/tags/运维/">运维</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/02/25/如何把项目soa化系列之一：计划/"><i class="fa fa-chevron-left">  </i><span>如何把项目SOA化系列之一：计划</span></a></div><div class="next-post pull-right"><a href="/2015/02/11/dubbo的编解码，序列化和通信/"><span>Dubbo的编解码，序列化和通信</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/02/14/重构团队的开发工作流/';
+  this.page.identifier = '2015/02/14/重构团队的开发工作流/';
+  this.page.title = '重构团队的开发工作流';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

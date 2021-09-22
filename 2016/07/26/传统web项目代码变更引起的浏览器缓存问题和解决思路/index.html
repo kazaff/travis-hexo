@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="传统Web项目代码变更引起的浏览器缓存问题和解决思路"><meta name="keywords" content="webpack,SPA,多入口"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>传统Web项目代码变更引起的浏览器缓存问题和解决思路 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">传统Web项目代码变更引起的浏览器缓存问题和解决思路</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 7月 26 2016</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/前端/">前端</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2016/07/26/传统web项目代码变更引起的浏览器缓存问题和解决思路/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2016/07/26/传统web项目代码变更引起的浏览器缓存问题和解决思路/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>不确定文章的标题描述的是否已经足够明了，至少用类似的描述在gg中并没有定位到相关的文章。讨论这个话题的更多是围绕这前端工程化套件的用法的（例如webpack、grunt、gulp等），而这些工具对单入口页面SPA应用支持度非常的好。但现实往往不尽如意，面对传统的多入口web项目，前端又应该如何解决浏览器缓存旧版本代码的问题呢？<br><a id="more"></a><br>让我们先来详细描述一下问题的环境域：</p>
+<ul>
+<li>多入口项目，意味着包含非常多的html页面</li>
+<li>大量的内嵌js和css</li>
+</ul>
+<p>我们的关注点不在加载性能上，本次我们仅关注：<strong>如何实时影响浏览器端及时访问更新后的代码版本</strong>。这应该属于工程问题，而非开发问题。意味着我们不应该试图让开发人员来解决这个问题，而应该在工具上来寻找突破口。毕竟，开发人员来解决的话，他们会简单粗暴的靠代码来禁用浏览器缓存，这虽然确实“治本”，但杀伤力太大，朕很不喜欢。那么到底应该怎么来做才完美呢？</p>
+<p>首先我们来看看到底有哪些内容被缓存了：</p>
+<ul>
+<li>html，以及内嵌其中的js和css</li>
+<li>外联的js和css</li>
+<li>其它静态资源文件，如图片等</li>
+</ul>
+<p>回忆之前写的spa项目，不存在内嵌js，所有项目的前端应用js脚本都会最终编译打包成一个独立的文件，并且会根据合并后的内容做签名，有效的避免了浏览器使用旧版本缓存的问题。而html这部分也都会使用js模版方案，最终也是会编译成js打包起来的。css也会合并成一个带内容签名的独立文件的。换句话说，SPA项目已经有了成熟的解决方案和工具来帮我们解决旧代码版本的浏览器缓存问题。</p>
+<p>但，传统的多html文件入口的web项目呢？就没有人管它们的死活了吗？好像真的是啊！唉~至少我在google上找了一圈，都没有相关资料啊（baidu就不试了）。看来只能挽起袖子自己动手丰衣足食了啊！</p>
+<p>其实也并不需要从零做起，依然是可以根据现有工具来实现我们所需的功能的。这里我打算基于webpack来完成这个挑战。不过在具体动手之前，得先仔细分析一下要解决的问题范围：</p>
+<ul>
+<li>html的新旧版本问题</li>
+<li>外联js和css的新旧版本问题</li>
+</ul>
+<p>第二个问题其实webpack已经可以解决的很好了。关键是第一个问题很难搞，为什么呢？如果我们参照js文件的处理方式来修改html文件的名字来依靠签名做版本控制，这会导致我们还需要同步维护应用逻辑中所有的跳转链接，让其自动的可以绑定最新的文件名。</p>
+<p>如果我们的前端项目中要求所有使用链接的地方都调用一个特定的函数来获取目标链接，这是可以让我们有机会在前端脚本执行时根据额外的一个路由表来动态绑定正确的链接。但这个方案的问题是，要求代码修改量较大，且会导致用户的历史收藏夹保存的链接失效。</p>
+<p>再考虑考虑，如果我们不修改html的文件名本身，而是在后面增加请求参数呢？例如：</p>
+<blockquote>
+<p>test.html?v=1&amp;</p>
+</blockquote>
+<p>经测试，完美。那我们可以保证html版本的更新不会导致用户历史收藏夹失效，但依然需要大量的人为修改代码的工作，有没有进阶的办法呢？其实可以将这部分的人工操作自动化处理。只需要匹配出html中所有的链接，并根据生成的路由表来自动替换即可。</p>
+<p>注意上面例子中结束的”&amp;”，这样若项目需要其它的地址栏参数，则可以直接拼接。</p>
+<p>目前能想到的需要匹配出的链接上下文场景有：</p>
+<ul>
+<li>html中a标签的href属性</li>
+<li>内嵌js脚本的相关跳转地址</li>
+<li>可能还会有form标签的action属性</li>
+<li>外联js脚本的相关跳转地址</li>
+</ul>
+<p>注意一个细节，由于我们是先根据文件内容创建出路由表，再去替换文件内容中的链接地址，这会再触发一次内容变更。目前我不确定这是否会成为一个问题，不过先标注出来吧。</p>
+<p>思路大致有了，感觉也不是太复杂。剩下的就是看看如何使用webpack来完成了。</p>
+<hr>
+<p>###补充</p>
+<p>由于我们当前的项目是基于<a href="http://blog.kazaff.me/2016/03/30/%E5%89%8D%E7%AB%AF%E5%A4%9A%E5%85%A5%E5%8F%A3%E9%A1%B9%E7%9B%AE%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E6%A0%B9%E6%8D%AE%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90%E9%85%8D%E7%BD%AE%E6%98%BE%E7%A4%BA%E8%8F%9C%E5%8D%95/">这个框架</a>来组织代码的，所以前面提到的那个会导致手工修改工作量的问题在当前项目中其实不存在。而且，我们的思路中提到的路由表甚至都不需要生成，因为本身这个框架中就提供了每个模块的配置文件，我们只需要修改配置文件中对应项即可完成目标，简直了！</p>
+<p>根据具体情况，我在原有编译流程中增加了<a href="https://github.com/kazaff/menuIfShow/blob/master/webpack.config.js#L77-L100" target="_blank" rel="noopener">这些逻辑</a>，轻松完成需求。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2016/07/26/传统web项目代码变更引起的浏览器缓存问题和解决思路/">https://blog.kazaff.me/2016/07/26/传统web项目代码变更引起的浏览器缓存问题和解决思路/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/webpack/">webpack</a><a class="post-meta__tags" href="/tags/SPA/">SPA</a><a class="post-meta__tags" href="/tags/多入口/">多入口</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2016/08/01/RedHat7的apache+php-fpm环境搭建小结/"><i class="fa fa-chevron-left">  </i><span>RedHat7的apache+php-Fpm环境搭建小结</span></a></div><div class="next-post pull-right"><a href="/2016/07/20/jquery的ajax下载blob文件/"><span>Jquery的ajax下载blob文件</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2016/07/26/传统web项目代码变更引起的浏览器缓存问题和解决思路/';
+  this.page.identifier = '2016/07/26/传统web项目代码变更引起的浏览器缓存问题和解决思路/';
+  this.page.title = '传统Web项目代码变更引起的浏览器缓存问题和解决思路';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Mac下react-Native-Android环境搭建"><meta name="keywords" content="mac,react-native,android"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Mac下react-Native-Android环境搭建 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Mac下react-Native-Android环境搭建</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 12月 2 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/移动端/">移动端</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/12/02/mac下react-native-android环境搭建/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/12/02/mac下react-native-android环境搭建/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>最近闲来无事，就决定摆弄摆弄react-native，其实之前尝试过，不过那个时候react-native还没有出android版，而ios版本的环境搭建只需要给xcode装上，基本上就算搭建完成了。而这次大意了，原以为android环境会一样简单明了的，随便看了几篇环境搭建的帖子就以为能轻松完成，结果一搞就搞了一天半啊～<br><a id="more"></a></p>
+<p>首先吐槽的就是，很多博客里写的安装步骤其实都不是很具体，总是缺少一些细节，对我这种小白来说就会变成噩梦！虽然我这篇可能也无法保证事无巨细，但至少我碰见的坑我会叮嘱一下大家撒～</p>
+<p>其实说了那么多，都怪自己太懒，按照官方提供的搭建流程，基本上就会规避非常多的坑，强烈推荐看官方手册：</p>
+<ul>
+<li><a href="https://facebook.github.io/react-native/docs/getting-started.html#content" target="_blank" rel="noopener">步骤一</a></li>
+<li><a href="https://facebook.github.io/react-native/docs/android-setup.html" target="_blank" rel="noopener">步骤二</a></li>
+</ul>
+<p>下面主要来说说我自己碰见的坑吧，希望能帮助到你～</p>
+<p>官方推荐（很多博客也推荐），使用brew来安装android-sdk，但我一开始是从另外一个博客上看到的，自己去找了一个mac版本的android sdk manger，按说应该和brew安装的一样，只不过位置不同而已～可是后面却碰到了死活无法找到android sdk的路径问题。单这一个问题就让我花了半天来排查，主要是无法搜索到有用的资料！</p>
+<p>删除掉自己下载的那个manger，使用brew安装即可：</p>
+<pre><code>brew install android-sdk
+</code></pre><p>不过一定要按照顺序来，第一步肯定是要保证你的mac下已经安装了jdk，直接gg可以搜索到mac版的jdk安装文件的！brew貌似无法安装jdk～～</p>
+<p>第二个坑呢，就是这个“ANDROID_HOME”环境变量的问题了，由于第一步我们是使用brew来安装android-sdk的，所以安装位置在“/usr/local/opt/android-sdk”，官方有叮嘱这一步，我的步骤是：</p>
+<pre><code>cd ~
+touch .bash_profile
+vi .bash_profile
+</code></pre><p>然后在打开的输入界面贴进去：</p>
+<pre><code>export ANDROID_HOME=/usr/local/opt/android-sdk
+</code></pre><p>保存退出，并关闭终端！！！</p>
+<p>第三个坑，是一定要安装最新版本的watchman和flow：</p>
+<pre><code>brew install watchman
+brew install flow
+</code></pre><p>不然你执行“react-native run-android”后，开启的node server终端总是会报错，提示什么”root of null”！我由于之前就装过watchman，可能是版本问题，又让我花了tm的多半天！！</p>
+<p>第四个坑，是当执行“react-native run-android”后，会下载大量的jar包，如果中间出现卡住了，可以直接ctrl+C，然后重新运行命令，要说的不是这个问题，当你下载完所有的包后，会开始部署代码，这个时候可能会碰到一个类似“xxx parent directory xxxx”无法创建的问题，应该是gradle无权限操作目录的问题，我尝试使用sudo来切换成root账号，结果会碰到由于切换了用户，之前设置的“ANDROID_HOME”环境变量未定义的问题，所以对于和我一样的小白来说，最简单的就是在你的项目文件上右键“简介”，弹出的窗口最下面调整一下操作权限，并记得继承到所有下级目录上！！！</p>
+<p>第五个坑，还是绕回来说android-sdk，安装完后执行：</p>
+<pre><code>android
+</code></pre><p>该命令会打开一个界面，按照官方说的安装所有的推荐工具包，强烈推荐选择统一的版本，比方说23.0.1，不然会碰到对应版本找不到的报错！我贴一下我这边目前选择的包情况：</p>
+<p><img src="http://pic.yupoo.com/kazaff/F9aG4ZAQ/4wZMw.jpg" alt></p>
+<p><img src="http://pic.yupoo.com/kazaff/F9aG5Lb8/alWUY.jpg" alt></p>
+<p><img src="http://pic.yupoo.com/kazaff/F9aG6uNJ/ywiXw.jpg" alt></p>
+<p><img src="http://pic.yupoo.com/kazaff/F9aG7Zl0/hpstJ.jpg" alt></p>
+<p>未必都有用，但是至少不保错了！</p>
+<p>最后，对于跟我一样使用老mac的玩家，强烈推荐不要使用android-sdk自建模拟器，因为那真的实在是太tm的卡了！我足足等了30分钟，开启后还进到android系统后还是很卡～可能是我配置的不好吧，但这种方式的体验真的好差！</p>
+<p>按照官方推荐的，我们乖乖的来使用Genymotion，选择个人开发者，注册账号即可免费下载，然后再根据要求下载个最新版本的VirtualBox即可！配置非常简单，启动很迅速，效果好极了！但很多功能都是收费版的，不过对于尝鲜的我来说，足够了！</p>
+<p>这一趟下来，感觉好麻烦！还是react-native-ios爽一些，不过android还是不能错过的！！</p>
+<p>一切就绪，只需要run-android了！</p>
+<p>真机调试一样的简单，只需要插上数据线即可，当然，要记得把手机开启usb调试模式，我使用的是锤子坚果手机，连接后会弹出授权窗口，不确认会提示无法连接设备的哟～</p>
+<p>最后你还可能碰见无法加载jsbundle的问题，只需要摇晃手机，在弹出菜单中选择 Dev Setting &gt; Debug Server host for device，然后填入 Mac 的 IP 地址（ifconfig 命令可查看本机 IP）即可！</p>
+<p>参考：<a href="http://www.liaohuqiu.net/cn/posts/react-native-1/" target="_blank" rel="noopener">http://www.liaohuqiu.net/cn/posts/react-native-1/</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/12/02/mac下react-native-android环境搭建/">https://blog.kazaff.me/2015/12/02/mac下react-native-android环境搭建/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/mac/">mac</a><a class="post-meta__tags" href="/tags/react-native/">react-native</a><a class="post-meta__tags" href="/tags/android/">android</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/12/04/android的浏览器下无法表单提交附件/"><i class="fa fa-chevron-left">  </i><span>Android的浏览器下无法表单提交附件</span></a></div><div class="next-post pull-right"><a href="/2015/11/25/qq第三方登录/"><span>QQ第三方登录</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/12/02/mac下react-native-android环境搭建/';
+  this.page.identifier = '2015/12/02/mac下react-native-android环境搭建/';
+  this.page.title = 'Mac下react-Native-Android环境搭建';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

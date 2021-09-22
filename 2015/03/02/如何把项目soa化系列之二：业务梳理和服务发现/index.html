@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="如何把项目SOA化系列之二：业务梳理"><meta name="keywords" content="soa,服务"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>如何把项目SOA化系列之二：业务梳理 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#服务发现"><span class="toc-number">1.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务关系梳理"><span class="toc-number">2.</span> <span class="toc-text">服务关系梳理</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">如何把项目SOA化系列之二：业务梳理</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 3月 2 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/架构/">架构</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/03/02/如何把项目soa化系列之二：业务梳理和服务发现/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/03/02/如何把项目soa化系列之二：业务梳理和服务发现/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>好吧，按照<a href="http://blog.kazaff.me/2015/02/25/%E5%A6%82%E4%BD%95%E6%8A%8A%E9%A1%B9%E7%9B%AEsoa%E5%8C%96%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%80%EF%BC%9A%E8%AE%A1%E5%88%92/">计划</a>，我们接下来要做的就是根据项目现有的功能，依照相关的标准抽离出相关的服务。<br><a id="more"></a></p>
+<p>把这个任务根据我们公司的实际情况，还可以细分，不过不确定是否对大家有参考价值，但是为了记录下每一步重构流程，我还是坚持要写出来的，所以如果你觉得不耐烦，请移步到该系列其它文章，谢谢合作。</p>
+<h2 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h2><p>首先，小弟花了三天的时间，把公司相关的项目文档和代码粗略的滤了一遍，方法简单粗暴，谈不上合理，但个人感觉还是有点用的，根据之前提到的基准，整理出了个文档，如下：</p>
+<p><img src="http://pic.yupoo.com/kazaff/EsYPTBXF/HrRKb.png" alt></p>
+<p>其中每个维度的满分为5（不建议选用过大的分值范围），粗略的解释一下每个分值的含义：</p>
+<p><strong>重要度：</strong></p>
+<p>1分：作用程度几乎可以不考虑</p>
+<p>2分：出现问题不影响业务正常工作</p>
+<p>3分：普通，出现问题允许在1天的时间内给予修复即可</p>
+<p>4分：重要，不允许失效</p>
+<p>5分：核心，不允许失效，且要保证高的执行效率</p>
+<p><strong>复杂度：</strong></p>
+<p>1分：简单的直接操作一张表，或表达为入职一个月的普通应届生就可完成的任务（这么说可能容易被拍）</p>
+<p>2分：需要同时操作多张表，存在一对多关系的数据组合</p>
+<p>3分：包含较多的业务逻辑，但全部操作都在同一个上下文中完成（单进程单线程）</p>
+<p>4分：产生RPC调用</p>
+<p>5分：使用了多线程</p>
+<p><strong>复用度：</strong></p>
+<p>1分：只有自己使用，这里的“自己”表示自身所在的单个系统中的个别操作使用</p>
+<p>2分：自身所在的单个系统中不超过5个操作使用</p>
+<p>3分：自身所在单个系统中超过5个操作使用</p>
+<p>4分：2个以上的系统都使用</p>
+<p>5分：可预见的所有系统都会使用</p>
+<p><strong>频度：</strong></p>
+<p>1分：偶尔会用，或叫几乎不用（其实大多数操作都属于这一类，又一次验证了二八定理）</p>
+<p>2分：普通操作，但并非日常必须</p>
+<p>3分：通用操作，正常用户日常会经常使用的</p>
+<p>4分：热门操作，所有用户日常会经常使用的</p>
+<p>5分：必经操作，所有用户一定会频繁使用的</p>
+<p><strong>类型：</strong></p>
+<p>原子：基础服务，可以理解为自包含，有明确边界的功能</p>
+<p>复合：组合服务，需要由1个以上的原子服务组合出来的功能</p>
+<p>以上打分并不是非常的严谨，只是争取做到了有个粗略的标准来区分服务的目的。</p>
+<h2 id="服务关系梳理"><a href="#服务关系梳理" class="headerlink" title="服务关系梳理"></a>服务关系梳理</h2><p>粗略的数了数，我们公司的在使用项目大概也有十四个之多，上一篇文章介绍过，由于初期设计时就考虑到了系统间的依赖，所以单独在某个项目自身上去发现服务，是不准确的，很可能A系统中的一些功能是依赖B系统的，这样上述的列表中就会有大量的重复内容，所以我们下一步需要做的，就是<strong>梳理服务之间的关系</strong>。</p>
+<p>既然要研究关系，视角就不能只局限在某个系统，而是应该上升到平台上，自嘲的说，我们团队现有的项目用”平台”二字有点小题大做，不过意思到了就行了，不要在意细节，咱们聊的是方法论。</p>
+<p>其实在服务发现时，根据基准，就可以第一轮筛选出一部分较为合适的服务集合了，我们只需要把选中的服务的关系整理出来即可。依然采用图的方式，如下：</p>
+<p><img src="http://pic.yupoo.com/kazaff/EthzHHM9/294CP.png" alt></p>
+<p>PS:哥知道画的很丑，但确实没有美化的能力啊，<strong>求推荐工具</strong>。</p>
+<hr>
+<p>这样下来，目标就明确很多了。但，这还不够，接下来就是要深入到每一个服务中，根据实际情况来设计该服务的实现细节。我们放在下一篇来继续。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/03/02/如何把项目soa化系列之二：业务梳理和服务发现/">https://blog.kazaff.me/2015/03/02/如何把项目soa化系列之二：业务梳理和服务发现/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/soa/">soa</a><a class="post-meta__tags" href="/tags/服务/">服务</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/03/05/如何把项目soa化系列之三：架构设计/"><i class="fa fa-chevron-left">  </i><span>如何把项目SOA化系列之三：架构设计</span></a></div><div class="next-post pull-right"><a href="/2015/02/25/如何把项目soa化系列之一：计划/"><span>如何把项目SOA化系列之一：计划</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/03/02/如何把项目soa化系列之二：业务梳理和服务发现/';
+  this.page.identifier = '2015/03/02/如何把项目soa化系列之二：业务梳理和服务发现/';
+  this.page.title = '如何把项目SOA化系列之二：业务梳理';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

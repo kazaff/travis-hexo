@@ -1,0 +1,130 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="javaEE部署项目新手向"><meta name="keywords" content="nginx,负载均衡,classpath,springMVC,Idea13,tomcat,jvm"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>javaEE部署项目新手向 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#项目中配置文件里使用的classpath到底指向哪里？"><span class="toc-number">1.</span> <span class="toc-text">项目中配置文件里使用的classpath到底指向哪里？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何在Controller中读取属性文件中的设置？"><span class="toc-number">2.</span> <span class="toc-text">如何在Controller中读取属性文件中的设置？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx代理项目中的静态资源文件"><span class="toc-number">3.</span> <span class="toc-text">nginx代理项目中的静态资源文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#springMVC中静态文件的处理"><span class="toc-number">4.</span> <span class="toc-text">springMVC中静态文件的处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#javaEE负载均衡环境搭建"><span class="toc-number">5.</span> <span class="toc-text">javaEE负载均衡环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何在一台物理机运行多个tomcat进程？"><span class="toc-number">6.</span> <span class="toc-text">如何在一台物理机运行多个tomcat进程？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最后"><span class="toc-number">7.</span> <span class="toc-text">最后</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">javaEE部署项目新手向</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 10月 23 2014</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2014/10/23/javaEE部署项目新手向/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2014/10/23/javaEE部署项目新手向/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>今天主要说的是关于java的web项目部署时候的琐碎。公司之前的几个javaEE项目我都没有参与编码，更别提部署了！不过接下来的项目我就要参与到所有环节中拉，所以趁着有时间，搞一下预备工作，都是很基础的东西，只是作为总结记录下来而已~~<br><a id="more"></a><br>以问题的方式来排版吧，这样便于阅读：</p>
+<h2 id="项目中配置文件里使用的classpath到底指向哪里？"><a href="#项目中配置文件里使用的classpath到底指向哪里？" class="headerlink" title="项目中配置文件里使用的classpath到底指向哪里？"></a>项目中配置文件里使用的<code>classpath</code>到底指向哪里？</h2><p>可以通过下面这行代码打印出来<code>classpath</code>的绝对路径：</p>
+<pre><code>System.out.println(&quot;当前classpath的绝对路径：&quot; + Thread.currentThread().getContextClassLoader().getResource(&quot;&quot;));
+</code></pre><p>我用Idea13部署项目后可以看到终端中打印出：</p>
+<pre><code>当前classpath的绝对路径：file:/D:/Program%20Files/apache-tomcat-7.0.53/webapps/springMVCDemo/WEB-INF/classes/
+</code></pre><p>可以看到<code>classpath</code>指向的是部署后的<code>/WEB-INF/classes/</code>，而这个<code>classes</code>文件夹就是存放编译后的<code>.class</code>文件的地方。</p>
+<p>而这个文件夹在部署之前是不存在的，那么IDE中配置文件里使用的<code>classpath:</code>又指向哪里呢？因为像Idea这样的吊炸天IDE都提供即时功能的，比方说我在<code>web.xml</code>中添加下面这个配置：</p>
+<pre><code>...
+&lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+&lt;param-value&gt;classpath:mvc-dispatcher-servlet.xml&lt;/param-value&gt;
+...
+</code></pre><p>IDE是会帮我检查对应文件夹下是否存在指定文件的，那我们之前说过编译前<code>classes</code>文件夹是不存在的，那么IDE又是帮我去哪找的呢？看下图：</p>
+<p><a href="http://pic.yupoo.com/kazaff/E9bw5Lp6/8VcSP.png" target="_blank" rel="noopener"><img src="http://pic.yupoo.com/kazaff/E9bw5Lp6/medish.jpg" width="640" height="426" border="0"></a></p>
+<p>图中左上角中的箭头指向的那个位置就是IDE查找的位置，也就是说<code>java</code>文件夹对应着编译后的<code>classes</code>文件夹。</p>
+<p>上图中的项目是基于springMVC模板的，那文件夹这种对应关系又是在哪里设置的呢？其实不同的IDE都有自己的一套项目文件组织结构，之前公司用的是Netbeans，也有人使用Eclipse的，默认情况下它们的项目结构都不太一样，但是不管你用什么IDE，向Tomcat中部署的时候，都要输出一致的，Tomcat理解的标准目录，在Idea的<code>Artifacts</code>窗口下可以定义编译部署的项目结构，上图中下方的箭头和红框标出来的就是我们为了测试而修改<code>mvc-dispatcher-servlet.xml</code>位置后需要对应做的修改，这样才能保证IDE部署项目时导出正确的部署结构。</p>
+<h2 id="如何在Controller中读取属性文件中的设置？"><a href="#如何在Controller中读取属性文件中的设置？" class="headerlink" title="如何在Controller中读取属性文件中的设置？"></a>如何在<code>Controller</code>中读取属性文件中的设置？</h2><p>这个问题网上有不少贴，可以看这里：<a href="http://kanpiaoxue.iteye.com/blog/1989026" target="_blank" rel="noopener">传送门</a>，已经是非常具体了。可以看出，<code>Controller</code>中靠注解直接把配置文件中的键值注入到类属性中，很是NB啊！</p>
+<p>实际测试中还是需要按照第一个问题里说的那样调整一下<code>Artifacts</code>的部署结构，这里我发现在Idea13中，我把属性文件直接放在WEB-INF目录下，IDE中竟然显示找不到文件，但是部署后是正常的，就是显示红色的提示让我看着很不爽，所以才扔到<code>classes</code>下的~</p>
+<h2 id="nginx代理项目中的静态资源文件"><a href="#nginx代理项目中的静态资源文件" class="headerlink" title="nginx代理项目中的静态资源文件"></a>nginx代理项目中的静态资源文件</h2><p>公司前几个小项目都出现了不同程度的性能问题，其中比较早遇见的就是关于静态文件太多导致的响应卡顿的问题！</p>
+<p>其实并不能一定断定就是Tomcat处理静态文件不利导致的，只不过看网上大家都吐槽它，还是果断放弃为好~~我们只需要搭建一个反向代理服务即可，这里第一选择肯定就是<code>Nginx</code>。</p>
+<p>我在自己的开发机上直接尝试搭建这个测试环境，大概环境如下：</p>
+<pre><code>win7 64bit
+jdk1.7
+tomcat7
+nginx1.7.6
+</code></pre><p>测试项目部署完毕后的目录结构为：</p>
+<pre><code>springMVCDemo
+        |
+        |--images    //这里就是我们的静态文件夹
+        |
+        |-WEB-INF        
+</code></pre><p>好啦，现在直接修改Nginx的配置文件<code>/conf/nginx.conf</code>:</p>
+<pre><code>server {
+   listen       80;
+   server_name  localhost;
+   root &quot;D:/Program Files/apache-tomcat-7.0.53/webapps/springMVCDemo&quot;;
+
+   location / {
+       proxy_pass http://localhost:8080/springMVCDemo/;
+   }
+
+   location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$ {
+       expires 30d;
+   }
+
+   location ~ .*\.(js|css)?$ {
+       expires 1h;
+   }
+</code></pre><p>很简单吧，这样就搞定了。这里面有个小插曲我需要说一下：我是直接用IDE编译打包成一个<code>war</code>文件，然后拷贝到<code>tomcat</code>的<code>webapps</code>下，由于我的天真，我一直试图尝试在<code>Nginx</code>的配置中直接指向<code>war</code>文件内部的<code>images</code>目录~~哇哈哈哈，网上找了一大圈都没有发现，结果最后才发现一个问题：<code>tomcat</code>在启动之初，如果发现需要加载<code>war</code>项目，会直接把<code>war</code>文件解压出来。阿西吧~</p>
+<p>最后，还要叮嘱一件事儿，那就是关于<code>nginx</code>的反向代理配置不当造成的安全隐患，具体细节可以看这里： <a href="http://drops.wooyun.org/papers/60" target="_blank" rel="noopener">WooYun</a>。</p>
+<h2 id="springMVC中静态文件的处理"><a href="#springMVC中静态文件的处理" class="headerlink" title="springMVC中静态文件的处理"></a>springMVC中静态文件的处理</h2><p>虽然在上一个问题里我们已经把静态文件交给<code>Nginx</code>来处理了，但是我觉得那是生产环境下的配置~~在开发环境下还是要尽可能的直观一些，这样可以让配置较低的开发机更快一些，而且也可以让调试变得简单高效。</p>
+<p>其实实现的方法网上说了<a href="http://www.cnblogs.com/fangqi/archive/2012/10/28/2743108.html" target="_blank" rel="noopener">好多</a>，但我还是偏向于使用Spring提供的方式：</p>
+<pre><code>&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+   xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+   xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot;
+   xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+   xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/mvc
+    http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd&quot;&gt;
+
+    &lt;context:component-scan base-package=&quot;me.kazaff.springmvc&quot;/&gt;
+
+    &lt;mvc:annotation-driven /&gt;
+    &lt;mvc:resources mapping=&quot;/images/**&quot;  location=&quot;/images/&quot; /&gt;
+
+    ....
+
+&lt;/beans&gt;
+</code></pre><p>这样就可以啦，注意在头部要加上<code>mvc</code>这个命名空间的定义，一共要修改两个位置哟：</p>
+<ul>
+<li><p>在<code>beans</code>节点上增加：</p>
+<p>  xmlns:mvc=”<a href="http://www.springframework.org/schema/mvc" target="_blank" rel="noopener">http://www.springframework.org/schema/mvc</a></p>
+</li>
+<li><p>在<code>xsi:schemaLocation</code>属性上增加：</p>
+<p>  <a href="http://www.springframework.org/schema/mvc" target="_blank" rel="noopener">http://www.springframework.org/schema/mvc</a><br>  <a href="http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd" target="_blank" rel="noopener">http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd</a></p>
+</li>
+</ul>
+<p>其实在测试中还遇到了一个问题，就是一旦加上<code>mvc:resources</code>定义后就会造成无法访问页面，错误是：</p>
+<pre><code>警告: No mapping found for HTTP request with URI [/springMVCDemo/] in DispatcherServlet with name &apos;mvc-dispatcher&apos;
+</code></pre><p>所以一定要记得加上：</p>
+<pre><code>&lt;mvc:annotation-driven /&gt;
+</code></pre><p>理由可以查看这里： <a href="http://blog.csdn.net/jbgtwang/article/details/7359592" target="_blank" rel="noopener">传送门</a>。</p>
+<h2 id="javaEE负载均衡环境搭建"><a href="#javaEE负载均衡环境搭建" class="headerlink" title="javaEE负载均衡环境搭建"></a>javaEE负载均衡环境搭建</h2><p>接下来我们简单聊一下<strong>高可用</strong>和<strong>可伸缩</strong>的解决方案，我们可以在架构设计上做一些工作，从而使得我们的业务应用服务可以搬到集群中进行部署，至于要达到<code>可伸缩性</code>而需要解决的技术点我们暂且不表，毕竟这篇文章是新手向，我们主要聊一下集群环境下的负载均衡话题~~</p>
+<p>其实负载均衡不仅仅能做到平摊负载，牛逼一些的负载均衡软件还可以负责自动容灾处理。还拿<code>Nginx</code>来说，非常简单，看<a href="http://blog.jobbole.com/24574/" target="_blank" rel="noopener">这里</a>和<a href="http://saiyaren.iteye.com/blog/1914865" target="_blank" rel="noopener">那里</a>。能感觉到还是非常的简单明了吧？这也是<code>Nginx</code>能脱颖而出的原因：简单粗暴！</p>
+<p>但这个世界没有银弹，我们来看一下常用的负载均衡软件的优缺点：<a href="http://www.csdn.net/article/2014-07-24/2820837" target="_blank" rel="noopener">传送门</a>。</p>
+<p>看前辈总结了那么多，心里应该有谱了吧？！上面那一篇文章最大的价值在于描述了一个项目从小到大所处的不同阶段应该做什么样的选择，哥甚是喜欢！</p>
+<p>我还找到了一个碉堡的视频共大家观看：<a href="http://edu.51cto.com/lesson/id-27846.html" target="_blank" rel="noopener">传送门</a>。</p>
+<h2 id="如何在一台物理机运行多个tomcat进程？"><a href="#如何在一台物理机运行多个tomcat进程？" class="headerlink" title="如何在一台物理机运行多个tomcat进程？"></a>如何在一台物理机运行多个tomcat进程？</h2><p>最后这个问题是非常有意义的，不过你可能会很好奇谁会这么做？首先，部署在同一台物理机上，就谈不上什么<strong>高可用</strong>，毕竟如果这台机器宕机了，所有tomcat实例都会挂掉。而且由于<strong>进程间切换</strong>也会导致性能上的折损，那谁会这么做呢？</p>
+<p>并非只有在开发环境或测试环境下为了模拟集群才会这么做，其实生产环境下这么做也是有目的的。</p>
+<p>我们先聊聊操作系统和JDK，一般服务器现在都会装64bit的版本，这样可以使内存突破4G的上限。而这个时候可能你就会理所应当的安装64bit版的jdk。那么，问题就来了：<strong>目前来说，64位的jdk版本整体性能不如32位版</strong>！这个现状会随着时间飞逝而逐渐消失。</p>
+<p>那么除了jdk本身的性能因素，还有其它问题么？</p>
+<p>我们简单的说一下关于<code>JVM</code>内存管理的内容。在我们启动tomcat时是可以设置几个和内存相关的参数的，包括：堆大小（新生代），永久代，虚拟机栈，垃圾回收器等。这些参数都是jvm性能调优的关键，我们暂不深究，只是知道它们很重要即可！</p>
+<p>刚才提到了，64位的系统和jdk版本可以使内存突破上限，这样我们的jvm相关设置就可以调的更大，理应拿到更好的性能，对吧？但其实不然，来看一下主要的问题点：</p>
+<ul>
+<li>太大的堆栈会直接导致垃圾回收时间增加，出现明显的卡顿；</li>
+<li>相同的程序下，64位比32位更吃内存（指针膨胀等）；</li>
+<li>由于内存分配过大，导致调试工具（jmap等）无法使用（dump一次会产生非常大的文件，而且分析这个文件也变得不再可行），这就要求程序必须有足够高的稳定性，确保不会出现内存泄露</li>
+</ul>
+<p>综上所述，目前我们可以选择64位的操作系统+32位的jdk作为搭配，但是这样的话服务器上大量的内存资源就浪费了，浪费是可耻的！</p>
+<p>所以才需要我们在一台物理机上运行多个tomcat实例，这样可以达到最佳效果。而且由于我们的目的是为了换取更大的内存使用率，所以多个tomcat进程上的多个项目镜像不需要做特殊处理（会话粘性），直接可以用<code>nginx</code>做个<code>ip_hash</code>负载均衡即可。</p>
+<p>好啦，扯了那么多，到底如何在同一台物理机上运行多个tomcat实例呢？<a href="http://www.importnew.com/12553.html" target="_blank" rel="noopener">点我</a></p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>目前大概也就这些，够开发用了，我会继续努力的！</p>
+<p>PS：做新人的感觉真TM爽，每天都那么充实~~</p>
+<p>PS2：推荐一款加速网页显示的<a href="https://github.com/jiacai2050/gooreplacer4chrome#install" target="_blank" rel="noopener">大神器</a>，你们懂的。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2014/10/23/javaEE部署项目新手向/">https://blog.kazaff.me/2014/10/23/javaEE部署项目新手向/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/nginx/">nginx</a><a class="post-meta__tags" href="/tags/负载均衡/">负载均衡</a><a class="post-meta__tags" href="/tags/classpath/">classpath</a><a class="post-meta__tags" href="/tags/springMVC/">springMVC</a><a class="post-meta__tags" href="/tags/Idea13/">Idea13</a><a class="post-meta__tags" href="/tags/tomcat/">tomcat</a><a class="post-meta__tags" href="/tags/jvm/">jvm</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2014/10/23/搭建排查tomcat内存溢出问题的调试环境/"><i class="fa fa-chevron-left">  </i><span>搭建排查Tomcat内存溢出问题的调试环境</span></a></div><div class="next-post pull-right"><a href="/2014/10/13/到底积累什么才是最佳选择/"><span>到底积累什么才是最佳选择？</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2014/10/23/javaEE部署项目新手向/';
+  this.page.identifier = '2014/10/23/javaEE部署项目新手向/';
+  this.page.title = 'javaEE部署项目新手向';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

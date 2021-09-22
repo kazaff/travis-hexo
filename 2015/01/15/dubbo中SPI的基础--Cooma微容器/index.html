@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="dubbo中SPI的基础--Cooma微容器"><meta name="keywords" content="dubbo,dubbox,cooma,微内核"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>dubbo中SPI的基础--Cooma微容器 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">dubbo中SPI的基础--Cooma微容器</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 1月 15 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/01/15/dubbo中SPI的基础--Cooma微容器/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/01/15/dubbo中SPI的基础--Cooma微容器/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>断断续续研究<a href="http://alibaba.github.io/dubbo-doc-static/Home-zh.htm" target="_blank" rel="noopener">dubbo</a>其实有一段时间了，总是搁浅的原因和工作安排有很大关系，不过我始终保持着学习它的兴趣。随着<a href="http://dangdangdotcom.github.io/dubbox/" target="_blank" rel="noopener">dubbox</a>项目的更新，我决定再一次尝试学习这个项目。<br><a id="more"></a><br>之前把玩的时候自己甚至连一本完整的javaEE资料都没有看完过，虽然现在也还是入门级新手，不过在其他项目中的工作也让我有了比之前更多的积累，应该可以看得更透一些。</p>
+<p>从哪里开始呢？我个人认为应该从dubbo的SPI理念开始，由于dubbo的项目Leader一开始就把其定义成一个方便扩展的服务框架，所以在dubbo的架构设计中始终保持了良好的依赖扩展机制：<strong>微内核+插件</strong>。简而言之就是让扩展者可以和项目开发者拥有一样的灵活度，这也是dubbo得以迅速流行的一个必要条件。</p>
+<p>要想实现这种自由度，除了在架构分层组件上要保持高内聚低耦合外，底层也需要一套强大的类管理工具。在javaEE世界里，把这份工作做到极致的也已经有成熟的标准规范：OSGi。不过OSGi并不完全适配dubbo的需求，而且这玩意儿也有些过于重了，所以在此基础上，dubbo结合JDK标准的SPI机制设计出来一个轻量级的实现：<a href="https://github.com/alibaba/cooma/wiki" target="_blank" rel="noopener">Cooma</a>。</p>
+<p>这篇文章，我就打算从Cooma说起，官方介绍的已经非常详细了，不过它在从dubbo独立出来发布之前是做过修改优化的，在dubbo项目中使用时可能会存在些许的不同，我们就从dubbo内部来研读这部分实现的代码，并结合dubbo中的上下文来了解一下dubbo是如何使用SPI的。</p>
+<p>我们把目标定位在dubbo的这个包上：</p>
+<blockquote>
+<p>com.alibaba.dubbo.common.extension</p>
+</blockquote>
+<p>看一下这个包的目录结构：</p>
+<pre><code>com.alibaba.dubbo.common.extension
+ |
+ |--factory
+ |     |--AdaptiveExtensionFactory   #稍后解释
+ |     |--SpiExtensionFactory        #稍后解释
+ |
+ |--support
+ |     |--ActivateComparator
+ |
+ |--Activate  #自动激活加载扩展的注解
+ |--Adaptive  #自适应扩展点的注解
+ |--ExtensionFactory  #扩展点对象生成工厂接口
+ |--ExtensionLoader   #扩展点加载器，扩展点的查找，校验，加载等核心逻辑的实现类
+ |--SPI   #扩展点注解
+</code></pre><p>我们通过对照dubbo如何使用扩展点机制来完成扩展点工厂实例的选择与加载来了解一下扩展点实现的细节，这句话很拗口，有点递归的味道，我们不妨直接从代码中来理解：</p>
+<pre><code>public class ExtensionLoader&lt;T&gt; {
+    ...
+    private static final ConcurrentMap&lt;Class&lt;?&gt;, ExtensionLoader&lt;?&gt;&gt; EXTENSION_LOADERS = new ConcurrentHashMap&lt;Class&lt;?&gt;, ExtensionLoader&lt;?&gt;&gt;();
+    private final Class&lt;?&gt; type;        
+    ...
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public static &lt;T&gt; ExtensionLoader&lt;T&gt; getExtensionLoader(Class&lt;T&gt; type) {
+        if (type == null)
+            throw new IllegalArgumentException(&quot;Extension type == null&quot;);
+        if(!type.isInterface()) {
+            throw new IllegalArgumentException(&quot;Extension type(&quot; + type + &quot;) is not interface!&quot;);
+        }
+        if(!withExtensionAnnotation(type)) {
+            throw new IllegalArgumentException(&quot;Extension type(&quot; + type + 
+                    &quot;) is not extension, because WITHOUT @&quot; + SPI.class.getSimpleName() + &quot; Annotation!&quot;);
+        }
+
+        ExtensionLoader&lt;T&gt; loader = (ExtensionLoader&lt;T&gt;) EXTENSION_LOADERS.get(type);
+        if (loader == null) {
+            EXTENSION_LOADERS.putIfAbsent(type, new ExtensionLoader&lt;T&gt;(type));
+            loader = (ExtensionLoader&lt;T&gt;) EXTENSION_LOADERS.get(type);
+        }
+        return loader;
+    }
+
+    private ExtensionLoader(Class&lt;?&gt; type) {
+        this.type = type;
+        objectFactory = (type == ExtensionFactory.class ? null : ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension());
+    }        
+    ...
+}
+</code></pre><p>我们主要看<code>ExtensionLoader</code>构造方法，其中它初始化了<code>type</code>和<code>objectFactory</code>，前者为要作为扩展点的接口类型，后者表示要如何获取指定名称的扩展点实例（工厂类），目前dubbo提供了2个实现类，上面在包结构图上已经标注过了。</p>
+<pre><code>@SuppressWarnings(&quot;unchecked&quot;)
+public T getAdaptiveExtension() {
+    Object instance = cachedAdaptiveInstance.get();
+    if (instance == null) {
+        if(createAdaptiveInstanceError == null) {
+            synchronized (cachedAdaptiveInstance) {
+                instance = cachedAdaptiveInstance.get();
+                if (instance == null) {
+                    try {
+                        instance = createAdaptiveExtension();
+                        cachedAdaptiveInstance.set(instance);
+                    } catch (Throwable t) {
+                        createAdaptiveInstanceError = t;
+                        throw new IllegalStateException(&quot;fail to create adaptive instance: &quot; + t.toString(), t);
+                    }
+                }
+            }
+        }
+        else {
+            throw new IllegalStateException(&quot;fail to create adaptive instance: &quot; + createAdaptiveInstanceError.toString(), createAdaptiveInstanceError);
+        }
+    }
+
+    return (T) instance;
+}
+</code></pre><p>上面这个方法是用来获取自适应扩展类实例的，但其实它只是封装了一层缓存而已，真正完成创建实例的是<code>createAdaptiveExtension</code>方法。由于调用关系太深，请看下面的图：</p>
+<p><img src="http://pic.yupoo.com/kazaff/Elc1xnHk/7eCGH.png" alt></p>
+<p>上图中给出的路径，缺少了查找扩展点实现的细节，也就是并没有展开<code>getExtensionClasses</code>方法，该方法会根据指定位置的配置文件扫描并解析拿到所有可用的扩展点实现，代码如下：</p>
+<pre><code>private Map&lt;String, Class&lt;?&gt;&gt; getExtensionClasses() {
+    Map&lt;String, Class&lt;?&gt;&gt; classes = cachedClasses.get();
+    if (classes == null) {
+        synchronized (cachedClasses) {
+            classes = cachedClasses.get();
+            if (classes == null) {
+                classes = loadExtensionClasses();
+                cachedClasses.set(classes);
+            }
+        }
+    }
+    return classes;
+}
+</code></pre><p>可见它也只是封装了一层缓存而已，我们继续深挖<code>loadExtensionClasses</code>方法：</p>
+<pre><code>// 此方法已经getExtensionClasses方法同步过。
+private Map&lt;String, Class&lt;?&gt;&gt; loadExtensionClasses() {
+    //检查并获取该接口类型声明的默认扩展点实现
+    final SPI defaultAnnotation = type.getAnnotation(SPI.class);
+    if(defaultAnnotation != null) {
+        String value = defaultAnnotation.value();
+        if(value != null &amp;&amp; (value = value.trim()).length() &gt; 0) {
+            String[] names = NAME_SEPARATOR.split(value);
+            if(names.length &gt; 1) {
+                throw new IllegalStateException(&quot;more than 1 default extension name on extension &quot; + type.getName()
+                        + &quot;: &quot; + Arrays.toString(names));
+            }
+            if(names.length == 1) cachedDefaultName = names[0];
+        }
+    }
+
+    //去三个指定的位置查找配置文件并解析拿到扩展点键值映射关系
+    Map&lt;String, Class&lt;?&gt;&gt; extensionClasses = new HashMap&lt;String, Class&lt;?&gt;&gt;();
+    loadFile(extensionClasses, DUBBO_INTERNAL_DIRECTORY);
+    loadFile(extensionClasses, DUBBO_DIRECTORY);
+    loadFile(extensionClasses, SERVICES_DIRECTORY);
+
+    return extensionClasses;
+}
+</code></pre><p>我们先来看一下配置文件的格式：</p>
+<pre><code>adaptive=com.alibaba.dubbo.common.extension.factory.AdaptiveExtensionFactory
+spi=com.alibaba.dubbo.common.extension.factory.SpiExtensionFactory
+</code></pre><p><code>loadFile</code>方法会从指定位置（<code>META-INF/dubbo/internal/</code>）根据指定接口类型（<code>type</code>）为文件名称查找目标配置文件，然后解析并校验，最终拿到匹配的扩展点类的所有<code>Class</code>实例。对应上面给出的配置文件，也就是<code>AdaptiveExtensionFactory</code>和<code>SpiExtensionFactory</code>，它们已经在包结构图上提到过了。</p>
+<p>现在我们来着重看一下这两个类，它们到底是做什么用的呢？首先，<code>AdaptiveExtensionFactory</code>定义上有<code>@Adaptive</code>注解标识，很明显，它就是自适应扩展点的实现，从<code>loadFile</code>方法中可以留意到：<strong>同一个接口类型只能存在一个自适应扩展点实现</strong>：</p>
+<pre><code>@Adaptive
+public class AdaptiveExtensionFactory implements ExtensionFactory {
+
+    private final List&lt;ExtensionFactory&gt; factories;
+
+    public AdaptiveExtensionFactory() {
+        ExtensionLoader&lt;ExtensionFactory&gt; loader = ExtensionLoader.getExtensionLoader(ExtensionFactory.class);
+        List&lt;ExtensionFactory&gt; list = new ArrayList&lt;ExtensionFactory&gt;();
+        for (String name : loader.getSupportedExtensions()) {
+            list.add(loader.getExtension(name));
+        }
+        factories = Collections.unmodifiableList(list);
+    }
+
+    //从这个方法定义来看，这个自适应扩展点实现类并没有做任何事儿，唯一的工作就是把真正获取扩展点实例的逻辑依次交给
+    //框架中声明的所有ExtensionFactory扩展点实例，默认也就是SpiExtensionFactory
+    public &lt;T&gt; T getExtension(Class&lt;T&gt; type, String name) {
+        for (ExtensionFactory factory : factories) {
+            T extension = factory.getExtension(type, name);
+            if (extension != null) {
+                return extension;
+            }
+        }
+        return null;
+    }
+}
+</code></pre><p>可以看到，<code>AdaptiveExtensionFactory</code>把逻辑委托给<code>SpiExtensionFactory</code>来做，而后者又是怎么做的呢：</p>
+<pre><code>public class SpiExtensionFactory implements ExtensionFactory {
+
+    public &lt;T&gt; T getExtension(Class&lt;T&gt; type, String name) {
+        if (type.isInterface() &amp;&amp; type.isAnnotationPresent(SPI.class)) {
+            ExtensionLoader&lt;T&gt; loader = ExtensionLoader.getExtensionLoader(type);
+            if (loader.getSupportedExtensions().size() &gt; 0) {
+                //获取自适应扩展点实例，这是dubbo默认的行为，
+                //也可以自己写一个ExtensionFactory来按照要求加载扩展点
+                return loader.getAdaptiveExtension();   
+            }
+        }
+        return null;
+    }
+}
+</code></pre><p>而<code>objectFactory</code>（真实工作的也就是<code>SpiExtensionFactory.getExtension</code>）只是用在ExtendLoader的注入方法（<code>injectExtension</code>）中，该方法用于为选定的扩展点实现注入相关的其他扩展点实例。</p>
+<p>目前为止，我们已经大概了解在dubbo内部，是以什么样的规则来使用扩展点机制，也为以后学习dubbo的其它方面提供了基础。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/01/15/dubbo中SPI的基础--Cooma微容器/">https://blog.kazaff.me/2015/01/15/dubbo中SPI的基础--Cooma微容器/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/dubbo/">dubbo</a><a class="post-meta__tags" href="/tags/dubbox/">dubbox</a><a class="post-meta__tags" href="/tags/cooma/">cooma</a><a class="post-meta__tags" href="/tags/微内核/">微内核</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/01/26/twemproxy安装问题与不支持的操作明细/"><i class="fa fa-chevron-left">  </i><span>Twemproxy安装问题与不支持的操作明细</span></a></div><div class="next-post pull-right"><a href="/2015/01/04/Jedis异常Could not get a resource from the pool/"><span>Jedis异常Could Not Get a Resource From the Pool</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/01/15/dubbo中SPI的基础--Cooma微容器/';
+  this.page.identifier = '2015/01/15/dubbo中SPI的基础--Cooma微容器/';
+  this.page.title = 'dubbo中SPI的基础--Cooma微容器';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

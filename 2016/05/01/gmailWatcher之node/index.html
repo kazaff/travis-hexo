@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="gmailWatcher之node"><meta name="keywords" content="gmail,imap,async,mailparser"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>gmailWatcher之node | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#理论知识"><span class="toc-number">1.</span> <span class="toc-text">理论知识</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#需求分析"><span class="toc-number">2.</span> <span class="toc-text">需求分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#现有库"><span class="toc-number">3.</span> <span class="toc-text">现有库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#异常处理方案"><span class="toc-number">4.</span> <span class="toc-text">异常处理方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结尾"><span class="toc-number">5.</span> <span class="toc-text">结尾</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">gmailWatcher之node</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 5月 1 2016</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/nodejs/">nodejs</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2016/05/01/gmailWatcher之node/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2016/05/01/gmailWatcher之node/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>Email是一个可能比很多人岁数都大的“上古神器”，尽管和它同期出生的小伙伴很多都已经寿终正寝，但它却依然坚挺，可见其代表了多大的用户刚需！</p>
+<p>最近热映的《北京遇上西雅图2》讲的就是邮件的爱情故事，正巧又碰上项目新需求包含mail的收发要求，就借此良机好好学习一下这个陪伴我们很久的大伙伴。<br><a id="more"></a></p>
+<h3 id="理论知识"><a href="#理论知识" class="headerlink" title="理论知识"></a>理论知识</h3><p>如果你是在不知道什么是Email，那我只能说：看看这篇生动的<a href="http://mp.weixin.qq.com/s?__biz=MzAxOTc0NzExNg==&amp;mid=2665513086&amp;idx=1&amp;sn=ad45995d6c6e355d4dc7cf90815560a8#rd" target="_blank" rel="noopener">微小说</a>吧。</p>
+<p>好，我们来先聊聊几个关键词：</p>
+<ul>
+<li><a href="http://baike.baidu.com/view/2367542.htm" target="_blank" rel="noopener">邮件协议</a>：LDAP、SMTP、POP、IMAP</li>
+<li>邮件服务器：商用厂商（gmail.com、163.com）、自建邮件服务</li>
+<li>邮件客户端：原生客户端（outlook）、网页邮箱系统、浏览器插件、自建邮件客户端</li>
+</ul>
+<p>提到“自建邮件服务器”，勾起了我痛苦的回忆，之前在前任公司为了在centos上手动搭建邮件服务，让我反复安装操作系统N次（不要问我为什么）。所以这篇文章并不是讲如何搭建邮件服务器的，我们会使用gmail作为我们的邮件服务器。</p>
+<p>由于我们的主题是邮件获取，所以POP和IMAP协议是我们主要需要了解的内容，这里我使用的是 <strong>IMAP</strong>，因为<a href="https://zh.wikipedia.org/wiki/IMAP" target="_blank" rel="noopener">它新</a>。</p>
+<h3 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h3><p>我们要做的是这么一件事儿：</p>
+<blockquote>
+<p>监控我们指定的一个gmail帐号，一旦该邮箱收到邮件，就解析邮件内容（包括附件）,并将该邮件标识为已读（确保不会重复处理该邮件）。</p>
+</blockquote>
+<p>目标明确，可以开始写代码了！等等，其实如此常见的需求一定已经有大量的实现方案，不管是php，java，还是python，或是今天我们要使用的nodejs，都已经有现成的库或框架来供我们使用了。</p>
+<p>不过我们上面的理论知识可以辅助我们知道，要实现这么一个需求，我们的思路是：</p>
+<ol>
+<li>使用对应协议和目标邮箱建立链接</li>
+<li>获取满足条件的邮件数据</li>
+<li>根据协议解析数据，获取我们需要的属性（发件人，标题，内容以及附件）</li>
+<li>更新该邮件的状态为已读</li>
+<li>持续监听“新邮件”事件，重复第2步</li>
+</ol>
+<p>这里面我们忽略了一些细节复杂问题，如：</p>
+<ul>
+<li>邮箱安全认证问题</li>
+<li>邮箱链接中断处理</li>
+<li>邮件解析失败</li>
+<li>大邮件解析资源损耗（主要是大附件导致的内存损耗）</li>
+<li>海量邮件的并发处理模型</li>
+<li>其它</li>
+</ul>
+<h3 id="现有库"><a href="#现有库" class="headerlink" title="现有库"></a>现有库</h3><p>相信现有的解决方案可以帮我们完成上述的各个方面，那么nodejs为我们提供了怎样的现成代码呢？经过一番搜索，锁定了这个库：<a href="https://github.com/kazaff/mail-listener2" target="_blank" rel="noopener">mail-listener2</a>(注意这里给的链接是我已经fork后的，并加了一些中文注释和小修改)。</p>
+<p>我已经在其中的关键部分添加了近乎啰嗦的注释，所以这里就不重复制造垃圾了。这里需要特别说明一下的是，该库使用了<a href="http://blog.fens.me/nodejs-async/" target="_blank" rel="noopener">aysnc并发库</a>，依赖其提供的并发模型让实现代码简化了不少，推荐大家在自己的项目中也大胆使用。</p>
+<p>还有就是，如果你针对附件解析开启了流处理，那你需要自己来处理附件流，该库的并没有在开启流处理后帮你把附件保存在指定位置，不过扩展起来也很简单，只需要在对应的位置添加：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//替换该行fs.writeFile(self.attachmentOptions.directory + attachment.generatedFileName, attachment.content, function(err)</span></span><br><span class="line">attachment.stream.pipe(fs.createWriteStream(self.attachmentOptions.directory + attachment.generatedFileName+attachment.generatedFileName));</span><br></pre></td></tr></table></figure>
+<p>除此之外，该库并没有保留”node-imap”中的关于超时的相关参数，这会导致网速不太好的环境无法使用，建议后期加上下面俩参数：</p>
+<ul>
+<li>connTimeout 创建连接的超时时间，node-imap默认是10000毫秒</li>
+<li>authTimeout 连接创建完毕后认证的超时时间，node-imap默认是5000毫秒</li>
+</ul>
+<p>这个库其实只是简单的封装了一下<a href="https://github.com/mscdex/node-imap" target="_blank" rel="noopener">node-imap</a>和<a href="https://github.com/andris9/mailparser" target="_blank" rel="noopener">mailparser</a>。</p>
+<p>这俩库才是真正完成我们前面说的步骤，其中”node-imap”学习起来成本较高，主要是你得先了解imap协议本身。在协议之上该作者增加了nodejs的一些语言特性，靠事件来组织业务，所以需要静下来好好看看。</p>
+<h3 id="异常处理方案"><a href="#异常处理方案" class="headerlink" title="异常处理方案"></a>异常处理方案</h3><p>目前为止，基本上除了异常处理，其他工作都被库做完了，娃哈哈，生活就是如此美好！那，我们应该如何处理异常才比较合适呢？</p>
+<p>这还是要看业务需求，如果你开发的是一个用户参与度很高的客户端，那你只需要在异常发生后上报给用户即可，例如弹窗。</p>
+<p>但如果是一个后台常驻服务，就不仅要考虑上报异常的方法，还需要考虑如何保证碰到无法恢复的异常后应用线程会自动重启，听起来很高大上，但其实<a href="http://pm2.keymetrics.io/" target="_blank" rel="noopener">PM2</a>已经帮你实现了。除此之外，国内BAT好像也都有自己的nodejs运维方案供我们选择。</p>
+<h3 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h3><p>相信已经说的够详细了，剩下的就靠大家留言了！</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2016/05/01/gmailWatcher之node/">https://blog.kazaff.me/2016/05/01/gmailWatcher之node/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/gmail/">gmail</a><a class="post-meta__tags" href="/tags/imap/">imap</a><a class="post-meta__tags" href="/tags/async/">async</a><a class="post-meta__tags" href="/tags/mailparser/">mailparser</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2016/05/02/只谈服务切分问题/"><i class="fa fa-chevron-left">  </i><span>只谈服务切分问题</span></a></div><div class="next-post pull-right"><a href="/2016/04/30/ztree如何优雅自定义ajax的header参数/"><span>Ztree如何优雅自定义ajax的header参数</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2016/05/01/gmailWatcher之node/';
+  this.page.identifier = '2016/05/01/gmailWatcher之node/';
+  this.page.title = 'gmailWatcher之node';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

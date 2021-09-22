@@ -1,0 +1,210 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Dubbo的编解码，序列化和通信"><meta name="keywords" content="序列化,dubbo,dubbox,编码,netty"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Dubbo的编解码，序列化和通信 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#通信实现"><span class="toc-number">1.</span> <span class="toc-text">通信实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编解码"><span class="toc-number">2.</span> <span class="toc-text">编解码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#序列化"><span class="toc-number">3.</span> <span class="toc-text">序列化</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Dubbo的编解码，序列化和通信</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2月 11 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/02/11/dubbo的编解码，序列化和通信/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/02/11/dubbo的编解码，序列化和通信/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>dubbo的调研已经快完结了（按照我自己拟定的计划），计划内剩下的内容就只有：</p>
+<ul>
+<li>序列化</li>
+<li>编解码</li>
+<li>通信实现<a id="more"></a>
+打算写在一篇里，年前彻底搞定dubbo[x]的调研，过完年来了就要投入使用了，好紧张哇~~哟呵呵呵呵！其实前两块的内容并没有啥好讲的，毕竟咱目的是了解源码来辅佐如何使用，而非像当当网的团队那样做dubbo的升级开发。</li>
+</ul>
+<p>按照源码的阅读习惯，我们按照上面列表的逆序来一个一个的分析。废话不多说，走着~</p>
+<h2 id="通信实现"><a href="#通信实现" class="headerlink" title="通信实现"></a>通信实现</h2><p>我们主要基于dubbo推荐默认使用的通信框架：netty，来了解一下dubbo是如何完成两端通信的。我们直接从<code>DubboProtocol</code>类开始看起：</p>
+<pre><code>export()  --&gt;  openServer()  --&gt;  createServer()
+                                           |
+                                        +--&gt;  server = Exchangers.bind(url, requestHandler);  //创建服务
+</code></pre><p>dubbo从要暴漏的服务的URL中取得相关的配置（host，port等）进行服务端server的创建，并且保证相同的配置（host+port）下只会开启一个server，这和netty提供的模型有关（NIO），这个我们后面再说。</p>
+<p>我们先来继续看<code>Exchangers</code>的相关部分，</p>
+<pre><code>......
+ public static ExchangeServer bind(URL url, ExchangeHandler handler) throws RemotingException {
+    if (url == null) {
+        throw new IllegalArgumentException(&quot;url == null&quot;);
+    }
+    if (handler == null) {
+        throw new IllegalArgumentException(&quot;handler == null&quot;);
+    }
+    url = url.addParameterIfAbsent(Constants.CODEC_KEY, &quot;exchange&quot;);    //这里尝试配置了编解码的方式
+    return getExchanger(url).bind(url, handler);
+}
+......
+public static Exchanger getExchanger(URL url) {
+    String type = url.getParameter(Constants.EXCHANGER_KEY, Constants.DEFAULT_EXCHANGER);    //默认使用HeaderExchanger
+    return getExchanger(type);
+}
+......
+public static Exchanger getExchanger(String type) {
+    return ExtensionLoader.getExtensionLoader(Exchanger.class).getExtension(type);
+}
+......
+</code></pre><p>可以看出，<code>Exchangers</code>只是根据URL的参数提供了策略模式。我们依然以dubbo默认的处理方式为主，接下来代码执行到<code>HeaderExchanger</code>类：</p>
+<pre><code>public class HeaderExchanger implements Exchanger {
+
+    public static final String NAME = &quot;header&quot;;
+
+    public ExchangeClient connect(URL url, ExchangeHandler handler) throws RemotingException {
+        return new HeaderExchangeClient(Transporters.connect(url, new DecodeHandler(new HeaderExchangeHandler(handler))));
+    }
+
+    public ExchangeServer bind(URL url, ExchangeHandler handler) throws RemotingException {
+        return new HeaderExchangeServer(Transporters.bind(url, new DecodeHandler(new HeaderExchangeHandler(handler))));
+    }    
+}
+</code></pre><p>这些代码看起来非常的<strong>设计模式</strong>：</p>
+<pre><code>return new HeaderExchangeServer(Transporters.bind(url, new DecodeHandler(new HeaderExchangeHandler(handler))));
+                    |                          |                     |                    |                  |
+                    V                          |                     |                    |                  V
+            1.提供统一的服务操作接口              |                     |                    |                利用装饰器模式，这个才是最靠近业务的逻辑（直接调用相关的invoker）
+            2.创建心跳定时任务                  V                     |                    |
+                                    1.利于扩展点机制选择通信框架     |                    |
+                                    2.格式化回调函数                 |                    |
+                                                                 V                    V
+                                                            消息的解码???         处理dubbo的通信模型：单向，双向，异步等通信模型
+</code></pre><p>要想理解现在的内容，就得先搞清楚<a href="http://ifeve.com/channels/" target="_blank" rel="noopener">JAVA NIO channel概念</a>，搞清楚netty的<a href="http://www.infoq.com/cn/articles/netty-threading-model/#show-last-Point" target="_blank" rel="noopener">NIO线程模型</a>。</p>
+<p>了解了这两个基础知识点，那么我们就可以继续分析源码了，上面那一行代码中<code>Transporters.bind()</code>默认会调用<code>NettyTransporter</code>：</p>
+<pre><code>public class NettyTransporter implements Transporter {
+
+    public static final String NAME = &quot;netty&quot;;
+
+    public Server bind(URL url, ChannelHandler listener) throws RemotingException {
+        return new NettyServer(url, listener);
+    }
+
+    public Client connect(URL url, ChannelHandler listener) throws RemotingException {
+        return new NettyClient(url, listener);
+    }
+}
+</code></pre><p>接下来我们就真正进入到了netty的世界，我们先来看一下<code>NettyServer</code>的家谱：</p>
+<p><img src="http://pic.yupoo.com/kazaff/EqfbO3HE/NAsri.png" alt></p>
+<p>要时刻记着，dubbo是一个非常灵活的框架，我们不仅可以使用netty作为底层通信组件，也可以仅靠url参数就可以改变底层通信的实现，这种架构设计彰显了开发人员对代码的驾驭能力。</p>
+<p><code>AbstractServer</code>抽象父类把创建server所需的公共逻辑抽离出来集中完成，而需要根据特定通信框架的逻辑则交给特定子类（NettyServer）利用重载（doOpen）完成，这样的代码结构在dubbo中随处可见。</p>
+<pre><code>@Override
+protected void doOpen() throws Throwable {
+    NettyHelper.setNettyLoggerFactory();
+    ExecutorService boss = Executors.newCachedThreadPool(new NamedThreadFactory(&quot;NettyServerBoss&quot;, true));
+    ExecutorService worker = Executors.newCachedThreadPool(new NamedThreadFactory(&quot;NettyServerWorker&quot;, true));
+    ChannelFactory channelFactory = new NioServerSocketChannelFactory(boss, worker, getUrl().getPositiveParameter(Constants.IO_THREADS_KEY, Constants.DEFAULT_IO_THREADS));
+    bootstrap = new ServerBootstrap(channelFactory);
+
+    final NettyHandler nettyHandler = new NettyHandler(getUrl(), this);
+    channels = nettyHandler.getChannels();
+    // https://issues.jboss.org/browse/NETTY-365
+    // https://issues.jboss.org/browse/NETTY-379
+    // final Timer timer = new HashedWheelTimer(new NamedThreadFactory(&quot;NettyIdleTimer&quot;, true));
+    bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+        public ChannelPipeline getPipeline() {
+            NettyCodecAdapter adapter = new NettyCodecAdapter(getCodec() ,getUrl(), NettyServer.this);
+            ChannelPipeline pipeline = Channels.pipeline();
+            /*int idleTimeout = getIdleTimeout();
+            if (idleTimeout &gt; 10000) {
+                pipeline.addLast(&quot;timer&quot;, new IdleStateHandler(timer, idleTimeout / 1000, 0, 0));
+            }*/
+            pipeline.addLast(&quot;decoder&quot;, adapter.getDecoder());  //Upstream
+            pipeline.addLast(&quot;encoder&quot;, adapter.getEncoder());  //Downstream
+            pipeline.addLast(&quot;handler&quot;, nettyHandler);          //Upstream &amp; Downstream
+            return pipeline;
+        }
+    });
+    // bind
+    channel = bootstrap.bind(getBindAddress());
+}
+</code></pre><p>如果是熟悉netty的童鞋，肯定早已习惯这个方法的写法，就是创建了netty的server嘛，不过需要注意的是，netty本身是基于事件的，留意一下上面的<code>NettyServer</code>的继承关系，其中<code>ChannelHandler</code>并不是netty的那个<code>ChannelHandler</code>，这就意味着要让前者转换成后者，才可以供netty使用，这也就是<code>NettyHandler</code>的意义，同样，类似这样的做法也可以在dubbo中找到多处。</p>
+<p>同时也要注意，<code>NettyServer</code>和<code>NettyHandler</code>都有同一个用于记录<strong>打开中</strong>的channel的集合：</p>
+<pre><code>private final Map&lt;String, Channel&gt; channels = new ConcurrentHashMap&lt;String, Channel&gt;(); // &lt;ip:port, channel&gt;，其中ip:port指的是调用端的ip和端口号
+</code></pre><p>其中的<code>Channel</code>类型也并非netty的<code>Channel</code>，而是dubbo的<code>NettyChannel</code>，该类负责把netty的<code>Channel</code>，dubbo自身的<code>url</code>和<code>handler</code>映射起来，依赖这样的设计思想，就可以完全把业务和底层基础实现很好的隔离开来，灵活性大大提高，当然，复杂度也随之增加了，这是架构师需要权衡的一个哲学问题。</p>
+<p>dubbo封装netty就介绍到这里，我们的分析并没有深入到netty太多，因为小弟我对netty的了解也是非常的皮毛，为了避免误人子弟，所以更多的细节就留给高手来分享吧。</p>
+<h2 id="编解码"><a href="#编解码" class="headerlink" title="编解码"></a>编解码</h2><p>socket通信中有一个很好玩儿的部分，就是定义消息头，作用非常重大，例如解决粘包问题。dubbo借助netty这样的第三方框架来完成底层通信，这样一部分工作就委托出去了，不过还是有一些工作是需要dubbo好好规划的，我们来看一张官方提供的消息头格式：</p>
+<p><img src="http://pic.yupoo.com/kazaff/EqdnuPxV/oqq2m.jpg" alt></p>
+<p>只有搞清楚了消息头结构设计，才能完成消息体的编码解码，才能交给底层通信框架去收发。上图中我们其实只需要关注Dubbo部分，其部分意义已经在<a href="http://blog.kazaff.me/2014/09/20/dubbo%E5%8D%8F%E8%AE%AE%E4%B8%8B%E7%9A%84%E5%8D%95%E4%B8%80%E9%95%BF%E8%BF%9E%E6%8E%A5%E4%B8%8E%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%E5%A6%82%E4%BD%95%E5%8D%8F%E5%90%8C%E5%B7%A5%E4%BD%9C/">这篇文章</a>中阐述过了，我们这里只关注代码实现，再来看一下<code>NettyServer</code>类：</p>
+<pre><code>@Override
+protected void doOpen() throws Throwable {
+    ......
+            NettyCodecAdapter adapter = new NettyCodecAdapter(getCodec() ,getUrl(), NettyServer.this);
+            ChannelPipeline pipeline = Channels.pipeline();
+            pipeline.addLast(&quot;decoder&quot;, adapter.getDecoder());  //Upstream
+            pipeline.addLast(&quot;encoder&quot;, adapter.getEncoder());  //Downstream
+            pipeline.addLast(&quot;handler&quot;, nettyHandler);          //Upstream &amp; Downstream
+            return pipeline;
+    ......
+}
+</code></pre><p>注意看我在每一行后面加的注释，参见这一篇<a href="http://www.cnblogs.com/montya/archive/2012/12/26/2834279.html" target="_blank" rel="noopener">关于netty的流处理顺序</a>的文章，我们就可以理解dubbo的编码解码是如何配置的。下面接着看一下<code>getCodec()</code>方法：</p>
+<pre><code> protected static Codec2 getChannelCodec(URL url) {
+    String codecName = url.getParameter(Constants.CODEC_KEY, &quot;telnet&quot;);        //这里的codecName值为dubbo
+    if (ExtensionLoader.getExtensionLoader(Codec2.class).hasExtension(codecName)) {
+        return ExtensionLoader.getExtensionLoader(Codec2.class).getExtension(codecName);
+    } else {
+        //应该是向下兼容 或者 阿里内部才会执行的代码
+        return new CodecAdapter(ExtensionLoader.getExtensionLoader(Codec.class)
+                                           .getExtension(codecName));
+    }
+}
+</code></pre><p>这里又一次尝试根据url中的codec参数来确定最终使用的编解码类，不过我们可以在<code>DubboProtocol</code>类的定义中看到，其实这个参数已经被硬编码了：</p>
+<pre><code>//这里强行设置编码方式，有点硬啊
+url = url.addParameter(Constants.CODEC_KEY, Version.isCompatibleVersion() ? COMPATIBLE_CODEC_NAME : DubboCodec.NAME);
+</code></pre><p>注意这里<code>Version.isCompatibleVersion()</code>会去查找是否存在”com/taobao/remoting/impl/ConnectionRequest.class”，但我们知道，这是taobao内部的实现。</p>
+<p>根据参数，我们看一下对应的配置文件：</p>
+<pre><code>transport=com.alibaba.dubbo.remoting.transport.codec.TransportCodec
+telnet=com.alibaba.dubbo.remoting.telnet.codec.TelnetCodec
+exchange=com.alibaba.dubbo.remoting.exchange.codec.ExchangeCodec
+dubbo=com.alibaba.dubbo.rpc.protocol.dubbo.DubboCountCodec        #使用的是这个
+thrift=com.alibaba.dubbo.rpc.protocol.thrift.ThriftCodec
+</code></pre><p>再看回来，<code>NettyCodecAdapter</code>完成了把netty和dubbo隔离的任务，使在后面进行编码解码时使用的channel不再是特定的通信框架提供的，而是dubbo提供的抽象实现。</p>
+<p>再往下深挖，就会看到dubbo是如何处理数据包的拆装，由于过于琐碎，我决定暂时不继续下去了，日后如果在使用时出现问题，会单独拿出来讲讲。</p>
+<h2 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h2><p>dubbo本身支持多种序列化方式，当当的duubox也在序列化方面做了新的工作，PRC中要解决跨进程通信的一个首要问题就是对象的系列化问题，业界各大佬公司和开源组织也都开源了很多优秀的项目，而要了解所有的序列化库是需要花大量时间的，我们依旧只关注dubbo是如何在代码层面触发序列化工作的。只有序列化算法本身，还是交给大家去对应官网进行深度学习吧。</p>
+<p>序列化是在向对端发送数据前的重要工作，事实上我是在<code>DubboCodec</code>类中发现序列化工作的入口的：</p>
+<pre><code>protected Object decodeBody(Channel channel, InputStream is, byte[] header) throws IOException {
+    ......
+    Serialization s = CodecSupport.getSerialization(channel.getUrl(), proto);   //获取对应的序列化库
+    ......
+    decodeEventData(channel, deserialize(s, channel.getUrl(), is));
+    ......
+
+}
+
+private ObjectInput deserialize(Serialization serialization, URL url, InputStream is)
+        throws IOException {
+    return serialization.deserialize(url, is);
+}
+
+
+//该方法继承自ExchangeCodec父类
+protected void encodeRequest(Channel channel, ChannelBuffer buffer, Request req) throws IOException {
+    Serialization serialization = getSerialization(channel);
+    ......
+    ChannelBufferOutputStream bos = new ChannelBufferOutputStream(buffer);
+    ObjectOutput out = serialization.serialize(channel.getUrl(), bos);
+    ......
+}
+</code></pre><p>而从dubbo的配置文件中看，dubbo[x]支持的序列化方式包括：</p>
+<pre><code>dubbo=com.alibaba.dubbo.common.serialize.support.dubbo.DubboSerialization
+hessian2=com.alibaba.dubbo.common.serialize.support.hessian.Hessian2Serialization
+java=com.alibaba.dubbo.common.serialize.support.java.JavaSerialization
+compactedjava=com.alibaba.dubbo.common.serialize.support.java.CompactedJavaSerialization
+json=com.alibaba.dubbo.common.serialize.support.json.JsonSerialization
+fastjson=com.alibaba.dubbo.common.serialize.support.json.FastJsonSerialization
+nativejava=com.alibaba.dubbo.common.serialize.support.nativejava.NativeJavaSerialization
+kryo=com.alibaba.dubbo.common.serialize.support.kryo.KryoSerialization
+fst=com.alibaba.dubbo.common.serialize.support.fst.FstSerialization
+jackson=com.alibaba.dubbo.common.serialize.support.json.JacksonSerialization
+</code></pre><hr>
+<p>好吧，到此为止，我们就算了解dubbo啦，如果有什么遗漏的地方，可以留言提醒小弟，一起学习进步。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/02/11/dubbo的编解码，序列化和通信/">https://blog.kazaff.me/2015/02/11/dubbo的编解码，序列化和通信/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/序列化/">序列化</a><a class="post-meta__tags" href="/tags/dubbo/">dubbo</a><a class="post-meta__tags" href="/tags/dubbox/">dubbox</a><a class="post-meta__tags" href="/tags/编码/">编码</a><a class="post-meta__tags" href="/tags/netty/">netty</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/02/14/重构团队的开发工作流/"><i class="fa fa-chevron-left">  </i><span>重构团队的开发工作流</span></a></div><div class="next-post pull-right"><a href="/2015/02/06/dubbo的拦截器和监听器/"><span>Dubbo的拦截器和监听器</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/02/11/dubbo的编解码，序列化和通信/';
+  this.page.identifier = '2015/02/11/dubbo的编解码，序列化和通信/';
+  this.page.title = 'Dubbo的编解码，序列化和通信';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

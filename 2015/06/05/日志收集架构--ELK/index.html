@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="日志收集架构－ELK"><meta name="keywords" content="Logstash,ElasticSearch,Kibana"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>日志收集架构－ELK | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-number">1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#架构"><span class="toc-number">2.</span> <span class="toc-text">架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx–-gt-Logstash"><span class="toc-number">3.</span> <span class="toc-text">Nginx–&gt;Logstash</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tomcat–-gt-Logstash"><span class="toc-number">4.</span> <span class="toc-text">Tomcat–&gt;Logstash</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Log4j–-gt-Logstash"><span class="toc-number">5.</span> <span class="toc-text">Log4j–&gt;Logstash</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#高可用"><span class="toc-number">6.</span> <span class="toc-text">高可用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">8.</span> <span class="toc-text">参考</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">日志收集架构－ELK</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 6月 5 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/运维/">运维</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/06/05/日志收集架构--ELK/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/06/05/日志收集架构--ELK/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>本周的工作计划是调研并测试ELK，那什么是ELK呢？简而言之就是开源的主流的日志收集与分析系统。<br><a id="more"></a><br>ELK是三个工具的总称：</p>
+<ul>
+<li>E: ElasticSearch</li>
+<li>L: Logstash</li>
+<li>K: Kibana</li>
+</ul>
+<p>我这里主要想强调的，是它们三个组合起来以后，提供强大的<strong>开箱即用</strong>的日志收集和检索功能，这对于创业公司和小团队来说，简直就是完美~</p>
+<p><strong>可能对我来讲，最不理想的就是它基于ruby语言，这么高逼格的语言我不会啊……</strong></p>
+<p>但是也不要太乐观，社区和大牛们表示，想用好这三个工具也不是一件很简单的事儿，我们本次的目的，就是搞清楚这三者之间的关系和它们各自的作用，并最终搭建一个可测试环境，好吧，废话不多说，开始吧。</p>
+<p>最为强迫症的我，一向是尽可能用最新版本，也就是说，我们本次尝试搭建的ELK环境，软件版本分别为：</p>
+<ul>
+<li><a href="https://www.elastic.co/downloads/elasticsearch" target="_blank" rel="noopener">ElasticSearch-1.5.2</a></li>
+<li><a href="https://www.elastic.co/downloads/logstash" target="_blank" rel="noopener">Logstash-1.5.0</a></li>
+<li><a href="https://www.elastic.co/downloads/kibana" target="_blank" rel="noopener">Kibana-4.0.2</a></li>
+</ul>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>之前提过“开箱即用”，绝对不是吹牛逼的，安装流程就是：</p>
+<pre><code>下载 --&gt; 解压 --&gt; 简单配置 --&gt; 运行 --&gt; 看效果
+</code></pre><p>完全不需要编译安装，真是醉了~我们从logstash开始，下载上面给的版本后，解压并拷贝到<code>/usr/local</code>下：</p>
+<pre><code>$ cd /usr/local/logstash
+$ mkdir conf logs
+</code></pre><p>我们创建了两个文件夹，分别用来放配置文件和日志。</p>
+<p>接下来我们先简单的配置一下logstash，在conf下创建一个central.conf，内容如下：</p>
+<pre><code>input {
+    stdin {}
+}
+
+output {
+    stdout {}
+    elasticsearch {
+        cluster =&gt; &quot;elasticsearch&quot;
+        codec =&gt; &quot;json&quot;
+        protocol =&gt; &quot;http&quot;
+    }   
+}
+</code></pre><p>保存，运行下面这个命令启动：</p>
+<pre><code>$ ./bin/logstash agent --verbose --config ./conf/central.conf --log ./logs/stdout.log
+</code></pre><p>接下来安装elasticsearch，一样简单，解压到<code>/usr/local/</code>下，然后直接启动：</p>
+<pre><code>$ ./bin/elasticsearch -d
+</code></pre><p>最后来配置kibana，解压到<code>/usr/local/</code>下，然后直接启动：</p>
+<pre><code>$ ./bin/kibana
+</code></pre><p>我们使用的是kibana默认的配置，现在可以直接在浏览器中访问： <a href="http://127.0.0.1:5601" target="_blank" rel="noopener">http://127.0.0.1:5601</a>。</p>
+<p>怎么测试我们安装的是否成功呢？很简单，在刚才我们执行logstash的终端中，直接输入字符串：hello world，然后刷新kibana页面，你将会看到对应的日志信息~~</p>
+<p>知道什么叫开箱即用了么？</p>
+<p>搭建好了，不等于我们就可以直接使用在产品环境下了，毕竟这个例子貌似没有卵用…下面我们来聊一下理论知识。</p>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p><img src="http://nkcoder.github.io/images/post/ELKR-log-platform.jpg" alt></p>
+<p>说明：</p>
+<ul>
+<li>多个独立的agent(Shipper)负责收集不同来源的数据，一个中心agent(Indexer)负责汇总和分析数据，在中心agent前的Broker(使用redis实现)作为缓冲区，中心agent后的ElasticSearch用于存储和搜索数据，前端的Kibana提供丰富的图表展示。</li>
+<li>Shipper表示日志收集，使用LogStash收集各种来源的日志数据，可以是系统日志、文件、redis、mq等等；</li>
+<li>Broker作为远程agent与中心agent之间的缓冲区，使用redis实现，一是可以提高系统的性能，二是可以提高系统的可靠性，当中心agent提取数据失败时，数据保存在redis中，而不至于丢失；</li>
+<li>中心agent也是LogStash，从Broker中提取数据，可以执行相关的分析和处理(Filter)；</li>
+<li>ElasticSearch用于存储最终的数据，并提供搜索功能；</li>
+<li>Kibana提供一个简单、丰富的web界面，数据来自于ElasticSearch，支持各种查询、统计和展示；</li>
+</ul>
+<p>上面这个图是参考前辈的（下面的参考列表中有具体链接），需要知道的是上面的这种搭配并非是唯一的，例如你可以不使用redis而是用kafka来做消息队列，你也可以让Shipper直接从你希望的日志源中拉取日志数据，如你喜欢你也可以让数据存到Elasticsearch后再存一份到hdfs中，反正大牛们说logstash的插件非常的多，我是信了~~</p>
+<p>接下来，我们就试试用logstash来获取一些常用的web server的access log，例如：nginx，tomcat等。由于测试环境都是在同一台机器上本地完成，所有就不需要劳烦消息队列中间件了。</p>
+<h2 id="Nginx–-gt-Logstash"><a href="#Nginx–-gt-Logstash" class="headerlink" title="Nginx–&gt;Logstash"></a>Nginx–&gt;Logstash</h2><p>根据上图所示，我们其实就是让logstash去监听nginx的日志文件，首先我们得先修改一下上面的那个logstash的配置文件：</p>
+<pre><code>input {
+    file {
+        type =&gt; &quot;nginx_access&quot;
+        path =&gt; [&quot;/usr/local/nginx/logs/*.log&quot;]
+        exclude =&gt; [&quot;*.gz&quot;,&quot;error.log&quot;,&quot;nginx.pid&quot;]
+        sincedb_path =&gt; &quot;/dev/null&quot;
+        codec =&gt; &quot;json&quot;    
+    }
+}
+
+output {
+    stdout {}
+    elasticsearch {
+        cluster =&gt; &quot;elasticsearch&quot;
+        codec =&gt; &quot;json&quot;
+        protocol =&gt; &quot;http&quot;
+    }
+}
+</code></pre><p>ok，接下来我们就需要安装nginx了，这部分我就不多讲了，安装好nginx后在启动之前，我们需要先修改一下nginx的配置文件（<code>nginx.conf</code>）:</p>
+<pre><code>......
+log_format   json  &apos;{&quot;@timestamp&quot;:&quot;$time_iso8601&quot;,&apos;
+            &apos;&quot;@source&quot;:&quot;$server_addr&quot;,&apos;
+            &apos;&quot;@nginx_fields&quot;:{&apos;
+                &apos;&quot;client&quot;:&quot;$remote_addr&quot;,&apos;
+                &apos;&quot;size&quot;:$body_bytes_sent,&apos;
+                &apos;&quot;responsetime&quot;:&quot;$request_time&quot;,&apos;
+                &apos;&quot;upstreamtime&quot;:&quot;$upstream_response_time&quot;,&apos;
+                &apos;&quot;upstreamaddr&quot;:&quot;$upstream_addr&quot;,&apos;
+                &apos;&quot;request_method&quot;:&quot;$request_method&quot;,&apos;
+                &apos;&quot;domain&quot;:&quot;$host&quot;,&apos;
+                &apos;&quot;url&quot;:&quot;$uri&quot;,&apos;
+                &apos;&quot;http_user_agent&quot;:&quot;$http_user_agent&quot;,&apos;
+                &apos;&quot;status&quot;:$status,&apos;
+                &apos;&quot;x_forwarded_for&quot;:&quot;$http_x_forwarded_for&quot;&apos;
+            &apos;}&apos;
+        &apos;}&apos;;
+
+access_log  logs/access.log  json;
+......
+</code></pre><p>大功告成了，启动nginx后，浏览器访问nginx下的页面，你会看到kibana中的对应更新。</p>
+<h2 id="Tomcat–-gt-Logstash"><a href="#Tomcat–-gt-Logstash" class="headerlink" title="Tomcat–&gt;Logstash"></a>Tomcat–&gt;Logstash</h2><p>tomcat的日志比nginx要复杂一些，打开对应的日志文件（<code>catalina.out</code>）,你会发现类似下面这样的日志结构：</p>
+<pre><code>Jun 12, 2014 11:17:34 AM org.apache.catalina.core.AprLifecycleListener init
+INFO: The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: /usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+Jun 12, 2014 11:17:34 AM org.apache.coyote.AbstractProtocol init
+INFO: Initializing ProtocolHandler [&quot;http-bio-8080&quot;]
+Jun 12, 2014 11:17:34 AM org.apache.coyote.AbstractProtocol init
+SEVERE: Failed to initialize end point associated with ProtocolHandler [&quot;http-bio-8080&quot;]
+java.net.BindException: Address already in use &lt;null&gt;:8080
+    at org.apache.tomcat.util.net.JIoEndpoint.bind(JIoEndpoint.java:411)
+    at org.apache.tomcat.util.net.AbstractEndpoint.init(AbstractEndpoint.java:640)
+    at org.apache.coyote.AbstractProtocol.init(AbstractProtocol.java:434)
+    at org.apache.coyote.http11.AbstractHttp11JsseProtocol.init(AbstractHttp11JsseProtocol.java:119)
+    at org.apache.catalina.connector.Connector.initInternal(Connector.java:978)
+    at org.apache.catalina.util.LifecycleBase.init(LifecycleBase.java:102)
+    at org.apache.catalina.core.StandardService.initInternal(StandardService.java:559)
+    at org.apache.catalina.util.LifecycleBase.init(LifecycleBase.java:102)
+    at org.apache.catalina.core.StandardServer.initInternal(StandardServer.java:813)
+    at org.apache.catalina.util.LifecycleBase.init(LifecycleBase.java:102)
+    at org.apache.catalina.startup.Catalina.load(Catalina.java:638)
+    at org.apache.catalina.startup.Catalina.load(Catalina.java:663)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:606)
+    at org.apache.catalina.startup.Bootstrap.load(Bootstrap.java:280)
+    at org.apache.catalina.startup.Bootstrap.main(Bootstrap.java:454)
+Caused by: java.net.BindException: Address already in use
+    at java.net.PlainSocketImpl.socketBind(Native Method)
+    at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:376)
+    at java.net.ServerSocket.bind(ServerSocket.java:376)
+    at java.net.ServerSocket.&lt;init&gt;(ServerSocket.java:237)
+    at java.net.ServerSocket.&lt;init&gt;(ServerSocket.java:181)
+    at org.apache.tomcat.util.net.DefaultServerSocketFactory.createSocket(DefaultServerSocketFactory.java:49)
+    at org.apache.tomcat.util.net.JIoEndpoint.bind(JIoEndpoint.java:398)
+    ... 17 more
+</code></pre><p>无法直视啊简直，不过还好，logstash提供了强大的插件来帮助我们解析各种各样的日志输出结构，分析一下可以得出，日志结构是：时间戳，后面跟着类名，再后面跟着日志信息，这样，我们就可以根据这种结构来写过滤规则：</p>
+<pre><code>COMMONAPACHELOG %{IPORHOST:clientip} %{USER:ident} %{USER:auth} \[%{HTTPDATE:timestamp}\] &quot;(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|%{DATA:rawrequest})&quot; %{NUMBER:response} (?:%{NUMBER:bytes}|-)
+COMBINEDAPACHELOG %{COMMONAPACHELOG} %{QS:referrer} %{QS:agent}
+
+CATALINA_DATESTAMP %{MONTH} %{MONTHDAY}, 20%{YEAR} %{HOUR}:?%{MINUTE}(?::?%{SECOND}) (?:AM|PM)
+CATALINALOG %{CATALINA_DATESTAMP:timestamp} %{JAVACLASS:class} %{JAVALOGMESSAGE:logmessage}
+</code></pre><p>我们把<a href="https://gist.github.com/LanyonM/8390458#file-grok-patterns" target="_blank" rel="noopener">这些规则</a>存储在一个文件（<code>/logstash安装路径/patterns/grok-patterns</code>）中，接下来我们要改写logstash的配置文件了：</p>
+<pre><code>input {
+    file {
+        type =&gt; &quot;tomcat_access&quot;
+        path =&gt; [&quot;/usr/local/tomcat/logs/catalina.out&quot;]
+        exclude =&gt; [&quot;*.log&quot;,&quot;*.txt&quot;]
+        sincedb_path =&gt; &quot;/dev/null&quot;
+        start_position =&gt; &quot;beginning&quot;
+    }
+    file {
+        type =&gt; &quot;apache_access&quot;
+        path =&gt; [&quot;/usr/local/tomcat/logs/*.txt&quot;]
+        exclude =&gt; [&quot;*.log&quot;]
+        sincedb_path =&gt; &quot;/dev/null&quot;
+        start_position =&gt; &quot;beginning&quot;
+    }
+}
+
+filter {
+    if [type] == &quot;tomcat_access&quot; {
+        multiline {
+            patterns_dir =&gt; &quot;/usr/local/logstash/patterns&quot;
+            pattern =&gt; &quot;(^%{CATALINA_DATESTAMP})&quot;
+                negate =&gt; true
+                what =&gt; &quot;previous&quot;
+        }
+        if &quot;_grokparsefailure&quot; in [tags] {
+            drop { }
+        }
+        grok {
+                  patterns_dir =&gt; &quot;/usr/local/logstash/patterns&quot;
+                  match =&gt; [ &quot;message&quot;, &quot;%{CATALINALOG}&quot; ]
+        }
+        date {
+                  match =&gt; [ &quot;timestamp&quot;, &quot;yyyy-MM-dd HH:mm:ss,SSS Z&quot;, &quot;MMM dd, yyyy HH:mm:ss a&quot; ]
+        }
+    }
+    if [type] == &quot;apache&quot; {
+        grok {
+            patterns_dir =&gt; &quot;/usr/local/logstash/patterns&quot;
+                  match =&gt; { &quot;message&quot; =&gt; &quot;%{COMBINEDAPACHELOG}&quot; }
+            }
+            date {
+                  match =&gt; [ &quot;timestamp&quot;, &quot;dd/MMM/yyyy:HH:mm:ss Z&quot; ]
+            }
+    }
+}
+
+output {
+    stdout {}
+    elasticsearch {
+        cluster =&gt; &quot;elasticsearch&quot;
+        protocol =&gt; &quot;http&quot;
+        embedded =&gt; true
+    }
+}
+</code></pre><p>然后你就可以重启一下logstash看结果啦。注意这里，我配置的是<code>start_position =&gt; &quot;beginning&quot;</code>，字面意思就是从日志文件头部开始解析，这样可以把一些原始日志给收集过来，但是可能会造成一些重复日志~~</p>
+<h2 id="Log4j–-gt-Logstash"><a href="#Log4j–-gt-Logstash" class="headerlink" title="Log4j–&gt;Logstash"></a>Log4j–&gt;Logstash</h2><p>其实通过上面两个场景，你大概也知道是个什么尿性了，对，就是指定好要监控的日志文件（input），然后解析对应的格式（filter），然后导入到对应的存储中（output），而且整个过程是管道化的，前面提到了，由于咱们的测试环境是单机本地化，所以并没有使用消息队列，否则你会感受到更明显的管道化风格。</p>
+<p>把log4j产生的日志导入到logstash要做的事儿依然如此，不过官方提供了更简单的方式：<a href="https://github.com/logstash/log4j-jsonevent-layout" target="_blank" rel="noopener">log4j-jsonevent-layout</a>，这玩意儿的作用相当于我们在nginx中干的事儿，直接将log4j的日志格式定义成json的，有助于性能提升~</p>
+<p>剩下的事儿就是老样子了，只需要改一下我们的logstash配置文件即可：</p>
+<pre><code>......
+file {
+    type =&gt; &quot;log4j&quot;
+    path =&gt; [&quot;/usr/local/tomcat/logs/logTest.log&quot;]
+    sincedb_path =&gt; &quot;/dev/null&quot;
+    start_position =&gt; &quot;beginning&quot;
+}
+......
+</code></pre><h2 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a>高可用</h2><p>有经验的童鞋不难看出，上图中存在单点故障，但，其实是可以通过把对应单点集群化部署来增加这套架构的可用性和处理性能，具体可参考<a href="http://nkcoder.github.io/blog/20141106/elkr-log-platform-deploy-ha/" target="_blank" rel="noopener">ElasticSearch+LogStash+Kibana+Redis日志服务的高可用方案</a>。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>上面的场景和简单介绍都是非常入门级的，放在线上场景中肯定太粗糙了，肯定还需要考量更多的因素，例如数据量，日志大小，通信方式等，不过我相信到现在大家应该对ELK有了一个基本的认知。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://kibana.logstash.es/content/" target="_blank" rel="noopener">Kibana 中文指南</a></p>
+<p><a href="http://nkcoder.github.io/blog/20141031/elkr-log-platform-deploy/" target="_blank" rel="noopener">使用ElasticSearch+LogStash+Kibana+Redis搭建日志管理服务</a></p>
+<p><a href="http://john88wang.blog.51cto.com/2165294/1632190" target="_blank" rel="noopener">使用Logstash收集Nginx日志</a></p>
+<p><a href="http://blog.lanyonm.org/articles/2014/01/12/logstash-multiline-tomcat-log-parsing.html" target="_blank" rel="noopener">Logstash Multiline Tomcat and Apache Log Parsing</a></p>
+<p><a href="http://drumcoder.co.uk/blog/2014/nov/11/logstash-and-log4j/" target="_blank" rel="noopener">Logstash and Log4j</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/06/05/日志收集架构--ELK/">https://blog.kazaff.me/2015/06/05/日志收集架构--ELK/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Logstash/">Logstash</a><a class="post-meta__tags" href="/tags/ElasticSearch/">ElasticSearch</a><a class="post-meta__tags" href="/tags/Kibana/">Kibana</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/06/05/logstash整合kafka/"><i class="fa fa-chevron-left">  </i><span>Logstash整合kafka</span></a></div><div class="next-post pull-right"><a href="/2015/06/01/https情结/"><span>Https情结</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/06/05/日志收集架构--ELK/';
+  this.page.identifier = '2015/06/05/日志收集架构--ELK/';
+  this.page.title = '日志收集架构－ELK';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

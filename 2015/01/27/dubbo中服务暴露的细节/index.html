@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Dubbo的服务暴露细节"><meta name="keywords" content="dubbo,dubbox"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Dubbo的服务暴露细节 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#服务接口类型的Wrapper处理"><span class="toc-number">1.</span> <span class="toc-text">服务接口类型的Wrapper处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#暴露前的proxy处理"><span class="toc-number">2.</span> <span class="toc-text">暴露前的proxy处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务暴露的底层实现"><span class="toc-number">3.</span> <span class="toc-text">服务暴露的底层实现</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Dubbo的服务暴露细节</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 1月 27 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/01/27/dubbo中服务暴露的细节/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/01/27/dubbo中服务暴露的细节/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p><a href="http://blog.kazaff.me/2015/01/26/dubbo%E5%A6%82%E4%BD%95%E4%B8%80%E6%AD%A5%E4%B8%80%E6%AD%A5%E6%8B%BF%E5%88%B0bean/">前一篇</a>文章只是分析了一下从xml到service的代码流程细节，从中我们发现了一些架构层面的设计，小弟我非常的在意。所以我们这次在原先的基础上再深挖一点，看看能否出油。</p>
+<a id="more"></a>
+<p>这篇文字里会出现大量本尊的瞎掰（其实每篇都挺能瞎掰的），希望大家多多提醒，打脸什么的我丫根本就不怕。</p>
+<h2 id="服务接口类型的Wrapper处理"><a href="#服务接口类型的Wrapper处理" class="headerlink" title="服务接口类型的Wrapper处理"></a>服务接口类型的Wrapper处理</h2><p>在ServiceConfig.java中的doExportUrlsFor1Protocol方法中，我们看到，在得到最终URL之前，会执行下面的代码逻辑：</p>
+<pre><code>String[] methods = Wrapper.getWrapper(interfaceClass).getMethodNames();
+if(methods.length == 0) {
+    logger.warn(&quot;NO method found in service interface &quot; + interfaceClass.getName());
+    map.put(&quot;methods&quot;, Constants.ANY_VALUE);
+}
+else {
+    map.put(&quot;methods&quot;, StringUtils.join(new HashSet&lt;String&gt;(Arrays.asList(methods)), &quot;,&quot;));
+}
+</code></pre><p>那么这个<code>Wrapper.getWrapper()</code>的作用是什么呢？从代码层面来看，它按照dubbo自身的需求完成了类似java反射的工作，无非就是<strong>根据给定的服务实现接口类型，按照dubbo的要求提供读取该类型的相关类型信息的方法</strong>，有些绕口。这么做，可以让dubbo更自由的控制获取类型信息的相关操作，同时也一定程度的统一了调用方式。举个例子，wrapper后的对象可以在其他业务调时有效的屏蔽那些不希望被感知的原类型数据信息，对应设计模式的“<a href="http://blog.chinaunix.net/uid-22283027-id-3488042.html" target="_blank" rel="noopener">适配器模式</a>”。</p>
+<p>除此之外，<code>Wrapper</code>还提供了对象缓存池的概念来提升性能：</p>
+<pre><code>Wrapper ret = WRAPPER_MAP.get(c);
+if( ret == null )
+{
+    ret = makeWrapper(c);
+    WRAPPER_MAP.put(c,ret);
+}
+return ret;
+</code></pre><p>至于还有没有其他更深层次的作用，期待您的补充。</p>
+<h2 id="暴露前的proxy处理"><a href="#暴露前的proxy处理" class="headerlink" title="暴露前的proxy处理"></a>暴露前的proxy处理</h2><p>回顾之前提过的bean转service过程，我们当时提到了<code>url</code>，它作为不同层之间通信的keyword起到了重要的作用，但仅仅有key是不够的，<strong>如何通过key找到实际提供服务的bean才是本质</strong>。</p>
+<p>dubbo的<a href="http://alibaba.github.io/dubbo-doc-static/RPC+Detail-zh.htm" target="_blank" rel="noopener">Invoker</a>模型是非常关键的概念，看下图：</p>
+<p><img src="http://pic.yupoo.com/kazaff/Eo4DsJLe/10mLOC.png" alt></p>
+<p>图中可以很清楚的看到<code>url</code>，<code>ref</code>，<code>interface</code>，<code>ProxyFactory</code>，<code>Protocol</code>和<code>Invoker</code>之间的关系，代码上来看，就是下面这两行：</p>
+<pre><code>......
+Invoker&lt;?&gt; invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, url);
+
+Exporter&lt;?&gt; exporter = protocol.export(invoker);
+......
+</code></pre><p>看似简单的两次调用之中，其实执行了非常多的逻辑。我们先来看一下这里<code>proxyFactory</code>对象是怎么拿到的（在<code>ServiceConfig</code>中声明了该静态属性）：</p>
+<pre><code>private static final ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
+</code></pre><p>对，没错，扩展点加载规则。不过较为麻烦的是从<code>ProxyFactory</code>接口中只能看出其使用的默认扩展点为”javassist”，可代码中却指定使用的是自适应扩展点，看一下配置文件中定义了什么：</p>
+<pre><code>stub=com.alibaba.dubbo.rpc.proxy.wrapper.StubProxyFactoryWrapper
+jdk=com.alibaba.dubbo.rpc.proxy.jdk.JdkProxyFactory
+javassist=com.alibaba.dubbo.rpc.proxy.javassist.JavassistProxyFactory
+</code></pre><p>依次查阅这三个类的源码，并没有发现自适应扩展点的痕迹，也就是说最终dubbo会动态创建一个自适应扩展点类，这里作为外行新手，需要吐槽一下，<strong>dubbo中大量的动态类生产方式采用的是字符串拼接源码方式</strong>，这给代码审阅带来了非常大的困难，我相信即便是项目开发人员很难一次就写正确所有的逻辑。</p>
+<p>不过幸好，我们有聪明的<a href="http://www.jetbrains.com/products.html" target="_blank" rel="noopener">IDE</a>，在辅助工具的帮助下，我们可以还原出dubbo针对ProxyFactory所动态创建的自适应扩展点类的完整代码：</p>
+<pre><code>package com.alibaba.dubbo.rpc;
+import com.alibaba.dubbo.common.extension.ExtensionLoader;
+
+public class ProxyFactory$Adpative implements com.alibaba.dubbo.rpc.ProxyFactory {
+
+    public java.lang.Object getProxy(com.alibaba.dubbo.rpc.Invoker arg0) throws com.alibaba.dubbo.rpc.Invoker {
+        if (arg0 == null) 
+            throw new IllegalArgumentException(&quot;com.alibaba.dubbo.rpc.Invoker argument == null&quot;);
+
+        if (arg0.getUrl() == null)
+            throw new IllegalArgumentException(&quot;com.alibaba.dubbo.rpc.Invoker argument getUrl() == null&quot;);
+
+        com.alibaba.dubbo.common.URL url = arg0.getUrl();
+        String extName = url.getParameter(&quot;proxy&quot;, &quot;javassist&quot;);
+        if(extName == null)
+            throw new IllegalStateException(&quot;Fail to get extension(com.alibaba.dubbo.rpc.ProxyFactory) name from url(&quot; + url.toString() + &quot;) use keys([proxy])&quot;);
+
+        com.alibaba.dubbo.rpc.ProxyFactory extension = (com.alibaba.dubbo.rpc.ProxyFactory)ExtensionLoader.getExtensionLoader(com.alibaba.dubbo.rpc.ProxyFactory.class).getExtension(extName);
+
+        return extension.getProxy(arg0);
+    }
+
+    public com.alibaba.dubbo.rpc.Invoker getInvoker(java.lang.Object arg0, java.lang.Class arg1, com.alibaba.dubbo.common.URL arg2) throws java.lang.Object {
+        if (arg2 == null)
+            throw new IllegalArgumentException(&quot;url == null&quot;);
+
+        com.alibaba.dubbo.common.URL url = arg2;
+        String extName = url.getParameter(&quot;proxy&quot;, &quot;javassist&quot;);
+        if(extName == null)
+            throw new IllegalStateException(&quot;Fail to get extension(com.alibaba.dubbo.rpc.ProxyFactory) name from url(&quot; + url.toString() + &quot;) use keys([proxy])&quot;);
+
+        com.alibaba.dubbo.rpc.ProxyFactory extension = (com.alibaba.dubbo.rpc.ProxyFactory)ExtensionLoader.getExtensionLoader(com.alibaba.dubbo.rpc.ProxyFactory.class).getExtension(extName);
+
+        return extension.getInvoker(arg0, arg1, arg2);
+    }
+}
+</code></pre><p>最终我们可以看出，dubbo会默认调用<code>com.alibaba.dubbo.rpc.proxy.javassist.JavassistProxyFactory</code>作为proxyFactory的实际逻辑：</p>
+<pre><code> public &lt;T&gt; Invoker&lt;T&gt; getInvoker(T proxy, Class&lt;T&gt; type, URL url) {
+    // TODO Wrapper类不能正确处理带$的类名
+    final Wrapper wrapper = Wrapper.getWrapper(proxy.getClass().getName().indexOf(&apos;$&apos;) &lt; 0 ? proxy.getClass() : type);
+    return new AbstractProxyInvoker&lt;T&gt;(proxy, type, url) {
+        @Override
+        protected Object doInvoke(T proxy, String methodName, 
+                                  Class&lt;?&gt;[] parameterTypes, 
+                                  Object[] arguments) throws Throwable {
+            return wrapper.invokeMethod(proxy, methodName, parameterTypes, arguments);
+        }
+    };
+}
+</code></pre><p>哇塞，一下子就通透了。之所以命名为<code>JavassistProxyFactory</code>，就是因为它使用的是前面提到的<code>Wrapper</code>实例。逻辑很简单，直接完成了Invoker实例的创建，我们前面说了，Invoker是个很关键的概念，它的一个抽象定义如下：</p>
+<pre><code>public abstract class AbstractProxyInvoker&lt;T&gt; implements Invoker&lt;T&gt; {
+
+    private final T proxy;
+
+    private final Class&lt;T&gt; type;
+
+    private final URL url;
+
+    public AbstractProxyInvoker(T proxy, Class&lt;T&gt; type, URL url){
+        if (proxy == null) {
+            throw new IllegalArgumentException(&quot;proxy == null&quot;);
+        }
+        if (type == null) {
+            throw new IllegalArgumentException(&quot;interface == null&quot;);
+        }
+        if (! type.isInstance(proxy)) {
+            throw new IllegalArgumentException(proxy.getClass().getName() + &quot; not implement interface &quot; + type);
+        }
+        this.proxy = proxy;
+        this.type = type;
+        this.url = url;
+    }
+
+    public Class&lt;T&gt; getInterface() {
+        return type;
+    }
+
+    public URL getUrl() {
+        return url;
+    }
+
+    public boolean isAvailable() {
+        return true;
+    }
+
+    public void destroy() {
+    }
+
+    public Result invoke(Invocation invocation) throws RpcException {
+        try {
+            return new RpcResult(doInvoke(proxy, invocation.getMethodName(), invocation.getParameterTypes(), invocation.getArguments()));
+        } catch (InvocationTargetException e) {
+            return new RpcResult(e.getTargetException());
+        } catch (Throwable e) {
+            throw new RpcException(&quot;Failed to invoke remote proxy method &quot; + invocation.getMethodName() + &quot; to &quot; + getUrl() + &quot;, cause: &quot; + e.getMessage(), e);
+        }
+    }
+
+    protected abstract Object doInvoke(T proxy, String methodName, Class&lt;?&gt;[] parameterTypes, Object[] arguments) throws Throwable;
+
+    @Override
+    public String toString() {
+        return getInterface() + &quot; -&gt; &quot; + getUrl()==null?&quot; &quot;:getUrl().toString();
+    }
+}
+</code></pre><p>也挺简单的，值得关注的是<code>invoke</code>方法，该方法是Invoker真正可以被其他对象调用的方法，逻辑也很简单，主要注意它的参数和返回值类型。</p>
+<p>目前为止，我们已经完成了Invoker的转换，剩下的就是暴露服务的底层实现了。</p>
+<h2 id="服务暴露的底层实现"><a href="#服务暴露的底层实现" class="headerlink" title="服务暴露的底层实现"></a>服务暴露的底层实现</h2><p>老规矩，为了更好的理解代码意图，我们利用IDE把dubbo动态创建的protocol自适应扩展点类的代码还原：</p>
+<pre><code>package com.alibaba.dubbo.rpc;
+import com.alibaba.dubbo.common.extension.ExtensionLoader;
+
+public class Protocol$Adpative implements com.alibaba.dubbo.rpc.Protocol {
+
+    public int getDefaultPort() {
+        throw new UnsupportedOperationException(&quot;method public abstract int com.alibaba.dubbo.rpc.Protocol.getDefaultPort() of interface com.alibaba.dubbo.rpc.Protocol is not adaptive method!&quot;);
+    }
+
+    public void destroy() {
+        throw new UnsupportedOperationException(&quot;method public abstract void com.alibaba.dubbo.rpc.Protocol.destroy() of interface com.alibaba.dubbo.rpc.Protocol is not adaptive method!&quot;);
+    }
+
+    public com.alibaba.dubbo.rpc.Exporter export(com.alibaba.dubbo.rpc.Invoker arg0) throws com.alibaba.dubbo.rpc.Invoker {
+        if (arg0 == null) 
+            throw new IllegalArgumentException(&quot;com.alibaba.dubbo.rpc.Invoker argument == null&quot;);
+
+        if (arg0.getUrl() == null) 
+            throw new IllegalArgumentException(&quot;com.alibaba.dubbo.rpc.Invoker argument getUrl() == null&quot;);
+
+        com.alibaba.dubbo.common.URL url = arg0.getUrl();
+        String extName = ( url.getProtocol() == null ? &quot;dubbo&quot; : url.getProtocol() );
+
+        if(extName == null) 
+            throw new IllegalStateException(&quot;Fail to get extension(com.alibaba.dubbo.rpc.Protocol) name from url(&quot; + url.toString() + &quot;) use keys([protocol])&quot;);
+
+        com.alibaba.dubbo.rpc.Protocol extension = (com.alibaba.dubbo.rpc.Protocol)ExtensionLoader.getExtensionLoader(com.alibaba.dubbo.rpc.Protocol.class).getExtension(extName);
+
+        return extension.export(arg0);
+    }
+
+    public com.alibaba.dubbo.rpc.Invoker refer(java.lang.Class arg0, com.alibaba.dubbo.common.URL arg1) throws java.lang.Class {
+        if (arg1 == null)
+            throw new IllegalArgumentException(&quot;url == null&quot;);
+
+        com.alibaba.dubbo.common.URL url = arg1;
+        String extName = ( url.getProtocol() == null ? &quot;dubbo&quot; : url.getProtocol() );
+
+        if(extName == null) 
+            throw new IllegalStateException(&quot;Fail to get extension(com.alibaba.dubbo.rpc.Protocol) name from url(&quot; + url.toString() + &quot;) use keys([protocol])&quot;);
+
+        com.alibaba.dubbo.rpc.Protocol extension = (com.alibaba.dubbo.rpc.Protocol)ExtensionLoader.getExtensionLoader(com.alibaba.dubbo.rpc.Protocol.class).getExtension(extName);
+
+        return extension.refer(arg0, arg1);
+    }
+}
+</code></pre><p>目前我们主要关注<code>export</code>方法，可以看出这个自适应扩展点的逻辑也很简单，从url中找出适配的协议参数，并获取指定协议的扩展点实现，并调用其<code>export</code>方法，一气呵成。</p>
+<p>我们主要分析默认协议<code>dubbo</code>，所以接下来要分析的是<code>DubboProtocol.java</code>：</p>
+<pre><code>public &lt;T&gt; Exporter&lt;T&gt; export(Invoker&lt;T&gt; invoker) throws RpcException {
+    URL url = invoker.getUrl(); //拿到url，可见url的重要性
+
+    // export service.
+    String key = serviceKey(url);   //根据url中的设置拿到能够唯一标识该exporter的key
+    DubboExporter&lt;T&gt; exporter = new DubboExporter&lt;T&gt;(invoker, key, exporterMap);    //其实export只是简单的在invoker上封装了一层，提供了更“语义”的接口
+    exporterMap.put(key, exporter);
+
+    //export an stub service for dispaching event
+    Boolean isStubSupportEvent = url.getParameter(Constants.STUB_EVENT_KEY,Constants.DEFAULT_STUB_EVENT);
+    Boolean isCallbackservice = url.getParameter(Constants.IS_CALLBACK_SERVICE, false);
+    if (isStubSupportEvent &amp;&amp; !isCallbackservice){
+        String stubServiceMethods = url.getParameter(Constants.STUB_EVENT_METHODS_KEY);
+        if (stubServiceMethods == null || stubServiceMethods.length() == 0 ){
+            if (logger.isWarnEnabled()){
+                logger.warn(new IllegalStateException(&quot;consumer [&quot; +url.getParameter(Constants.INTERFACE_KEY) +
+                        &quot;], has set stubproxy support event ,but no stub methods founded.&quot;));
+            }
+        } else {
+            stubServiceMethodsMap.put(url.getServiceKey(), stubServiceMethods);
+        }
+    }
+
+    openServer(url);    //根据url中定义的相关参数（协议，host，port等）创建服务，默认使用的是netty
+
+    // modified by lishen
+    optimizeSerialization(url);
+
+    return exporter;
+}
+</code></pre><p>其实<code>exporter</code>从代码层面来看只是对invoker封装了一层调用接口而已，并没有做其他什么转化操作，当然可以利用这一层封装来完成一些自定义逻辑，例如<code>DubboExporter</code>只是做了一层缓存处理。</p>
+<p>到目前为止，我们可以知道，每个serviceConfig实例会根据配置中定义的注册中心和协议最终得到多个exporter实例。当有调用过来时，dubbo会通过请求消息中的相关信息来确定调用的exporter，并最终调用其封装的invoker的invoke方法完成业务逻辑。</p>
+<p>更多的细节，推荐看一下之前发的这篇文章：<a href="http://blog.kazaff.me/2014/09/20/dubbo%E5%8D%8F%E8%AE%AE%E4%B8%8B%E7%9A%84%E5%8D%95%E4%B8%80%E9%95%BF%E8%BF%9E%E6%8E%A5%E4%B8%8E%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%E5%A6%82%E4%BD%95%E5%8D%8F%E5%90%8C%E5%B7%A5%E4%BD%9C/">dubbo协议下的单一长连接与多线程并发如何协同工作</a></p>
+<p>不打算继续挖下去了，因为打算另起一篇专门聊dubbo中使用netty的文章。那就先瞎扯到这里吧，希望大牛能对上面的错误之处能够无情的给予打击。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/01/27/dubbo中服务暴露的细节/">https://blog.kazaff.me/2015/01/27/dubbo中服务暴露的细节/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/dubbo/">dubbo</a><a class="post-meta__tags" href="/tags/dubbox/">dubbox</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/01/31/dubbo的服务发现细节/"><i class="fa fa-chevron-left">  </i><span>Dubbo的服务发现细节</span></a></div><div class="next-post pull-right"><a href="/2015/01/26/dubbo如何一步一步拿到bean/"><span>Dubbo如何一步一步拿到bean</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/01/27/dubbo中服务暴露的细节/';
+  this.page.identifier = '2015/01/27/dubbo中服务暴露的细节/';
+  this.page.title = 'Dubbo的服务暴露细节';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

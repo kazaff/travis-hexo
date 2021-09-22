@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="注解Scope(prototype)的正确用法"><meta name="keywords" content="会话,session,spring,依赖注入,作用域,生命周期,scope"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>注解Scope(prototype)的正确用法 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">注解Scope(prototype)的正确用法</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 12月 5 2014</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/java/">java</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2014/12/05/@Scope(prototype)的正确用法/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2014/12/05/@Scope(prototype)的正确用法/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>昨天加班在搞一个关于session的问题，有兴趣的童鞋可以去<a href="http://segmentfault.com/q/1010000002406950" target="_blank" rel="noopener">这里</a>观望一下。</p>
+<p>总之除了吃惊外就是感觉手脚束缚！现在只能彻底放弃使用默认的<code>session</code>机制了，不知道这算是好事儿还是坏事儿。<br><a id="more"></a><br>现在的思路是这样的：</p>
+<ol>
+<li>在Servlet过滤器中把<code>ServletRequest</code>对象替换为自己的<code>Wrapper</code>实例，在其中实现<code>getSession()</code>方法，返回我们自定义的<code>HttpSession</code>对象</li>
+<li>我们实现一个继承了<code>HttpSession</code>接口的自定义会话类，用于第一步的返回，该自定义会话类提供接受<code>sessionId</code>参数获取会话数据的方法</li>
+<li>通过拿在<code>request</code>对象中获取的<code>sessionId</code>去<code>redis</code>中取得对应的登录用户的信息：<code>sessionUser</code>对象；</li>
+<li>在每次请求处理完后（过滤器最后一行代码）让自定义会话类把会话数据回写入<code>redis</code>，由于要持久化对象到<code>redis</code>中，所以要选择一个高效能的序列化与反序列化实现。</li>
+</ol>
+<p>当然也可以再进一步优化，例如说最后一步，检查如果<code>MySession</code>对象没有被修改则不需要回写等。</p>
+<p>说到现在，貌似和这篇文章的主题没有半毛钱关系的说~~表着急嘛，这不是要开始说了嘛！</p>
+<p>上面的第三步提到，我们自定义的这个会话对象的生命周期应该为：<strong>每次请求</strong>。如果采用<code>spring</code>默认提供的<code>singleton</code>的话就乱套了，你懂的！</p>
+<p>在和同事讨论上面的自定义会话机制的实现时，他叮嘱我说：</p>
+<blockquote>
+<p><code>@Scope(&quot;request&quot;)</code>作用域使用时要加上额外的参数（proxyMode）</p>
+</blockquote>
+<p>不过并没有给我说清楚到底为啥。本着打破砂锅问到底的神经，我在GG和百度上搜索了一下，不知道是不是因为关键字写的不合理，总之并没有找到有用的中文资料，大多都是相互转载，而且讲的都是理论，并且用的也配置文件方式而非注解。</p>
+<p>无奈只得翻墙查了一下，找到了一篇很好的<a href="http://whyjava.wordpress.com/2010/10/30/spring-scoped-proxy-beans-an-alternative-to-method-injection/" target="_blank" rel="noopener">文章</a>，而且早在2010年就已经总结出来了，为啥国内社区的就没有呢？真的是我搜的方式不对么？</p>
+<p>不扯淡了，文章中说：</p>
+<blockquote>
+<p>Method Injection is useful in scenarios where you need to inject a smaller scope bean in a larger scope bean.  For example, you have to inject a prototype bean inside an singleton bean , on each method invocation of Singleton bean. Just defining your bean prototype, does not create new instance each time a singleton bean is called because container creates a singleton bean only once, and thus only sets a prototype bean once. </p>
+</blockquote>
+<p>大概意思是，当你把声明为相对范围小的作用域（例如：prototy）对象注入到相对范围大的作用域（例如：singleton）对象时，由于外层对象只会初始化一次，所以会导致内部注入的对象也只会被初始化一次。</p>
+<p>道理十分的简单，就是因为这个原因，所以你有意把作用域定义为<code>prototy</code>的类可能并不是按照你认为的方式运作。</p>
+<p>解决这个问题的方法有多种，比方说你可以使用<strong>Method Injection</strong>，而不是直接注入在类属性中，不过这就要求程序员在使用时需要特别对待这些类。</p>
+<p>现在就是<strong>*proxyMode</strong>发挥作用的时候：</p>
+<pre><code>@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = &quot;prototype&quot;)
+</code></pre><p>这么写，就可以保证该类会按照你大脑中的方式使用了：<strong>每次使用都会重新初始化一个对象</strong>。</p>
+<p>源码就不去深究了。8~</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2014/12/05/@Scope(prototype)的正确用法/">https://blog.kazaff.me/2014/12/05/@Scope(prototype)的正确用法/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/会话/">会话</a><a class="post-meta__tags" href="/tags/session/">session</a><a class="post-meta__tags" href="/tags/spring/">spring</a><a class="post-meta__tags" href="/tags/依赖注入/">依赖注入</a><a class="post-meta__tags" href="/tags/作用域/">作用域</a><a class="post-meta__tags" href="/tags/生命周期/">生命周期</a><a class="post-meta__tags" href="/tags/scope/">scope</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2014/12/09/No WebApplicationContext found no ContextLoaderListener registered/"><i class="fa fa-chevron-left">  </i><span>No WebApplicationContext Found</span></a></div><div class="next-post pull-right"><a href="/2014/12/01/解决springMVC4下使用@ResponseBody的中文乱码/"><span>解决springMVC4下使用@ResponseBody的中文乱码问题</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2014/12/05/@Scope(prototype)的正确用法/';
+  this.page.identifier = '2014/12/05/@Scope(prototype)的正确用法/';
+  this.page.title = '注解Scope(prototype)的正确用法';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="前端异常上报"><meta name="keywords" content="javascript,error,trace"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>前端异常上报 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题描述"><span class="toc-number">1.</span> <span class="toc-text">问题描述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解决方案调研和思考"><span class="toc-number">2.</span> <span class="toc-text">解决方案调研和思考</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#注意事项"><span class="toc-number">3.</span> <span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">前端异常上报</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 4月 6 2017</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/运维/">运维</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2017/04/06/前端异常上报/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2017/04/06/前端异常上报/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>我们的团队现在负责的是一个海外公司的ERP项目，一直困扰我们团队的一个问题是，用户在浏览器上碰到痛点我们很难拿到足够的异常数据供开发人员分析问题。由于异地和用户的非专业型，让获取异常数据难上加难。</p>
+<p>不过，这方面的资料和实践已经非常的成熟，而且我们自身的场景也足够简单（由于是内部系统，所以浏览器版本可控），所以投入一些精力会得到相当丰厚的回报（非常值得）。</p>
+<p>就在今天，哥们儿我就要直面这个问题！</p>
+<h3 id="解决方案调研和思考"><a href="#解决方案调研和思考" class="headerlink" title="解决方案调研和思考"></a>解决方案调研和思考</h3><p>花了一些时间的资料阅读，梳理出下面的大纲（a little bit of mess）：</p>
+<ul>
+<li>监控的目标资源及场景<ul>
+<li>JS文件</li>
+<li>Css文件</li>
+<li>Html文件：DOM合法性检查</li>
+<li>404</li>
+<li>跨域<ul>
+<li>本地cache</li>
+<li>代码压缩问题</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>数据少选条件<ul>
+<li>ip</li>
+<li>异常级别</li>
+<li>采样率</li>
+<li>开发环境/线上环境</li>
+</ul>
+</li>
+<li>主动埋点上报 &amp; 全局异常收集</li>
+<li>收集的信息<ul>
+<li>ip</li>
+<li>UserAgent</li>
+<li>错误信息：错误文件名称，页面url，错误行号，错误详情，错误堆栈</li>
+<li>错误发生时间</li>
+<li><strong>错误用户的帐号信息</strong></li>
+<li>performance信息：内存，cpu等</li>
+</ul>
+</li>
+<li>日志持久化方案</li>
+<li>错误信息后台管理界面</li>
+<li>触发方式：机器自动监控/真实用户行为</li>
+<li>消息通知提醒：邮箱，短信等</li>
+</ul>
+<p>可以看出，其实想要实现一个完美的前端异常监控工具，还是一个相当有含量的工作。不过其实可以分阶段来一点一点完善功能，最基本的功能我认为至少应该包含：</p>
+<ol>
+<li>js异常全局监听（暂时不考虑跨域，不需要很多埋点）</li>
+<li>线上环境和开发环境的开关</li>
+<li>收集错误详细信息，浏览器的基本信息（UserAgent，访问地址），可能的话应包含登录帐号的相关信息</li>
+<li>数据上报和数据持久化可以简单的采用请求一个图片，并借助web server的log日志存储数据</li>
+</ol>
+<p>我觉得这应该已经缩减到最低限度了，至少在我们的场景中是这样的。</p>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ol>
+<li>将 JavaScript异常监控脚本放置文档最前面（至少是其他 ‘script’ 块之前）；</li>
+<li>JavaScript 异常监控脚本独立在一个 ‘script’ 块中（建议是外部脚本文件，亦可使用缓存）；</li>
+<li>每次上报请求避免缓存，需要增加随机数参数</li>
+<li>URL参数不同的浏览器有不同的长度限制，考虑哪些参数需要放在URL参数上，哪些放在其它位置（header，cookie）</li>
+</ol>
+<p>最低功能实现的话，基本上一个前端人员就可以轻松搞定。当然，如果你想要更简单，也不是不可能，目前许多第三方流量分析平台也提供了异常信息追踪功能，例如google analytics，好处就是提供了比较好用的管理界面。如果想迅速搭建一个可用的环境的话，是一个不错的选择。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="http://www.cnblogs.com/hustskyking/p/fe-monitor.html" target="_blank" rel="noopener">前端代码异常日志收集与监控</a></p>
+<p><a href="http://taobaofed.org/blog/2015/10/28/jstracker-how-to-collect-data/" target="_blank" rel="noopener">JSTracker：前端异常数据采集</a></p>
+<p><a href="https://www.zhihu.com/question/29953354" target="_blank" rel="noopener">如何做前端异常监控？</a></p>
+<p><a href="http://foio.github.io/babel-try-catch/" target="_blank" rel="noopener">一种生产环境中高效定位JS异常的方案</a></p>
+<p><a href="http://slides.com/loskael/badjs/fullscreen#/" target="_blank" rel="noopener">前端异常监控 - BadJS</a></p>
+<p><a href="http://www.alloyteam.com/2014/03/front-end-data-monitoring/" target="_blank" rel="noopener">前端相关数据监控</a></p>
+<p><a href="https://blog.hospodarets.com/track_javascript_angularjs_and_jquery_errors_with_google_analytics?utm_source=ourjs.com" target="_blank" rel="noopener">使用Google Analytics跟踪捕获JavaScript，AngularJS，jQuery的在线错误和异常</a></p>
+<p><a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/exceptions?hl=zh-cn" target="_blank" rel="noopener">异常跟踪</a></p>
+<p><a href="http://rapheal.sinaapp.com/2014/11/06/javascript-error-monitor/" target="_blank" rel="noopener">前端代码异常监控</a></p>
+<p><a href="https://docs.sentry.io/quickstart/" target="_blank" rel="noopener">sentry</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2017/04/06/前端异常上报/">https://blog.kazaff.me/2017/04/06/前端异常上报/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/javascript/">javascript</a><a class="post-meta__tags" href="/tags/error/">error</a><a class="post-meta__tags" href="/tags/trace/">trace</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2017/04/17/拥有这些Casperjs技巧理论上就能采集全世界了/"><i class="fa fa-chevron-left">  </i><span>拥有这些Casperjs技巧理论上就能采集全世界了</span></a></div><div class="next-post pull-right"><a href="/2017/03/28/新UI新气象/"><span>新UI新气象</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2017/04/06/前端异常上报/';
+  this.page.identifier = '2017/04/06/前端异常上报/';
+  this.page.title = '前端异常上报';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

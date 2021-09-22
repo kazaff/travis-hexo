@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Dubbo的缓存分析"><meta name="keywords" content="dubbo,dubbox,cache,threadlocal,JCache,Filter"><meta name="author" content="kazaff,edisondik@gmail.com"><meta name="copyright" content="kazaff"><title>Dubbo的缓存分析 | kazaff's blog</title><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  hexoVersion: '3.9.0'
+} </script></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="Toggle article">Toggle site</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ThreadLocal"><span class="toc-number">1.</span> <span class="toc-text">ThreadLocal</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LRU"><span class="toc-number">2.</span> <span class="toc-text">LRU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JCache"><span class="toc-number">3.</span> <span class="toc-text">JCache</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何解析“cache”属性"><span class="toc-number">4.</span> <span class="toc-text">如何解析“cache”属性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#业务层如何使用cache"><span class="toc-number">5.</span> <span class="toc-text">业务层如何使用cache</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">kazaff</div><div class="author-info__description text-center">coder,leader,tinker</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">Articles</span><span class="pull-right">198</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">Tags</span><span class="pull-right">431</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">Categories</span><span class="pull-right">20</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/banner.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">kazaff's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Dubbo的缓存分析</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 3月 13 2015</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/j2ee/">j2ee</a><span class="post-meta__separator">|</span><i class="fa fa-comment-o post-meta__icon" aria-hidden="true"></i><a href="/2015/03/13/dubbo的缓存实现/#disqus_thread"><span class="disqus-comment-count" data-disqus-identifier="2015/03/13/dubbo的缓存实现/"></span></a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>这次的目标是缓存，没错，绝壁常用的一个知识点，我们怎么能不了解一下它的内部实现源码呢？！<br><a id="more"></a></p>
+<p>dubbo的官方描述很<a href="http://alibaba.github.io/dubbo-doc-static/Result+Cache-zh.htm" target="_blank" rel="noopener">简洁</a>，好的封装就是这么强大， 让你用起来丝毫不费力。我们今天就费力的看一下dubbo是如何提供cache功能的。有想直接使用的童鞋，就可以跳过下面内容直面看官方提供的<a href="https://github.com/alibaba/dubbo/tree/master/dubbo-test/dubbo-test-examples/src/main/java/com/alibaba/dubbo/examples/cache" target="_blank" rel="noopener">简单例子</a>。</p>
+<p>按照SPI的要求，我们从配置文件中可以看到dubbo提供的三种缓存接口的入口：</p>
+<pre><code>threadlocal=com.alibaba.dubbo.cache.support.threadlocal.ThreadLocalCacheFactory
+lru=com.alibaba.dubbo.cache.support.lru.LruCacheFactory
+jcache=com.alibaba.dubbo.cache.support.jcache.JCacheFactory
+</code></pre><p>先来看一下dubbo提供的<code>AbstractCacheFactory</code>的细节：</p>
+<pre><code>public abstract class AbstractCacheFactory implements CacheFactory {
+
+    private final ConcurrentMap&lt;String, Cache&gt; caches = new ConcurrentHashMap&lt;String, Cache&gt;();
+
+    public Cache getCache(URL url) {
+        String key = url.toFullString();
+        Cache cache = caches.get(key);
+        if (cache == null) {
+            caches.put(key, createCache(url));
+            cache = caches.get(key);
+        }
+        return cache;
+    }
+
+    protected abstract Cache createCache(URL url);
+
+}
+</code></pre><p>很直观的看得出，该类完成了具体cache实现的实例化工作（注意<code>getCache</code>的返回类型Cache，该接口规范了不同缓存的实现），接下来我们就分三部分来具体看一下不同的缓存接口的具体实现。</p>
+<h2 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h2><p>如果你的配置如下：</p>
+<pre><code>&lt;dubbo:reference interface=&quot;com.foo.BarService&quot; cache=&quot;threadlocal&quot; /&gt;
+</code></pre><p>那就表明你使用的是该类型的缓存，根据SPI机制，会执行下面这个工厂类：</p>
+<pre><code>public class ThreadLocalCacheFactory extends AbstractCacheFactory {
+
+    protected Cache createCache(URL url) {
+        return new ThreadLocalCache(url);
+    }
+}
+</code></pre><p>注意该类继承了上面提到的<code>AbstractCacheFactory</code>。可以看出，真正实例化的具体缓存层实现是<code>ThreadLocalCache</code>类型。由于此类型是基于线程本地变量的，所以非常简单：</p>
+<pre><code>public class ThreadLocalCache implements Cache {
+
+    private final ThreadLocal&lt;Map&lt;Object, Object&gt;&gt; store;
+
+    public ThreadLocalCache(URL url) {
+        this.store = new ThreadLocal&lt;Map&lt;Object, Object&gt;&gt;() {
+            @Override
+            protected Map&lt;Object, Object&gt; initialValue() {
+                return new HashMap&lt;Object, Object&gt;();
+            }
+        };
+    }
+
+    public void put(Object key, Object value) {
+        store.get().put(key, value);
+    }
+
+    public Object get(Object key) {
+        return store.get().get(key);
+    }
+}
+</code></pre><p>这里注意的是，为了遵循接口定义才需要初始化时传入<code>url</code>参数，但其实该类型的缓存实现是完全不需要额外参数的。</p>
+<p>最后要叮嘱的是，该缓存应用场景为：</p>
+<blockquote>
+<p>比如一个页面渲染，用到很多portal，每个portal都要去查用户信息，通过线程缓存，可以减少这种多余访问。</p>
+</blockquote>
+<p>场景描述的核心内容是<strong>当前请求的上下文</strong>，可以结合dubbo的线程模型来更好的消化这一点。也许我们以后还会单独来分析这个主题。</p>
+<h2 id="LRU"><a href="#LRU" class="headerlink" title="LRU"></a>LRU</h2><p>类似ThreadLocal，我们就不再重复列举对应的工厂方法了，直接看<code>LruCache</code>类的实现：</p>
+<pre><code>public class LruCache implements Cache {
+
+    private final Map&lt;Object, Object&gt; store;
+
+    public LruCache(URL url) {
+        final int max = url.getParameter(&quot;cache.size&quot;, 1000);   //定义了缓存的容量
+        this.store = new LinkedHashMap&lt;Object, Object&gt;() {
+            private static final long serialVersionUID = -3834209229668463829L;
+            @Override
+            protected boolean removeEldestEntry(Entry&lt;Object, Object&gt; eldest) { //jdk提供的接口，用于移除最旧条目的需求
+                return size() &gt; max;
+            }
+        };
+    }
+
+    public void put(Object key, Object value) {
+        synchronized (store) {  //注意这里的同步条件
+            store.put(key, value);
+        }
+    }
+
+    public Object get(Object key) {
+        synchronized (store) {  //注意这里的同步条件
+            return store.get(key);
+        }
+    }
+}
+</code></pre><p>相比ThreadLocal，可以看出，该类型的缓存是跨线程的，也匹配我们常见的缓存场景。</p>
+<h2 id="JCache"><a href="#JCache" class="headerlink" title="JCache"></a>JCache</h2><p>对于我这种java新手，什么是JCache，显然需要科普一下，这里给出了我找到的几篇不错的文章：<a href="http://docs.oracle.com/middleware/1213/coherence/tutorial/jcache.htm#COHTU1006" target="_blank" rel="noopener">官府</a>，<a href="http://stackoverflow.com/questions/25506110/memcached-vs-memcache-vs-jcache" target="_blank" rel="noopener">草根</a>，<a href="http://java.dzone.com/articles/introduction-jcache-jsr-107" target="_blank" rel="noopener">小栗子</a>，<a href="https://spring.io/blog/2014/04/14/cache-abstraction-jcache-jsr-107-annotations-support" target="_blank" rel="noopener">注解篇</a>，<a href="http://jinnianshilongnian.iteye.com/blog/2001040" target="_blank" rel="noopener">中文完美篇</a>。由于内容太多，我就不胡乱翻译了~~</p>
+<p>由于这部分的代码太简单，节省篇幅就不列源码了。不过我们的项目缓存是基于redis的，而我并没有找到支持JCache的redis客户端，不知道大家有没有推荐的啊~？？</p>
+<h2 id="如何解析“cache”属性"><a href="#如何解析“cache”属性" class="headerlink" title="如何解析“cache”属性"></a>如何解析“cache”属性</h2><p>那么，cache层的逻辑是如何一步一步“注入”到我们的业务逻辑里呢？这还是要追溯到dubbo的<a href="http://blog.kazaff.me/2015/02/06/dubbo%E7%9A%84%E6%8B%A6%E6%88%AA%E5%99%A8%E5%92%8C%E7%9B%91%E5%90%AC%E5%99%A8/">过滤器</a>上，我们知道在dubbo初始化指定protocol的时候，会使用装饰器模式把所有需要加载的过滤器封装到目标protocol上，这个细节指引我来查看<code>ProtocolFilterWrapper</code>类：</p>
+<pre><code>refer() ---&gt;  buildInvokerChain（）
+                        |
+                        V
+
+private static &lt;T&gt; Invoker&lt;T&gt; buildInvokerChain(final Invoker&lt;T&gt; invoker, String key, String group) {
+    Invoker&lt;T&gt; last = invoker;
+    List&lt;Filter&gt; filters = ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(invoker.getUrl(), key, group);
+    if (filters.size() &gt; 0) {
+        for (int i = filters.size() - 1; i &gt;= 0; i --) {
+            final Filter filter = filters.get(i);
+            final Invoker&lt;T&gt; next = last;
+            last = new Invoker&lt;T&gt;() {
+
+                public Class&lt;T&gt; getInterface() {
+                    return invoker.getInterface();
+                }
+
+                public URL getUrl() {
+                    return invoker.getUrl();
+                }
+
+                public boolean isAvailable() {
+                    return invoker.isAvailable();
+                }
+
+                public Result invoke(Invocation invocation) throws RpcException {
+                    return filter.invoke(next, invocation);
+                }
+
+                public void destroy() {
+                    invoker.destroy();
+                }
+
+                @Override
+                public String toString() {
+                    return invoker.toString();
+                }
+            };
+        }
+    }
+    return last;
+}
+</code></pre><p>注意<code>ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(invoker.getUrl(), key, group);</code>这一行，单步调试可以得知它会返回所有需要“注入”的Filter逻辑，当然也包含我们关注的缓存：<code>com.alibaba.dubbo.cache.filter.CacheFilter</code>。</p>
+<p>注意看该类声明的开头：</p>
+<pre><code>@Activate(group = {Constants.CONSUMER, Constants.PROVIDER}, value = Constants.CACHE_KEY)
+</code></pre><p>这一行是关键哟，上面提到的<code>getActivateExtension</code>方法就是靠这一行注解工作的。dubbo以这种设计风格完成了大多数的功能，所以对于研究dubbo源码的童鞋，一定要多多注意。</p>
+<p>经历了这一圈下来，所有过滤器就已经注入到我们的服务当中了。</p>
+<h2 id="业务层如何使用cache"><a href="#业务层如何使用cache" class="headerlink" title="业务层如何使用cache"></a>业务层如何使用cache</h2><p>最后再来仔细看一下<code>com.alibaba.dubbo.cache.filter.CacheFilter</code>类的invoke方法：</p>
+<pre><code>public Result invoke(Invoker&lt;?&gt; invoker, Invocation invocation) throws RpcException {
+    if (cacheFactory != null &amp;&amp; ConfigUtils.isNotEmpty(invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.CACHE_KEY))) {
+        Cache cache = cacheFactory.getCache(invoker.getUrl().addParameter(Constants.METHOD_KEY, invocation.getMethodName()));
+        if (cache != null) {
+            String key = StringUtils.toArgumentString(invocation.getArguments());
+            if (cache != null &amp;&amp; key != null) {
+                Object value = cache.get(key);
+                if (value != null) {
+                    return new RpcResult(value);
+                }
+                Result result = invoker.invoke(invocation);
+                if (! result.hasException()) {
+                    cache.put(key, result.getValue());
+                }
+                return result;
+            }
+        }
+    }
+    return invoker.invoke(invocation);
+}
+</code></pre><p>可以看出，这里根据不同的配置会初始化并使用不同的缓存实现，好了，关于缓存的分析就到此为止。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:edisondik@gmail.com">kazaff</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://blog.kazaff.me/2015/03/13/dubbo的缓存实现/">https://blog.kazaff.me/2015/03/13/dubbo的缓存实现/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/dubbo/">dubbo</a><a class="post-meta__tags" href="/tags/dubbox/">dubbox</a><a class="post-meta__tags" href="/tags/cache/">cache</a><a class="post-meta__tags" href="/tags/threadlocal/">threadlocal</a><a class="post-meta__tags" href="/tags/JCache/">JCache</a><a class="post-meta__tags" href="/tags/Filter/">Filter</a></div><div class="post-qr-code"><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/weichat.png"><div class="post-qr-code__desc">微信打赏</div></div><div class="post-qr-code-item"><img class="post-qr-code__img" src="/img/alipay.png"><div class="post-qr-code__desc">支付宝打赏</div></div></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2015/03/18/基于dubbo的文件上传/"><i class="fa fa-chevron-left">  </i><span>基于Dubbo的文件上传</span></a></div><div class="next-post pull-right"><a href="/2015/03/12/dubbox新增的REST协议分析/"><span>dubbox新增的REST协议分析</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="disqus_thread"></div><script>var unused = null;
+var disqus_config = function () {
+  this.page.url = 'https://blog.kazaff.me/2015/03/13/dubbo的缓存实现/';
+  this.page.identifier = '2015/03/13/dubbo的缓存实现/';
+  this.page.title = 'Dubbo的缓存分析';
+}
+var d = document, s = d.createElement('script');
+s.src = "https://" + 'http-blog-kazaff-me' +".disqus.com/embed.js";
+s.setAttribute('data-timestamp', '' + +new Date());
+(d.head || d.body).appendChild(s);</script><script id="dsq-count-scr" src="https://http-blog-kazaff-me.disqus.com/count.js" async></script></div></div><footer class="footer-bg" style="background-image: url(/img/banner.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2014 - 2021 By kazaff</div><div class="framework-info"><span>Driven - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>
